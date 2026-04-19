@@ -1,0 +1,38 @@
+/* ─── boot.css ───────────────────────────────────────────────────────────────
+   macOS-style boot screen: black background, Apple logo, progress bar.
+──────────────────────────────────────────────────────────────────────────── */
+
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: #090909;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.boot-logo {
+  font-size: 72px;
+  line-height: 1;
+  filter: drop-shadow(0 0 24px rgba(255,255,255,0.12));
+}
+
+.boot-progress-track {
+  width: 180px;
+  height: 4px;
+  background: rgba(255,255,255,0.10);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.boot-progress-fill {
+  height: 100%;
+  background: rgba(255,255,255,0.85);
+  border-radius: 999px;
+  transition: width 0.28s ease-out;
+}
+
+/* Fade-out handled by Framer Motion AnimatePresence in BootScreen.tsx */

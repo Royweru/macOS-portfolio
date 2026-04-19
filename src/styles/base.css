@@ -1,0 +1,66 @@
+/* ─── base.css ───────────────────────────────────────────────────────────────
+   Global resets, CSS custom properties, and body defaults.
+   Imported once in index.tsx — nothing component-specific lives here.
+──────────────────────────────────────────────────────────────────────────── */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── CSS Custom Properties ─────────────────────────────────────────────── */
+:root {
+  /* macOS traffic lights */
+  --macos-red:    #FF5F57;
+  --macos-yellow: #FFBD2E;
+  --macos-green:  #28C840;
+
+  /* Glass layers */
+  --glass-window:  rgba(246, 246, 248, 0.92);
+  --glass-sidebar: rgba(235, 235, 240, 0.95);
+  --glass-menubar: rgba(210, 213, 208, 0.82);
+  --glass-dock:    rgba(255, 255, 255, 0.22);
+
+  /* Blur values */
+  --blur-window:  blur(40px) saturate(1.8);
+  --blur-menubar: blur(20px) saturate(1.8);
+  --blur-dock:    blur(30px) saturate(1.6);
+  --blur-popup:   blur(30px);
+
+  /* Shadows */
+  --shadow-window: 0 22px 70px rgba(0,0,0,0.28), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+  --shadow-popup:  0 8px 30px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.1);
+  --shadow-dock:   0 8px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.5);
+
+  /* Typography */
+  --font-system: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+
+  /* Tag colours */
+  --tag-design-bg:   #e8f4fd;  --tag-design-fg:   #0066cc;
+  --tag-dev-bg:      #fff3e0;  --tag-dev-fg:      #c0560a;
+  --tag-ai-bg:       #f3e8ff;  --tag-ai-fg:       #7c3aed;
+  --tag-archived-bg: #f0f0f0;  --tag-archived-fg: #888;
+}
+
+/* ── Body ──────────────────────────────────────────────────────────────── */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-system);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+}
+
+/* ── Scrollbar (macOS-style thin) ──────────────────────────────────────── */
+::-webkit-scrollbar       { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.32); }

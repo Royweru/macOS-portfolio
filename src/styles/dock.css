@@ -1,0 +1,80 @@
+/* ─── dock.css ───────────────────────────────────────────────────────────────
+   Frosted-glass dock pill, icon base, open-indicator dot, divider.
+   Magnification scaling is handled entirely by Framer Motion in Dock.tsx.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* ── Glass pill ────────────────────────────────────────────────────────── */
+.dock {
+  background: var(--glass-dock);
+  backdrop-filter: var(--blur-dock);
+  -webkit-backdrop-filter: var(--blur-dock);
+  border: 1px solid rgba(255,255,255,0.40);
+  box-shadow: var(--shadow-dock);
+}
+
+/* ── Icon wrapper ──────────────────────────────────────────────────────── */
+.dock-icon-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 22%;          /* matches Apple's squircle ratio */
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease;
+}
+
+/* Gloss sheen on top half */
+.dock-icon-base::after {
+  content: '';
+  position: absolute;
+  inset-x: 0;
+  top: 0;
+  height: 50%;
+  border-radius: 22% 22% 0 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ── Open-indicator dot ────────────────────────────────────────────────── */
+.dock-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.48);
+  margin: 2px auto 0;
+  flex-shrink: 0;
+}
+
+/* ── Divider ───────────────────────────────────────────────────────────── */
+.dock-divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(255,255,255,0.30);
+  margin: 4px 4px;
+}
+
+/* ── Tooltip ───────────────────────────────────────────────────────────── */
+.dock-tooltip {
+  background: rgba(28,28,32,0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 3px 10px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Tooltip caret */
+.dock-tooltip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(28,28,32,0.88);
+}

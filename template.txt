@@ -1,0 +1,32 @@
+# PROJECT CONTEXT: MISTY TOPOGRAPHY OS PORTFOLIO
+
+## 1. Visual Theme: "Misty Topography"
+The design follows a "Soft Contour OS" aesthetic, blending natural landscape elements (misty mountains, pine forests) with modern technical overlays (vibrant contour lines, glassmorphism UI).
+
+### Key Visual Characteristics:
+- **Wallpaper**: A layered mountain landscape submerged in heavy mist. Unique "topographic contour lines" (vibrant pinks, cyans, and oranges) follow the ridges of the hills, suggesting a "digitized nature" vibe.
+- **UI Style**: Minimalist macOS-inspired layout with a high-transparency top menu bar and a floating glass-effect dock at the bottom.
+- **Iconography**: Clean, rounded folder icons in a vibrant primary blue on the desktop. Dock icons are simplified and placed on a frosted glass container.
+
+## 2. Color Palette (Extracted from Style Guide)
+- **Primary**: `#007AFF` (Vibrant Blue) - Used for primary actions, folder icons, and active states.
+- **Secondary**: `#5977B1` (Steel/Muted Blue) - Used for structural elements and secondary UI components.
+- **Tertiary**: `#D75600` (Rust/Orange) - Accent color for specific call-outs or highlights.
+- **Neutral**: `#8E8E93` (Grey) - Used for labels and tertiary metadata.
+- **Backgrounds**: Soft sage green (#8DA399), pale sand (#E2D1B2), and misty white (#F5F5F7).
+
+## 3. Typography
+- **Primary Font**: `Inter` (Sans-serif)
+- **Styles**:
+  - **Headlines**: Bold/Semi-bold, tightly tracked.
+  - **Body**: Regular weight, optimized for readability.
+  - **Labels/UI**: Medium weight, subtle capitalization for clarity.
+
+## 4. UI Components & Layout
+- **MenuBar**: 32-40px height, semi-transparent black or white with blur. Left-aligned application menus and right-aligned system tray (Wifi, Battery, Clock).
+- **Dock**: Floating pill-shaped container with `backdrop-filter: blur(20px)` and subtle border-glow.
+- **Windows**: (Inferred from Dock style) Rounded corners (12-16px), frosted glass sidebars, and clean white/dark-grey content areas.
+- **Desktop Icons**: Spaced evenly on the right side, with high-shadow white labels.
+
+---
+[Note: This context serves as the ground truth for the portfolio redesign.]

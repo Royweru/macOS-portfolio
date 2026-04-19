@@ -1,0 +1,64 @@
+[
+  {
+    "id": 1,
+    "title": "AfyaTrack",
+    "description": "A multi-agent orchestration platform built with LangGraph and FastAPI. Supports parallel tool calling, memory persistence, and real-time streaming.",
+    "tag": "AI",
+    "color": "#1a1a2e",
+    "accent": "#7c3aed",
+    "icon": "🤖",
+    "github": "https://github.com/weruroy/m_afya",
+    "live": null,
+    "tech": ["Python", "LangGraph", "FastAPI", "Langraph","Chroma", "Twilio"]
+  },
+
+  {
+    "id": 2,
+    "title": "Kontent Pyper",
+    "description": "This is actually my most impressive project and the biggest one. This one is quite different , think of an autonomous content creation pipeline that generates , optimizes and schedules content across your social platforms . It replaces the need for a social media manager and a content creator . It uses a combination of AI tools and automation to create short interactive videos based on the user's niche and audience . It also optimizes the content for each platform and schedules it for maximum engagement . You choose a niche and the agent will go ahead to scrape the web , subreddits and other sources to find trending topics and content ideas. Once you set the campaign up and running , the agent will start creating content and posting it on your social medial platforms. It also provides analytics and insights based on the performance of the content and the engagement of the audience.Just set the instructions once and watch your socials start to grow and explode with the power of modern automation and AI .This makes the project to be very cool and impressive because it combines multiple AI tools and automation to create a powerful content creation pipeline that can save time and effort for social media managers and content creators . It also has the potential to help businesses through organic marketing and individuals. This is the future of content creation where AGI agents will surely take over the world of content creation and social medial engagement and you will just be an orchestrator of these agents and you will just set the instructions and watch the magic happen .`",
+    "tag": "Dev",
+    "color": "#0d1117",
+    "accent": "#0066cc",
+    "icon": "📱",
+    "github": "https://github.com/Royweru/kontent_pyper",
+    "live": null,
+    "tech": ["React", "LangGraph","LangChain", "FastAPI", "PostgreSQL", "ffmpeg","celery", "Redis"]
+  },
+
+  {
+    "id": 3,
+    "title": "E-store redesign",
+    "description": "Full UX/UI redesign and frontend rebuild of an e-commerce platform. Improved conversion rate by 34% through A/B tested component improvements.",
+    "tag": "Design",
+    "color": "#c8a882",
+    "accent": "#8b5e3c",
+    "icon": "🛍️",
+    "github": null,
+    "live": "https://example.com",
+    "tech": ["Figma", "Next.js", "Tailwind", "Stripe", "google stitch", "FastAPI"]
+  },
+  {
+    "id": 4,
+    "title": "Fitness App",
+    "description": "Cross-platform mobile fitness tracker with workout planning, progress analytics, and wearable device integration via Bluetooth.",
+    "tag": "Design",
+    "color": "#1a0a2e",
+    "accent": "#e11d48",
+    "icon": "💪",
+    "github": "https://github.com/weru",
+    "live": null,
+    "tech": ["React Native", "TypeScript", "Supabase", "BLE"]
+  },
+  {
+    "id": 5,
+    "title": "Internal CRM",
+    "description": "Custom CRM system built for a logistics company. Features automated pipeline management, email integration, and reporting dashboards.",
+    "tag": "Dev",
+    "color": "#0a1628",
+    "accent": "#0284c7",
+    "icon": "🏢",
+    "github": null,
+    "live": null,
+    "tech": ["Next.js", "Prisma", "tRPC", "PostgreSQL"]
+  }
+]

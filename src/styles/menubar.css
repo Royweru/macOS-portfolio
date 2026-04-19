@@ -1,0 +1,60 @@
+/* ─── menubar.css ────────────────────────────────────────────────────────────
+   macOS menu bar glass strip + menu item hover states + dropdown panel.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* ── Bar strip ─────────────────────────────────────────────────────────── */
+.menubar {
+  background: var(--glass-menubar);
+  backdrop-filter: var(--blur-menubar);
+  -webkit-backdrop-filter: var(--blur-menubar);
+  border-bottom: 1px solid rgba(255,255,255,0.30);
+}
+
+/* ── Menu item pill ────────────────────────────────────────────────────── */
+.menu-item {
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: default;
+  transition: background 0.10s ease;
+  line-height: 22px;
+}
+
+.menu-item:hover,
+.menu-item.open {
+  background: rgba(0,0,0,0.09);
+}
+
+/* ── Dropdown panel ────────────────────────────────────────────────────── */
+.menu-dropdown {
+  background: rgba(235,235,240,0.96);
+  backdrop-filter: var(--blur-popup);
+  -webkit-backdrop-filter: var(--blur-popup);
+  border: 1px solid rgba(255,255,255,0.50);
+  box-shadow: var(--shadow-popup);
+  border-radius: 8px;
+  padding: 4px 0;
+  min-width: 200px;
+}
+
+.menu-dropdown-item {
+  padding: 3px 16px;
+  font-size: 13px;
+  color: #1d1d1f;
+  cursor: default;
+  border-radius: 4px;
+  margin: 0 4px;
+  transition: background 0.08s ease, color 0.08s ease;
+  white-space: nowrap;
+}
+
+.menu-dropdown-item:hover {
+  background: #0058d0;
+  color: #fff;
+}
+
+.menu-dropdown-separator {
+  height: 1px;
+  background: rgba(0,0,0,0.10);
+  margin: 4px 8px;
+}

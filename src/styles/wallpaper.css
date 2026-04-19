@@ -1,0 +1,73 @@
+/* ─── wallpaper.css ──────────────────────────────────────────────────────────
+   Misty mountain wallpaper gradient, SVG mountain silhouettes, and mist layers.
+   Used only in App.tsx / the root desktop wrapper.
+──────────────────────────────────────────────────────────────────────────── */
+
+.wallpaper {
+  background-image: url('/wallpaper-portfolio.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  transform-origin: center center;
+}
+
+/* Radial light bloom */
+.wallpaper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80%  40% at 20% 30%, rgba(200,210,180,0.50) 0%, transparent 60%),
+    radial-gradient(ellipse 60%  30% at 70% 20%, rgba(180,200,170,0.40) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 20% at 50% 60%, rgba(150,180,190,0.30) 0%, transparent 40%);
+}
+
+/* SVG mountain silhouettes */
+.wallpaper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 900' preserveAspectRatio='xMidYMid slice'%3E%3Cpath d='M0,600 Q120,420 240,480 Q360,380 480,440 Q600,300 720,380 Q840,260 960,340 Q1080,220 1200,300 Q1320,200 1440,260 L1440,900 L0,900 Z' fill='rgba(100,130,100,0.35)'/%3E%3Cpath d='M0,680 Q180,560 360,620 Q540,500 720,560 Q900,480 1080,530 Q1260,460 1440,500 L1440,900 L0,900 Z' fill='rgba(80,110,90,0.40)'/%3E%3Cpath d='M0,750 Q200,680 400,710 Q600,650 800,690 Q1000,630 1200,670 Q1320,640 1440,660 L1440,900 L0,900 Z' fill='rgba(60,90,70,0.45)'/%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: center;
+}
+
+/* Atmospheric mist / fog overlays */
+.mist-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 120% 25% at 50% 55%, rgba(220,225,215,0.25) 0%, transparent 60%),
+    radial-gradient(ellipse  80% 15% at 30% 70%, rgba(210,220,210,0.20) 0%, transparent 50%),
+    radial-gradient(ellipse  90% 20% at 70% 65%, rgba(200,215,205,0.18) 0%, transparent 55%);
+}
+
+/* Desktop folder icons */
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  width: 80px;
+}
+
+.desktop-icon:hover  { background: rgba(255,255,255,0.20); }
+.desktop-icon:active { background: rgba(255,255,255,0.30); }
+
+.desktop-icon span {
+  font-size: 11px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.60);
+  line-height: 1.3;
+}
