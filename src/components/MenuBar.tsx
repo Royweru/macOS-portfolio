@@ -3,14 +3,26 @@ import React, { useState, useEffect } from 'react';
 import { Wifi, Battery, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MENU_BAR_MENUS } from '../constants';
+import { MENU_BAR_ITEMS, MENU_BAR_SEPARATORS } from '../constants';
+import type { MenuEntry, WindowId } from '../types';
 
 interface MenuBarProps {
   activeApp:   string;
   onSpotlight: () => void;
+  onOpenWindow: (id: WindowId) => void;
+  onCommand: (command: string) => void;
+  hasFocusedWindow: boolean;
+  hasWindowToFocus: boolean;
 }
 
-const MenuBar: React.FC<MenuBarProps> = ({ activeApp, onSpotlight }) => {
+const MenuBar: React.FC<MenuBarProps> = ({
+  activeApp,
+  onSpotlight,
+  onOpenWindow,
+  onCommand,
+  hasFocusedWindow,
+  hasWindowToFocus,
+}) => {
   const [time, setTime]       = useState(new Date());
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuX,    setMenuX]    = useState(0);
@@ -36,6 +48,70 @@ const MenuBar: React.FC<MenuBarProps> = ({ activeApp, onSpotlight }) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setMenuX(rect.left);
     setOpenMenu(prev => prev === label ? null : label);
+  };
+
+  const buildMenuRows = (menuKey: string): Array<{ kind: 'item'; item: MenuEntry } | { kind: 'separator'; id: string }> => {
+    const items = MENU_BAR_ITEMS[menuKey] ?? [];
+    const separators = new Set(MENU_BAR_SEPARATORS[menuKey] ?? []);
+    const rows: Array<{ kind: 'item'; item: MenuEntry } | { kind: 'separator'; id: string }> = [];
+
+    items.forEach((item) => {
+      rows.push({ kind: 'item', item });
+      if (separators.has(item.id)) {
+        rows.push({ kind: 'separator', id: `${menuKey}-${item.id}-sep` });
+      }
+    });
+
+    return rows;
+  };
+
+  const getCommandAvailability = (command: string): { enabled: boolean; reason?: string } => {
+    if (command === 'close-focused' || command === 'minimize-focused') {
+      return hasFocusedWindow
+        ? { enabled: true }
+        : { enabled: false, reason: 'No active window' };
+    }
+
+    if (command === 'bring-front') {
+      return hasWindowToFocus
+        ? { enabled: true }
+        : { enabled: false, reason: 'No open windows' };
+    }
+
+    return { enabled: true };
+  };
+
+  const getItemState = (item: MenuEntry): { enabled: boolean; reason?: string } => {
+    if (!item.enabled) return { enabled: false, reason: item.disabledReason };
+
+    if (item.action.type === 'command' && item.action.target) {
+      const state = getCommandAvailability(item.action.target);
+      if (!state.enabled) return state;
+    }
+
+    return { enabled: true };
+  };
+
+  const handleMenuItem = (item: MenuEntry, canRun: boolean) => {
+    if (!canRun) return;
+
+    if (item.action.type === 'openWindow' && item.action.target) {
+      onOpenWindow(item.action.target as WindowId);
+      setOpenMenu(null);
+      return;
+    }
+
+    if (item.action.type === 'command' && item.action.target) {
+      if (item.action.target === 'open-spotlight') {
+        onSpotlight();
+      } else {
+        onCommand(item.action.target);
+      }
+      setOpenMenu(null);
+      return;
+    }
+
+    setOpenMenu(null);
   };
 
   const menuLabels = ['apple', 'File', 'Edit', 'View', 'Window', 'Help'];
@@ -96,7 +172,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ activeApp, onSpotlight }) => {
 
       {/* Dropdown menus */}
       <AnimatePresence>
-        {openMenu !== null && MENU_BAR_MENUS[openMenu] && (
+        {openMenu !== null && MENU_BAR_ITEMS[openMenu] && (
           <motion.div
             key={openMenu}
             className="menu-dropdown fixed"
@@ -107,11 +183,24 @@ const MenuBar: React.FC<MenuBarProps> = ({ activeApp, onSpotlight }) => {
             transition={{ duration: 0.1 }}
             onMouseLeave={() => setOpenMenu(null)}
           >
-            {MENU_BAR_MENUS[openMenu].map((item, i) =>
-              item === '—'
-                ? <div key={i} className="menu-dropdown-separator" />
-                : <div key={i} className="menu-dropdown-item" onClick={() => setOpenMenu(null)}>{item}</div>
-            )}
+            {buildMenuRows(openMenu).map((row) => {
+              if (row.kind === 'separator') {
+                return <div key={row.id} className="menu-dropdown-separator" />;
+              }
+
+              const itemState = getItemState(row.item);
+
+              return (
+                <div
+                  key={row.item.id}
+                  className={`menu-dropdown-item ${itemState.enabled ? '' : 'menu-dropdown-item-disabled'}`}
+                  title={itemState.enabled ? undefined : itemState.reason}
+                  onClick={() => handleMenuItem(row.item, itemState.enabled)}
+                >
+                  {row.item.label}
+                </div>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>

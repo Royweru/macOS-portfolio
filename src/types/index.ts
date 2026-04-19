@@ -89,3 +89,20 @@ export interface SidebarTag {
   label: string;
   color: string;
 }
+
+// ── Menu bar ───────────────────────────────────────────────────────────────
+export type MenuActionType = 'openWindow' | 'externalLink' | 'command' | 'none';
+
+export interface MenuAction {
+  type: MenuActionType;
+  target?: string;
+}
+
+export interface MenuEntry {
+  id: string;
+  label: string;
+  enabled: boolean;
+  shortcut?: string;
+  action: MenuAction;
+  disabledReason?: string;
+}

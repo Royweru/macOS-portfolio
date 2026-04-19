@@ -3,7 +3,15 @@
 // menu bar menus, and skill/experience data.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { WindowConfig, WindowId, SkillGroup, Job, SidebarFavorite, SidebarTag } from '../types';
+import type {
+  WindowConfig,
+  WindowId,
+  SkillGroup,
+  Job,
+  SidebarFavorite,
+  SidebarTag,
+  MenuEntry,
+} from '../types';
 
 // ── Window registry ───────────────────────────────────────────────────────────
 export const WINDOW_CONFIGS: Record<WindowId, WindowConfig> = {
@@ -15,14 +23,75 @@ export const WINDOW_CONFIGS: Record<WindowId, WindowConfig> = {
 };
 
 // ── Menu bar dropdown content ─────────────────────────────────────────────────
-export const MENU_BAR_MENUS: Record<string, string[]> = {
-  '':       ['About This Portfolio', '—', 'System Preferences…', 'App Store…', '—', 'Sleep', 'Restart…', 'Shut Down…'],
-  File:     ['New Window', 'New Tab', '—', 'Close Window', '—', 'Get Info', '—', 'Print…'],
-  Edit:     ['Undo', 'Redo', '—', 'Cut', 'Copy', 'Paste', '—', 'Select All', 'Find…'],
-  View:     ['as Icons', 'as List', 'as Columns', '—', 'Show Toolbar', 'Show Sidebar', '—', 'Show Status Bar'],
-  Window:   ['Minimize', 'Zoom', '—', 'Bring All to Front', '—', 'Portfolio'],
-  Help:     ['Search', '—', 'Portfolio Help', 'Send Feedback…', '—', 'About'],
+export const MENU_BAR_ITEMS: Record<string, MenuEntry[]> = {
+  '': [
+    { id: 'apple-about', label: 'About This Portfolio', enabled: true, action: { type: 'openWindow', target: 'about' } },
+    { id: 'apple-system-preferences', label: 'System Preferences…', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
+    { id: 'apple-app-store', label: 'App Store…', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
+    { id: 'apple-sleep', label: 'Sleep', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
+    { id: 'apple-restart', label: 'Restart…', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
+    { id: 'apple-shutdown', label: 'Shut Down…', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
+  ],
+  File: [
+    { id: 'file-new-window', label: 'New Window', enabled: true, shortcut: '⌘N', action: { type: 'openWindow', target: 'projects' } },
+    { id: 'file-new-tab', label: 'New Tab', enabled: false, shortcut: '⌘T', action: { type: 'none' }, disabledReason: 'Not implemented' },
+    { id: 'file-close-window', label: 'Close Window', enabled: true, shortcut: '⌘W', action: { type: 'command', target: 'close-focused' } },
+    { id: 'file-get-info', label: 'Get Info', enabled: true, shortcut: '⌘I', action: { type: 'openWindow', target: 'about' } },
+    { id: 'file-print', label: 'Print…', enabled: false, shortcut: '⌘P', action: { type: 'none' }, disabledReason: 'Demo only' },
+  ],
+  Edit: [
+    { id: 'edit-undo', label: 'Undo', enabled: false, shortcut: '⌘Z', action: { type: 'none' }, disabledReason: 'Context dependent' },
+    { id: 'edit-redo', label: 'Redo', enabled: false, shortcut: '⇧⌘Z', action: { type: 'none' }, disabledReason: 'Context dependent' },
+    { id: 'edit-cut', label: 'Cut', enabled: false, shortcut: '⌘X', action: { type: 'none' }, disabledReason: 'Context dependent' },
+    { id: 'edit-copy', label: 'Copy', enabled: false, shortcut: '⌘C', action: { type: 'none' }, disabledReason: 'Context dependent' },
+    { id: 'edit-paste', label: 'Paste', enabled: false, shortcut: '⌘V', action: { type: 'none' }, disabledReason: 'Context dependent' },
+    { id: 'edit-select-all', label: 'Select All', enabled: false, shortcut: '⌘A', action: { type: 'none' }, disabledReason: 'Context dependent' },
+    { id: 'edit-find', label: 'Find…', enabled: false, shortcut: '⌘F', action: { type: 'none' }, disabledReason: 'Phase 6' },
+  ],
+  View: [
+    { id: 'view-icons', label: 'as Icons', enabled: false, action: { type: 'command', target: 'view-grid' }, disabledReason: 'Phase 4' },
+    { id: 'view-list', label: 'as List', enabled: false, action: { type: 'command', target: 'view-list' }, disabledReason: 'Phase 4' },
+    { id: 'view-columns', label: 'as Columns', enabled: false, action: { type: 'none' }, disabledReason: 'Not used' },
+    { id: 'view-toolbar', label: 'Show Toolbar', enabled: false, shortcut: '⌥⌘T', action: { type: 'none' }, disabledReason: 'Not implemented' },
+    { id: 'view-sidebar', label: 'Show Sidebar', enabled: false, shortcut: '⌥⌘S', action: { type: 'none' }, disabledReason: 'Not implemented' },
+    { id: 'view-statusbar', label: 'Show Status Bar', enabled: false, action: { type: 'none' }, disabledReason: 'Not implemented' },
+  ],
+  Window: [
+    { id: 'window-minimize', label: 'Minimize', enabled: true, shortcut: '⌘M', action: { type: 'command', target: 'minimize-focused' } },
+    { id: 'window-zoom', label: 'Zoom', enabled: false, action: { type: 'command', target: 'zoom-focused' }, disabledReason: 'Not implemented' },
+    { id: 'window-bring-front', label: 'Bring All to Front', enabled: true, action: { type: 'command', target: 'bring-front' } },
+    { id: 'window-portfolio', label: 'Portfolio', enabled: true, action: { type: 'openWindow', target: 'projects' } },
+  ],
+  Help: [
+    { id: 'help-search', label: 'Search', enabled: true, shortcut: '⌘Space', action: { type: 'command', target: 'open-spotlight' } },
+    { id: 'help-portfolio-help', label: 'Portfolio Help', enabled: true, action: { type: 'openWindow', target: 'about' } },
+    { id: 'help-send-feedback', label: 'Send Feedback…', enabled: true, action: { type: 'openWindow', target: 'contact' } },
+    { id: 'help-about', label: 'About', enabled: true, action: { type: 'openWindow', target: 'about' } },
+  ],
 };
+
+export const MENU_BAR_SEPARATORS: Record<string, string[]> = {
+  '': ['apple-about', 'apple-app-store'],
+  File: ['file-new-tab', 'file-close-window', 'file-get-info'],
+  Edit: ['edit-redo', 'edit-paste'],
+  View: ['view-columns', 'view-sidebar'],
+  Window: ['window-zoom', 'window-bring-front'],
+  Help: ['help-search', 'help-send-feedback'],
+};
+
+export const MENU_BAR_MENUS: Record<string, string[]> = Object.fromEntries(
+  Object.entries(MENU_BAR_ITEMS).map(([menu, items]) => {
+    const separators = new Set(MENU_BAR_SEPARATORS[menu] ?? []);
+    const rows: string[] = [];
+
+    items.forEach((item) => {
+      rows.push(item.label);
+      if (separators.has(item.id)) rows.push('—');
+    });
+
+    return [menu, rows];
+  })
+);
 
 // ── Desktop folder icons ──────────────────────────────────────────────────────
 export const DESKTOP_ITEMS = [

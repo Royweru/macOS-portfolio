@@ -53,6 +53,16 @@
   color: #fff;
 }
 
+.menu-dropdown-item-disabled {
+  color: rgba(29, 29, 31, 0.42);
+  cursor: default;
+}
+
+.menu-dropdown-item-disabled:hover {
+  background: transparent;
+  color: rgba(29, 29, 31, 0.42);
+}
+
 .menu-dropdown-separator {
   height: 1px;
   background: rgba(0,0,0,0.10);

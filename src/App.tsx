@@ -72,6 +72,35 @@ function App() {
     if (id in WINDOW_CONFIGS) wm.openWindow(id as WindowId);
   }, [wm]);
 
+  const handleMenuCommand = useCallback((command: string) => {
+    if (command === 'close-focused') {
+      if (wm.focused) wm.closeWindow(wm.focused);
+      return;
+    }
+
+    if (command === 'minimize-focused') {
+      if (wm.focused) wm.minimizeWindow(wm.focused);
+      return;
+    }
+
+    if (command === 'bring-front') {
+      if (wm.focused) {
+        wm.focusWindow(wm.focused);
+        return;
+      }
+
+      for (let i = wm.openWindows.length - 1; i >= 0; i -= 1) {
+        const id = wm.openWindows[i];
+        if (!wm.isMinimized(id)) {
+          wm.focusWindow(id);
+          break;
+        }
+      }
+    }
+  }, [wm]);
+
+  const hasWindowToFocus = wm.openWindows.some((id) => !wm.isMinimized(id));
+
   return (
     <div
       className="w-screen h-screen overflow-hidden relative"
@@ -95,7 +124,14 @@ function App() {
       </motion.div>
 
       {/* ── Menu bar ────────────────────────────────────────────────────── */}
-      <MenuBar activeApp={appName} onSpotlight={spotlight.open} />
+      <MenuBar
+        activeApp={appName}
+        onSpotlight={spotlight.open}
+        onOpenWindow={wm.openWindow}
+        onCommand={handleMenuCommand}
+        hasFocusedWindow={wm.focused !== null}
+        hasWindowToFocus={hasWindowToFocus}
+      />
 
       {/* ── Desktop icons ───────────────────────────────────────────────── */}
       <Desktop onOpenWindow={handleOpen} />
