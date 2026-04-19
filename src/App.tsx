@@ -1,5 +1,5 @@
 // ─── App.tsx ──────────────────────────────────────────────────────────────────
-import React, { lazy, Suspense, useCallback } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ── Styles ────────────────────────────────────────────────────────────────────
@@ -101,6 +101,44 @@ function App() {
 
   const hasWindowToFocus = wm.openWindows.some((id) => !wm.isMinimized(id));
 
+  const handleOpenExternal = useCallback((url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }, []);
+
+  useEffect(() => {
+    const isTypingTarget = (target: EventTarget | null) => {
+      if (!(target instanceof HTMLElement)) return false;
+      const tag = target.tagName;
+      return target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey || isTypingTarget(e.target)) return;
+
+      const key = e.key.toLowerCase();
+
+      if (key === 'n' && !e.shiftKey) {
+        e.preventDefault();
+        wm.openWindow('projects');
+        return;
+      }
+
+      if (key === 'w' && !e.shiftKey && wm.focused) {
+        e.preventDefault();
+        wm.closeWindow(wm.focused);
+        return;
+      }
+
+      if (key === 'm' && !e.shiftKey && wm.focused) {
+        e.preventDefault();
+        wm.minimizeWindow(wm.focused);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [wm]);
+
   return (
     <div
       className="w-screen h-screen overflow-hidden relative"
@@ -128,6 +166,7 @@ function App() {
         activeApp={appName}
         onSpotlight={spotlight.open}
         onOpenWindow={wm.openWindow}
+        onOpenExternal={handleOpenExternal}
         onCommand={handleMenuCommand}
         hasFocusedWindow={wm.focused !== null}
         hasWindowToFocus={hasWindowToFocus}

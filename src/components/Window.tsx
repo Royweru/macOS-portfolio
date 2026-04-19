@@ -6,6 +6,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Rnd } from 'react-rnd';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 
 interface WindowProps {
   id: string;
@@ -42,7 +43,7 @@ const Window: React.FC<WindowProps> = ({
   const sy = defaultY ?? (window.innerHeight - (defaultHeight)) / 3;
 
   // Snap back if dragged out of bounds
-  const handleDragStop = useCallback((_e: any, d: { x: number; y: number }) => {
+  const handleDragStop = useCallback((_e: unknown, d: { x: number; y: number }) => {
     if (!rndRef.current) return;
     const margin = 30;
     let nx = d.x;
@@ -67,7 +68,7 @@ const Window: React.FC<WindowProps> = ({
     }, 340);
   }, [id, onMinimize]);
 
-  const minimizeVariants: any = {
+  const minimizeVariants: Variants = {
     visible:   { opacity: 1, scale: 1,    y: 0,   scaleY: 1   },
     minimizing:{ opacity: 0, scale: 0.35, y: 320, scaleY: 0.3,
                  transition: { duration: 0.32, ease: [0.4, 0, 1, 1] } },

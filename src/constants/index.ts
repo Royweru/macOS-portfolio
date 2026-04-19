@@ -64,6 +64,8 @@ export const MENU_BAR_ITEMS: Record<string, MenuEntry[]> = {
   ],
   Help: [
     { id: 'help-search', label: 'Search', enabled: true, shortcut: '⌘Space', action: { type: 'command', target: 'open-spotlight' } },
+    { id: 'help-view-github', label: 'View GitHub', enabled: true, action: { type: 'externalLink', target: 'https://github.com/weru' } },
+    { id: 'help-view-linkedin', label: 'View LinkedIn', enabled: true, action: { type: 'externalLink', target: 'https://linkedin.com/in/weru' } },
     { id: 'help-portfolio-help', label: 'Portfolio Help', enabled: true, action: { type: 'openWindow', target: 'about' } },
     { id: 'help-send-feedback', label: 'Send Feedback…', enabled: true, action: { type: 'openWindow', target: 'contact' } },
     { id: 'help-about', label: 'About', enabled: true, action: { type: 'openWindow', target: 'about' } },
@@ -76,7 +78,7 @@ export const MENU_BAR_SEPARATORS: Record<string, string[]> = {
   Edit: ['edit-redo', 'edit-paste'],
   View: ['view-columns', 'view-sidebar'],
   Window: ['window-zoom', 'window-bring-front'],
-  Help: ['help-search', 'help-send-feedback'],
+  Help: ['help-search', 'help-view-linkedin', 'help-send-feedback'],
 };
 
 export const MENU_BAR_MENUS: Record<string, string[]> = Object.fromEntries(

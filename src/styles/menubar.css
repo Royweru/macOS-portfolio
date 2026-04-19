@@ -46,6 +46,10 @@
   margin: 0 4px;
   transition: background 0.08s ease, color 0.08s ease;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .menu-dropdown-item:hover {
@@ -61,6 +65,12 @@
 .menu-dropdown-item-disabled:hover {
   background: transparent;
   color: rgba(29, 29, 31, 0.42);
+}
+
+.menu-dropdown-shortcut {
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  opacity: 0.72;
 }
 
 .menu-dropdown-separator {

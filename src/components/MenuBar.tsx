@@ -10,6 +10,7 @@ interface MenuBarProps {
   activeApp:   string;
   onSpotlight: () => void;
   onOpenWindow: (id: WindowId) => void;
+  onOpenExternal: (url: string) => void;
   onCommand: (command: string) => void;
   hasFocusedWindow: boolean;
   hasWindowToFocus: boolean;
@@ -19,6 +20,7 @@ const MenuBar: React.FC<MenuBarProps> = ({
   activeApp,
   onSpotlight,
   onOpenWindow,
+  onOpenExternal,
   onCommand,
   hasFocusedWindow,
   hasWindowToFocus,
@@ -97,6 +99,12 @@ const MenuBar: React.FC<MenuBarProps> = ({
 
     if (item.action.type === 'openWindow' && item.action.target) {
       onOpenWindow(item.action.target as WindowId);
+      setOpenMenu(null);
+      return;
+    }
+
+    if (item.action.type === 'externalLink' && item.action.target) {
+      onOpenExternal(item.action.target);
       setOpenMenu(null);
       return;
     }
@@ -197,7 +205,10 @@ const MenuBar: React.FC<MenuBarProps> = ({
                   title={itemState.enabled ? undefined : itemState.reason}
                   onClick={() => handleMenuItem(row.item, itemState.enabled)}
                 >
-                  {row.item.label}
+                  <span>{row.item.label}</span>
+                  {itemState.enabled && row.item.shortcut && (
+                    <span className="menu-dropdown-shortcut">{row.item.shortcut}</span>
+                  )}
                 </div>
               );
             })}
