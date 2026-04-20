@@ -75,6 +75,10 @@ const AboutContent: React.FC = () => {
         >
           <p>
             I am a software engineer focused on automation systems, backend services, and product-quality frontends.
+            Well my favorite hobby includes taking walks and 🎱 q-balls(pool).
+            I also enjoy mentoring junior developers and sharing knowledge through tech talks and my youtube channel.
+            I also happen to like linux a lot and I'm still learning about the kernel and how operating systems work everyday.
+            The only thing that keeps me going is that everyday I can learn something new and interesting in this field of technology.  
             Most of my recent work involves agent workflows, API integrations, and internal tools that teams use daily.
           </p>
           <p className="mt-2">

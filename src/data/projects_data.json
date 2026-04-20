@@ -27,20 +27,20 @@
 
   {
     "id": 3,
-    "title": "E-store redesign",
+    "title": "eStore redesign",
     "description": "Full UX/UI redesign and frontend rebuild of an e-commerce platform. Improved conversion rate by 34% through A/B tested component improvements.",
     "tag": "Design",
     "color": "#c8a882",
     "accent": "#8b5e3c",
     "icon": "🛍️",
-    "github": null,
-    "live": "https://example.com",
-    "tech": ["Figma", "Next.js", "Tailwind", "Stripe", "google stitch", "FastAPI"]
+    "github": "https://github.com/Royweru/Ecommerce-next-JS",
+    "live": "https://everything-design-eta.vercel.app",
+    "tech": ["Figma", "Next.js", "Tailwind", "Stripe(Paystack)", "google stitch", "FastAPI"]
   },
   {
     "id": 4,
-    "title": "Fitness App",
-    "description": "Cross-platform mobile fitness tracker with workout planning, progress analytics, and wearable device integration via Bluetooth.",
+    "title": "Real estate Management",
+    "description": "This is was also a very crucial project for me ,it is a real estate management app for tenants and property managers .It include features for property listing, tenant management, and lease tracking. Property owners can track their properties and all the activities that involve their properties from a single dashboard",
     "tag": "Design",
     "color": "#1a0a2e",
     "accent": "#e11d48",
