@@ -4,17 +4,17 @@ import { motion } from 'framer-motion';
 import { SKILLS } from '../constants';
 import '../styles/tokens.css';
 
-const SkillBar: React.FC<{ name: string; level: number; color: string; delay: number }> = ({ name, level, color, delay }) => (
+const SkillBar: React.FC<{ name: string; proof: string; color: string; delay: number }> = ({ name, proof, color, delay }) => (
   <div className="mb-3">
-    <div className="flex justify-between items-center mb-1">
-      <span className="text-[12px] font-medium text-gray-700">{name}</span>
-      <span className="text-[11px] text-gray-400">{level}%</span>
+    <div className="flex justify-between items-center gap-3 mb-1 min-w-0">
+      <span className="text-[12px] font-medium text-gray-700 truncate">{name}</span>
+      <span className="text-[10.5px] text-gray-500 shrink-0 max-w-[55%] truncate text-right">{proof}</span>
     </div>
     <div className="skill-track">
       <motion.div
         className="skill-fill"
         initial={{ width: 0 }}
-        animate={{ width: `${level}%` }}
+        animate={{ width: '100%' }}
         transition={{ delay, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         style={{ background: color }}
       />

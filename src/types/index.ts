@@ -55,8 +55,8 @@ export interface Project {
 // ── Skill ─────────────────────────────────────────────────────────────────────
 export interface Skill {
   name: string;
-  level: number;
   color: string;
+  proof: string;
 }
 
 export interface SkillGroup {

@@ -20,7 +20,7 @@ const stack = [
 const facts = [
   { icon: <MapPin size={13}/>, text: 'Nairobi, Kenya 🇰🇪' },
   { icon: <Coffee size={13}/>, text: 'Powered by coffee & curiosity' },
-  { icon: <Zap size={13}/>,    text: 'Building AI-native products' },
+  { icon: <Zap size={13}/>,    text: 'Building practical automation tools' },
 ];
 
 const AboutContent: React.FC = () => {
@@ -50,7 +50,7 @@ const AboutContent: React.FC = () => {
         {/* Name + title */}
         <div>
           <h1 className="text-[22px] font-bold text-gray-800 tracking-tight">Weru</h1>
-          <p className="text-[13px] text-blue-600 font-medium">Software Engineer · AI Agentic Developer</p>
+          <p className="text-[13px] text-blue-600 font-medium">Software Engineer · Automation Systems Developer</p>
           <div className="flex flex-wrap gap-3 mt-2">
             {facts.map((f, i) => (
               <div key={i} className="flex items-center gap-1.5 text-[11.5px] text-gray-500">
@@ -74,13 +74,12 @@ const AboutContent: React.FC = () => {
           style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.06)' }}
         >
           <p>
-            I'm a software engineer and AI agentic developer passionate about building products that feel
-            alive — from multi-agent pipelines to polished user interfaces. I work across the full stack,
-            but my deepest interest lies in the intersection of <strong>AI, developer tooling, and great UX</strong>.
+            I am a software engineer focused on automation systems, backend services, and product-quality frontends.
+            Most of my recent work involves agent workflows, API integrations, and internal tools that teams use daily.
           </p>
           <p className="mt-2">
-            Based in Nairobi, I've shipped production systems for startups and enterprise teams alike —
-            always pushing for clean architecture, thoughtful design, and real-world impact.
+            Based in Nairobi, I work across product and engineering to ship reliable features with clear user value,
+            from the first prototype through production rollout.
           </p>
         </div>
       </motion.div>

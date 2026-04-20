@@ -64,8 +64,8 @@ export const MENU_BAR_ITEMS: Record<string, MenuEntry[]> = {
   ],
   Help: [
     { id: 'help-search', label: 'Search', enabled: true, shortcut: '⌘Space', action: { type: 'command', target: 'open-spotlight' } },
-    { id: 'help-view-github', label: 'View GitHub', enabled: true, action: { type: 'externalLink', target: 'https://github.com/weru' } },
-    { id: 'help-view-linkedin', label: 'View LinkedIn', enabled: true, action: { type: 'externalLink', target: 'https://linkedin.com/in/weru' } },
+    { id: 'help-view-github', label: 'View GitHub', enabled: true, action: { type: 'externalLink', target: 'https://github.com/Royweru' } },
+    { id: 'help-view-linkedin', label: 'View LinkedIn', enabled: true, action: { type: 'externalLink', target: 'https://www.linkedin.com/in/roy-matheri-59b8a5245' } },
     { id: 'help-portfolio-help', label: 'Portfolio Help', enabled: true, action: { type: 'openWindow', target: 'about' } },
     { id: 'help-send-feedback', label: 'Send Feedback…', enabled: true, action: { type: 'openWindow', target: 'contact' } },
     { id: 'help-about', label: 'About', enabled: true, action: { type: 'openWindow', target: 'about' } },
@@ -136,37 +136,37 @@ export const SKILLS: SkillGroup[] = [
   {
     category: 'AI & Agents', icon: '🤖',
     skills: [
-      { name: 'LangGraph / LangChain', level: 92, color: '#7C3AED' },
-      { name: 'Claude / OpenAI APIs',  level: 95, color: '#D97706' },
-      { name: 'RAG & Embeddings',      level: 88, color: '#9333EA' },
-      { name: 'Prompt Engineering',    level: 90, color: '#6D28D9' },
+      { name: 'LangGraph / LangChain', color: '#7C3AED', proof: 'Shipped in client workflows' },
+      { name: 'Claude / OpenAI APIs',  color: '#D97706', proof: 'Used across production features' },
+      { name: 'RAG & Embeddings',      color: '#9333EA', proof: 'Applied in document Q&A systems' },
+      { name: 'Prompt Engineering',    color: '#6D28D9', proof: 'Used for agent task reliability' },
     ],
   },
   {
     category: 'Frontend', icon: '🎨',
     skills: [
-      { name: 'React / Next.js', level: 93, color: '#0ea5e9' },
-      { name: 'TypeScript',      level: 88, color: '#3178C6' },
-      { name: 'Tailwind CSS',    level: 91, color: '#06B6D4' },
-      { name: 'Framer Motion',   level: 80, color: '#FF0055' },
+      { name: 'React / Next.js', color: '#0ea5e9', proof: 'Core stack for shipped web apps' },
+      { name: 'TypeScript',      color: '#3178C6', proof: 'Default language for frontend work' },
+      { name: 'Tailwind CSS',    color: '#06B6D4', proof: 'Used in production UI systems' },
+      { name: 'Framer Motion',   color: '#FF0055', proof: 'Applied to interaction-heavy UIs' },
     ],
   },
   {
     category: 'Backend', icon: '⚙️',
     skills: [
-      { name: 'Python / FastAPI', level: 91, color: '#3776AB' },
-      { name: 'Node.js',          level: 85, color: '#339933' },
-      { name: 'PostgreSQL',       level: 84, color: '#336791' },
-      { name: 'Docker',           level: 78, color: '#2496ED' },
+      { name: 'Python / FastAPI', color: '#3776AB', proof: 'Backbone for API and agent services' },
+      { name: 'Node.js',          color: '#339933', proof: 'Used for integrations and APIs' },
+      { name: 'PostgreSQL',       color: '#336791', proof: 'Primary datastore in live projects' },
+      { name: 'Docker',           color: '#2496ED', proof: 'Used for consistent deployments' },
     ],
   },
   {
     category: 'Tools & Workflow', icon: '🛠️',
     skills: [
-      { name: 'Git / GitHub', level: 94, color: '#F05032' },
-      { name: 'Supabase',     level: 86, color: '#3ECF8E' },
-      { name: 'Figma',        level: 75, color: '#F24E1E' },
-      { name: 'VS Code',      level: 96, color: '#007ACC' },
+      { name: 'Git / GitHub', color: '#F05032', proof: 'Daily workflow and collaboration tool' },
+      { name: 'Supabase',     color: '#3ECF8E', proof: 'Used in rapid product delivery' },
+      { name: 'Figma',        color: '#F24E1E', proof: 'Used for handoff and UI planning' },
+      { name: 'VS Code',      color: '#007ACC', proof: 'Primary development environment' },
     ],
   },
 ];
@@ -175,7 +175,7 @@ export const SKILLS: SkillGroup[] = [
 export const JOBS: Job[] = [
   {
     company: 'Freelance / Independent',
-    role: 'AI Agentic Developer',
+    role: 'Automation Systems Developer',
     period: '2023 — Present',
     location: 'Nairobi, Kenya (Remote)',
     color: '#7C3AED',
@@ -184,7 +184,7 @@ export const JOBS: Job[] = [
     bullets: [
       'Designed and shipped multi-agent systems using LangGraph, Claude API, and FastAPI for clients across fintech and logistics.',
       'Built RAG pipelines with Pinecone + Claude, enabling conversational document querying at scale.',
-      'Delivered end-to-end AI-powered web apps with React + Next.js frontends and Python backends.',
+      'Delivered end-to-end web products with React + Next.js frontends and Python backends.',
     ],
   },
   {
