@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import { Briefcase, Code2, Mail, FolderOpen, User, Trash2 } from 'lucide-react';
+import { Briefcase, Code2, Mail, FolderOpen, User} from 'lucide-react';
 import type { WindowId, DockItem as BaseDockItem } from '../types';
 
 interface ExtendedDockItem extends BaseDockItem {
