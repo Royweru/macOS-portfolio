@@ -16,6 +16,7 @@ interface WindowProps {
   isFocused: boolean;
   isMaximized: boolean;
   zIndex: number;
+  statusText?: string;
   defaultWidth?: number;
   defaultHeight?: number;
   defaultX?: number;
@@ -31,7 +32,7 @@ interface WindowProps {
 }
 
 const Window: React.FC<WindowProps> = ({
-  id, title, icon, isOpen, isFocused, isMaximized, zIndex,
+  id, title, icon, isOpen, isFocused, isMaximized, zIndex, statusText,
   defaultWidth = 800, defaultHeight = 520,
   defaultX, defaultY,
   onClose, onMinimize, onMaximize, onFocus,
@@ -96,6 +97,8 @@ const Window: React.FC<WindowProps> = ({
         >
           <motion.div
             className="window-glass flex flex-col h-full overflow-hidden"
+            role="dialog"
+            aria-label={`${title} window`}
             variants={minimizeVariants}
             animate={isMinimizing ? 'minimizing' : 'visible'}
             initial={{ opacity: 0, scale: 0.90, y: 28 }}
@@ -119,6 +122,7 @@ const Window: React.FC<WindowProps> = ({
                 <button
                   className="traffic-light traffic-light-close flex items-center justify-center"
                   onClick={(e) => { e.stopPropagation(); onClose(id); }}
+                  aria-label="Close window"
                 >
                   {showLabels && (
                     <svg width="6" height="6" viewBox="0 0 6 6">
@@ -130,6 +134,7 @@ const Window: React.FC<WindowProps> = ({
                 <button
                   className="traffic-light traffic-light-min flex items-center justify-center"
                   onClick={(e) => { e.stopPropagation(); handleMinimize(); }}
+                  aria-label="Minimize window"
                 >
                   {showLabels && (
                     <svg width="6" height="6" viewBox="0 0 6 6">
@@ -141,6 +146,7 @@ const Window: React.FC<WindowProps> = ({
                 <button
                   className="traffic-light traffic-light-max flex items-center justify-center"
                   onClick={(e) => { e.stopPropagation(); onMaximize(id); }}
+                  aria-label={isMaximized ? "Restore window" : "Maximize window"}
                 >
                   {showLabels && (
                     <svg width="7" height="7" viewBox="0 0 7 7">
@@ -168,14 +174,16 @@ const Window: React.FC<WindowProps> = ({
             </div>
 
             {/* ── Body ────────────────────────────────────────────────── */}
-            <div className="flex flex-1 overflow-hidden">
-              {showSidebar && sidebar && (
-                <div className="finder-sidebar w-44 shrink-0 flex flex-col py-2 overflow-y-auto">
-                  {sidebar}
+            <div className="flex-1 overflow-hidden" style={{ background: 'var(--glass-window)' }}>
+              <div className="flex h-full overflow-hidden">
+                {showSidebar && sidebar && (
+                  <div className="finder-sidebar w-44 shrink-0 flex flex-col py-2 overflow-y-auto">
+                    {sidebar}
+                  </div>
+                )}
+                <div className="flex-1 overflow-hidden">
+                  {children}
                 </div>
-              )}
-              <div className="flex-1 overflow-hidden" style={{ background: 'rgba(252,252,254,0.75)' }}>
-                {children}
               </div>
             </div>
 
@@ -189,20 +197,6 @@ const Window: React.FC<WindowProps> = ({
                 </>
               )}
             </div>
-          </motion.div>
-        </Rnd>
-      )}
-    </AnimatePresence>
-  );
-};
-
-export default Window;
-</AnimatePresence>
-  );
-};
-
-export default Window;
-
           </motion.div>
         </Rnd>
       )}

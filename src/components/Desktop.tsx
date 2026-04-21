@@ -1,23 +1,3 @@
-import React, { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-
-interface DesktopProps {
-  onOpenWindow: (id: string) => void;
-}
-
-const FolderIcon = ({ color = '#1A73E8' }: { color?: string }) => (
-  <svg width="52" height="44" viewBox="0 0 52 44" fill="none">
-    <path d="M2 10C2 7.79 3.79 6 6 6H20L25 12H46C48.21 12 50 13.79 50 16V38C50 40.21 48.21 42 46 42H6C3.79 42 2 40.21 2 38V10Z"
-      fill="url(#fg)" />
-    <defs>
-      <linearGradient id="fg" x1="2" y1="6" x2="50" y2="42" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor={color} stopOpacity="0.9"/>
-        <stop offset="100%" stopColor={color} stopOpacity="0.7"/>
-      </linearGradient>
-    </defs>
-  </svg>
-);
-
 import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { WindowId } from '../types';
@@ -122,8 +102,6 @@ const Desktop: React.FC<DesktopProps> = ({ onOpenWindow }) => {
           <span>{item.label}</span>
         </motion.div>
       ))}
-
-      {/* Context Menu */}
 
       {/* Context Menu */}
       <AnimatePresence>
