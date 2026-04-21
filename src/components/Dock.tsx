@@ -1,16 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Briefcase, Code2, Mail, FolderOpen, User, Trash2 } from 'lucide-react';
+import type { WindowId, DockItem as BaseDockItem } from '../types';
+
+interface ExtendedDockItem extends BaseDockItem {
+  id: WindowId | string;
+  isDivider?: boolean;
+}
 
 interface DockProps {
-  openWindows: string[];
+  openWindows: WindowId[];
   onOpen: (id: string) => void;
 }
 
 const iconBase = "flex items-center justify-center rounded-[13px] text-white shadow-lg relative overflow-hidden";
 
-const DOCK_ITEMS = [
+const DOCK_ITEMS: ExtendedDockItem[] = [
   { id: 'about',      label: 'About Me',   color: 'linear-gradient(145deg,#667eea,#764ba2)', icon: <User size={22}/> },
   { id: 'projects',   label: 'Projects',   color: 'linear-gradient(145deg,#2196F3,#1565C0)', icon: <FolderOpen size={22}/> },
   { id: 'experience', label: 'Experience', color: 'linear-gradient(145deg,#FF9800,#E65100)', icon: <Briefcase size={22}/> },
@@ -31,7 +36,7 @@ const DOCK_ITEMS = [
   { id: 'trash', label: 'Trash', color: 'linear-gradient(145deg,#90a0b0,#607080)', icon: <Trash2 size={20}/> },
 ];
 
-function DockIcon({ item, openWindows, onOpen }:{item:any,openWindows:any,onOpen:any}) {
+function DockIcon({ item, openWindows, onOpen }: { item: ExtendedDockItem; openWindows: WindowId[]; onOpen: (id: string) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState(false);
   const [bouncing, setBouncing] = useState(false);
@@ -66,7 +71,7 @@ function DockIcon({ item, openWindows, onOpen }:{item:any,openWindows:any,onOpen
     return <div className="w-px self-stretch bg-white/30 mx-1" style={{ marginBottom: 8 }} />;
   }
 
-  const isOpen = openWindows.includes(item.id);
+  const isOpen = openWindows.includes(item.id as WindowId);
 
   return (
     <div className="relative flex flex-col items-center" ref={ref}>
@@ -137,6 +142,8 @@ const Dock: React.FC<DockProps> = ({ openWindows, onOpen }) => {
     <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-50">
       <motion.div
         className="dock rounded-[22px] px-3 pt-2 pb-1 flex items-end gap-1.5"
+        role="toolbar"
+        aria-label="Application Dock"
         onMouseMove={(e) => mouseX.set(e.clientX)}
         onMouseLeave={() => mouseX.set(Infinity)}
         initial={{ opacity: 0, y: 40 }}

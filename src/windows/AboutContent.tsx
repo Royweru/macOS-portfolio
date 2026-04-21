@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Coffee, Zap } from 'lucide-react';
 
@@ -24,6 +24,20 @@ const facts = [
 ];
 
 const AboutContent: React.FC = () => {
+  const profileCandidates = ['/profile.png', '/profile.jpg', '/profile.jpeg', '/profile.webp', '/profile'];
+  const [profileSrcIndex, setProfileSrcIndex] = useState(0);
+  const [profileSrc, setProfileSrc] = useState(profileCandidates[0]);
+
+  const handleProfileError = () => {
+    const next = profileSrcIndex + 1;
+    if (next < profileCandidates.length) {
+      setProfileSrcIndex(next);
+      setProfileSrc(profileCandidates[next]);
+    } else {
+      // No image found — fallback to emoji avatar
+      setProfileSrc('');
+    }
+  };
   return (
     <div className="window-content px-8 py-6 flex flex-col gap-6">
       {/* Header */}
@@ -35,11 +49,19 @@ const AboutContent: React.FC = () => {
       >
         {/* Avatar */}
         <div className="relative shrink-0">
-          <div
-            className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-md"
-            style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}
-          >
-            👨‍💻
+          <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-md bg-gray-100">
+            {profileSrc ? (
+              <img
+                src={profileSrc}
+                alt="Weru"
+                className="w-full h-full object-cover"
+                onError={handleProfileError}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-4xl">
+                👨‍💻
+              </div>
+            )}
           </div>
           <div
             className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-green-400 border-2 border-white"

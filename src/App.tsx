@@ -29,6 +29,10 @@ import Sidebar      from './components/Sidebar';
 import ViewControls from './components/ViewControls';
 import BootScreen   from './components/BootScreen';
 import Spotlight    from './components/Spotlight';
+import ErrorBoundary from './components/common/ErrorBoundary';
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+import { getResponsiveWindowSize, getWindowCenterPosition } from './utils/layout';
 
 // ── Lazy window content (separate JS chunks) ──────────────────────────────────
 const AboutContent      = lazy(() => import('./windows/AboutContent'));
@@ -38,24 +42,43 @@ const ExperienceContent = lazy(() => import('./windows/ExperienceContent'));
 const ContactContent    = lazy(() => import('./windows/ContactContent'));
 
 const WindowSpinner = () => (
-  <div className="flex items-center justify-center h-full">
-    <motion.div
-      animate={{ rotate: 360 }}
-      transition={{ repeat: Infinity, duration: 0.9, ease: 'linear' }}
-      className="w-6 h-6 rounded-full border-2 border-gray-200 border-t-blue-500"
-    />
+  <div className="flex flex-col items-center justify-center h-full gap-4">
+    <div className="relative w-8 h-8">
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-[2.5px] h-[7px] bg-gray-400 rounded-full"
+          style={{
+            left: '50%',
+            top: '0',
+            marginLeft: '-1.25px',
+            transformOrigin: '50% 16px',
+            rotate: i * 45,
+          }}
+          animate={{ opacity: [0.15, 1, 0.15] }}
+          transition={{
+            repeat: Infinity,
+            duration: 0.8,
+            delay: i * 0.1,
+            ease: 'linear'
+          }}
+        />
+      ))}
+    </div>
   </div>
 );
 
 function WindowContent({ id, section, view }: { id: WindowId; section: TagFilter; view: ViewMode }) {
   return (
-    <Suspense fallback={<WindowSpinner />}>
-      {id === 'about'      && <AboutContent />}
-      {id === 'projects'   && <ProjectsContent sidebarSection={section} viewMode={view} />}
-      {id === 'skills'     && <SkillsContent />}
-      {id === 'experience' && <ExperienceContent />}
-      {id === 'contact'    && <ContactContent />}
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<WindowSpinner />}>
+        {id === 'about'      && <AboutContent />}
+        {id === 'projects'   && <ProjectsContent sidebarSection={section} viewMode={view} />}
+        {id === 'skills'     && <SkillsContent />}
+        {id === 'experience' && <ExperienceContent />}
+        {id === 'contact'    && <ContactContent />}
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
@@ -113,9 +136,24 @@ function App() {
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
+      // Escape key to close spotlight or focused window
+      if (e.key === 'Escape') {
+        if (spotlight.isOpen) {
+          spotlight.close();
+          return;
+        }
+      }
+
       if (!(e.metaKey || e.ctrlKey) || e.altKey || isTypingTarget(e.target)) return;
 
       const key = e.key.toLowerCase();
+
+      // Cmd+Space for Spotlight
+      if (e.code === 'Space') {
+        e.preventDefault();
+        spotlight.isOpen ? spotlight.close() : spotlight.open();
+        return;
+      }
 
       if (key === 'n' && !e.shiftKey) {
         e.preventDefault();
@@ -173,13 +211,22 @@ function App() {
       />
 
       {/* ── Desktop icons ───────────────────────────────────────────────── */}
-      <Desktop onOpenWindow={handleOpen} />
+      <motion.div
+        animate={{ opacity: wm.maximized.length > 0 ? 0.4 : 1 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Desktop onOpenWindow={handleOpen} />
+      </motion.div>
 
       {/* ── Windows ─────────────────────────────────────────────────────── */}
       {(Object.keys(WINDOW_CONFIGS) as WindowId[]).map(id => {
         const cfg     = WINDOW_CONFIGS[id];
         const section = (wm.sections[id] ?? 'main') as TagFilter;
         const view    = (wm.views[id]    ?? 'grid') as ViewMode;
+
+        // Calculate responsive sizing
+        const { width, height } = getResponsiveWindowSize(cfg.w, cfg.h);
+        const { x, y }          = getWindowCenterPosition(width, height, cfg.ox, cfg.oy);
 
         return (
           <Window
@@ -189,12 +236,15 @@ function App() {
             icon={cfg.icon}
             isOpen={wm.isOpen(id)}
             isFocused={wm.isFocused(id)}
-            defaultWidth={cfg.w}
-            defaultHeight={cfg.h}
-            defaultX={(window.innerWidth  - cfg.w) / 2 + (cfg.ox ?? 0)}
-            defaultY={(window.innerHeight - cfg.h) / 3 + (cfg.oy ?? 0)}
+            isMaximized={wm.isMaximized(id)}
+            zIndex={wm.getZIndex(id)}
+            defaultWidth={width}
+            defaultHeight={height}
+            defaultX={x}
+            defaultY={y}
             onClose={wm.closeWindow}
             onMinimize={wm.minimizeWindow}
+            onMaximize={() => wm.toggleMaximize(id)}
             onFocus={wm.focusWindow}
             showSidebar={cfg.hasSidebar}
             sidebar={

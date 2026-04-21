@@ -14,12 +14,15 @@ interface WindowProps {
   icon?: string;
   isOpen: boolean;
   isFocused: boolean;
+  isMaximized: boolean;
+  zIndex: number;
   defaultWidth?: number;
   defaultHeight?: number;
   defaultX?: number;
   defaultY?: number;
   onClose:    (id: string) => void;
   onMinimize: (id: string) => void;
+  onMaximize: (id: string) => void;
   onFocus:    (id: string) => void;
   children:     React.ReactNode;
   sidebar?:     React.ReactNode;
@@ -28,13 +31,12 @@ interface WindowProps {
 }
 
 const Window: React.FC<WindowProps> = ({
-  id, title, icon, isOpen, isFocused,
+  id, title, icon, isOpen, isFocused, isMaximized, zIndex,
   defaultWidth = 800, defaultHeight = 520,
   defaultX, defaultY,
-  onClose, onMinimize, onFocus,
+  onClose, onMinimize, onMaximize, onFocus,
   children, sidebar, showSidebar = true, viewControls,
 }) => {
-  const [isMaximized,   setIsMaximized]   = useState(false);
   const [showLabels,    setShowLabels]    = useState(false);
   const [isMinimizing,  setIsMinimizing]  = useState(false);
   const rndRef = useRef<Rnd>(null);
@@ -88,7 +90,7 @@ const Window: React.FC<WindowProps> = ({
           disableDragging={isMaximized}
           size={isMaximized ? { width: '100%', height: 'calc(100% - 28px)' } : undefined}
           position={isMaximized ? { x: 0, y: 28 } : undefined}
-          style={{ zIndex: isFocused ? 100 : 10, position: 'absolute' }}
+          style={{ zIndex, position: 'absolute' }}
           onMouseDown={() => onFocus(id)}
           onDragStop={handleDragStop}
         >
@@ -138,7 +140,7 @@ const Window: React.FC<WindowProps> = ({
 
                 <button
                   className="traffic-light traffic-light-max flex items-center justify-center"
-                  onClick={(e) => { e.stopPropagation(); setIsMaximized(v => !v); }}
+                  onClick={(e) => { e.stopPropagation(); onMaximize(id); }}
                 >
                   {showLabels && (
                     <svg width="7" height="7" viewBox="0 0 7 7">
@@ -179,7 +181,7 @@ const Window: React.FC<WindowProps> = ({
 
             {/* ── Status bar ──────────────────────────────────────────── */}
             <div className="window-statusbar">
-              <span>weru.dev</span>
+              <span>{statusText || 'weru.dev'}</span>
               {isFocused && (
                 <>
                   <span style={{ opacity: 0.35 }}>·</span>
@@ -187,6 +189,20 @@ const Window: React.FC<WindowProps> = ({
                 </>
               )}
             </div>
+          </motion.div>
+        </Rnd>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default Window;
+</AnimatePresence>
+  );
+};
+
+export default Window;
+
           </motion.div>
         </Rnd>
       )}

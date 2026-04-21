@@ -34,8 +34,8 @@
     "accent": "#8b5e3c",
     "icon": "🛍️",
     "github": "https://github.com/Royweru/Ecommerce-next-JS",
-    "live": "https://everything-design-eta.vercel.app",
-    "tech": ["Figma", "Next.js", "Tailwind", "Stripe(Paystack)", "google stitch", "FastAPI"]
+    "live": "https://estore-ivory.vercel.app",
+    "tech": ["Figma", "Next.js", "Tailwind", "Stripe(Paystack)", "google stitch", "FastAPI","REST API"]
   },
   {
     "id": 4,
