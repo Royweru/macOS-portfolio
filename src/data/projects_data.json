@@ -9,7 +9,7 @@
     "icon": "🤖",
     "github": "https://github.com/weruroy/m_afya",
     "live": null,
-    "tech": ["Python", "LangGraph", "FastAPI", "Langraph","Chroma", "Twilio"]
+    "tech": ["Python", "LangGraph", "FastAPI", "Chroma", "Twilio"]
   },
 
   {
@@ -37,28 +37,41 @@
     "live": "https://estore-ivory.vercel.app",
     "tech": ["Figma", "Next.js", "Tailwind", "Stripe(Paystack)", "google stitch", "FastAPI","REST API"]
   },
-  {
-    "id": 4,
-    "title": "Real estate Management",
-    "description": "This is was also a very crucial project for me ,it is a real estate management app for tenants and property managers .It include features for property listing, tenant management, and lease tracking. Property owners can track their properties and all the activities that involve their properties from a single dashboard",
-    "tag": "Design",
-    "color": "#1a0a2e",
-    "accent": "#e11d48",
-    "icon": "💪",
-    "github": "https://github.com/weru",
-    "live": null,
-    "tech": ["React Native", "TypeScript", "Supabase", "BLE"]
-  },
+
   {
     "id": 5,
-    "title": "Internal CRM",
-    "description": "Custom CRM system built for a logistics company. Features automated pipeline management, email integration, and reporting dashboards.",
+    "title": "Leos spa booking system",
+    "description": "A high end hotel management booking system that tops it class , allows users and regular clients to book their sessions and have their services tracked ",
     "tag": "Dev",
     "color": "#0a1628",
     "accent": "#0284c7",
     "icon": "🏢",
     "github": null,
+    "live": "https://leos-spa-barbershop.vercel.app",
+    "tech": ["Next.js", "Prisma", "tRPC", "PostgreSQL"]
+  },
+  {
+    "id": 6,
+    "title": "Adventures",
+    "description": "A tourism traveling agency website , designed to have the best feel and touch. ",
+    "tag": "Dev",
+    "color": "#0a1628",
+    "accent": "#0284c7",
+    "icon": "🏢",
+    "github": "https://github.com/Royweru/adventures-travel-luxury",
     "live": null,
+    "tech": ["Next.js", "Prisma", "tRPC", "PostgreSQL"]
+  },
+  {
+    "id": 7,
+    "title": "Thika sports golf club",
+    "description": "A tourism traveling agency website , designed to have the best feel and touch. ",
+    "tag": "Dev",
+    "color": "#0a1628",
+    "accent": "#0284c7",
+    "icon": "🏢",
+    "github": "https://github.com/Royweru/thika-sports-club-NextJS-15",
+    "live":"https://thika-sports-club.vercel.app",
     "tech": ["Next.js", "Prisma", "tRPC", "PostgreSQL"]
   }
 ]

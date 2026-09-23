@@ -2,7 +2,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { JOBS } from '../constants';
-import '../styles/tokens.css';
 
 const ExperienceContent: React.FC = () => (
   <div className="window-content px-6 py-5">

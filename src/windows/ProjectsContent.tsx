@@ -1,202 +1,144 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { GitFork, ExternalLink, Plus } from 'lucide-react';
+'use client';
+
+import { useMemo, useState } from 'react';
+import type { FC } from 'react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronDown,
+  ChevronRight,
+  Code2,
+  ExternalLink,
+  FileCode2,
+  FolderKanban,
+  FolderOpen,
+  Globe2,
+  Grid2X2,
+  List,
+  MoreHorizontal,
+  Search,
+  Star,
+} from 'lucide-react';
 import projectsData from '../data/projects_data.json';
+import { getProjectMedia } from '../data/project-media-manifest';
 
+type ViewMode = 'grid' | 'list';
+type Project = typeof projectsData[number];
 
-
-const tagClass: Record<string, string> = {
-  AI:     'tag-badge tag-ai',
-  Dev:    'tag-badge tag-dev',
-  Design: 'tag-badge tag-design',
-  Archived:'tag-badge tag-archived',
+const tagTone: Record<string, string> = {
+  AI: 'portfolio-tag portfolio-tag-ai',
+  Dev: 'portfolio-tag portfolio-tag-dev',
+  Design: 'portfolio-tag portfolio-tag-design',
+  Archived: 'portfolio-tag portfolio-tag-archived',
 };
 
-const ProjectCard: React.FC<{ project: typeof projectsData[0]; view: 'grid'|'list' }> = ({ project, view }) => {
-  const [hovered, setHovered] = useState(false);
-
-  if (view === 'list') {
-    return (
-      <motion.div
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="flex items-center gap-4 px-4 py-3 hover:bg-black/4 border-b border-black/5 cursor-pointer group"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
-          style={{ background: project.color }}
-        >
-          {project.icon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold text-gray-800 truncate">{project.title}</p>
-          <p className="text-[11px] text-gray-500 truncate">{project.description}</p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className={tagClass[project.tag] ?? 'tag-badge'}>{project.tag}</span>
-          <div className={`flex gap-1 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0'}`}>
-            {project.github && (
-              <a href={project.github} target="_blank" rel="noreferrer"
-                className="p-1 rounded hover:bg-black/8" onClick={e => e.stopPropagation()}>
-                <GitFork size={13} className="text-gray-600" />
-              </a>
-            )}
-            {project.live && (
-              <a href={project.live} target="_blank" rel="noreferrer"
-                className="p-1 rounded hover:bg-black/8" onClick={e => e.stopPropagation()}>
-                <ExternalLink size={13} className="text-gray-600" />
-              </a>
-            )}
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
-
+function ProjectGlyph({ project, size = 22 }: { project: Project; size?: number }) {
+  const Icon = project.tag === 'Design' ? Globe2 : project.tag === 'AI' ? Code2 : FileCode2;
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, scale: 0.92 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.88 }}
-      whileHover={{ y: -3 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-      className="relative rounded-xl overflow-hidden cursor-pointer group"
-      style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.12)' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Card preview area */}
-      <div
-        className="h-[130px] flex items-center justify-center relative overflow-hidden"
-        style={{ background: project.color }}
-      >
-        <span className="text-5xl filter drop-shadow-lg">{project.icon}</span>
-
-        {/* Accent glow */}
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{ background: `radial-gradient(circle at 70% 30%, ${project.accent}, transparent 60%)` }}
-        />
-
-        {/* Tech chips on hover */}
-        <AnimatePresence>
-          {hovered && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              className="absolute bottom-2 left-2 flex gap-1 flex-wrap"
-            >
-              {project.tech.slice(0, 3).map(t => (
-                <span key={t} className="px-1.5 py-0.5 rounded text-[9px] font-medium text-white/90"
-                  style={{ background: 'rgba(0,0,0,0.45)' }}>
-                  {t}
-                </span>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Links badge */}
-        <div className="absolute top-2 right-2 flex gap-1">
-          {project.github && (
-            <a href={project.github} target="_blank" rel="noreferrer"
-              className="w-6 h-6 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(0,0,0,0.5)' }}
-              onClick={e => e.stopPropagation()}>
-              <GitFork size={11} color="white" />
-            </a>
-          )}
-          {project.live && (
-            <a href={project.live} target="_blank" rel="noreferrer"
-              className="w-6 h-6 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(0,0,0,0.5)' }}
-              onClick={e => e.stopPropagation()}>
-              <ExternalLink size={11} color="white" />
-            </a>
-          )}
-        </div>
-      </div>
-
-      {/* Card footer */}
-      <div className="bg-white px-3 py-2.5">
-        <p className="text-[12.5px] font-semibold text-gray-800 truncate">{project.title}</p>
-        <div className="flex items-center justify-between mt-1">
-          <span className={tagClass[project.tag] ?? 'tag-badge'}>{project.tag}</span>
-        </div>
-      </div>
-    </motion.div>
+    <span className="portfolio-file-glyph">
+      <Icon size={size} strokeWidth={1.8} />
+    </span>
   );
-};
+}
+
+function ProjectPreview({ project }: { project: Project }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const thumbnail = getProjectMedia(project.id).find(asset => asset.kind === 'image')?.source;
+  return (
+    <div className="portfolio-project-preview">
+      {thumbnail && !imageFailed ? <img src={thumbnail} alt={`${project.title} thumbnail`} onError={() => setImageFailed(true)} /> : <><div className="portfolio-preview-grid" aria-hidden="true" /><ProjectGlyph project={project} size={30} /><span className="portfolio-preview-label">PROJECT FILE</span></>}
+    </div>
+  );
+}
 
 interface ProjectsContentProps {
   sidebarSection: string;
-  viewMode: 'grid' | 'list';
+  viewMode: ViewMode;
+  onOpenProject: (projectId: number) => void;
 }
 
-const ProjectsContent: React.FC<ProjectsContentProps> = ({ sidebarSection, viewMode }) => {
+const ProjectsContent: FC<ProjectsContentProps> = ({ sidebarSection, viewMode: initialViewMode, onOpenProject }) => {
   const [search, setSearch] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
+  const [section, setSection] = useState(sidebarSection);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [sortOpen, setSortOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<'name' | 'type'>('name');
 
-  const filtered = projectsData.filter(p => {
-    const matchTag =
-      sidebarSection === 'main' || sidebarSection === 'recent' || sidebarSection === 'starred'
-        ? true
-        : p.tag.toLowerCase() === sidebarSection.toLowerCase();
-    const matchSearch = p.title.toLowerCase().includes(search.toLowerCase());
-    return matchTag && matchSearch;
-  });
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return projectsData
+      .filter(project => {
+        const matchesTag = section === 'main' || section === 'recent' || section === 'starred'
+          ? true
+          : project.tag.toLowerCase() === section.toLowerCase();
+        const searchable = `${project.title} ${project.description} ${project.tag} ${project.tech.join(' ')}`.toLowerCase();
+        return matchesTag && (!query || searchable.includes(query));
+      })
+      .sort((a, b) => sortBy === 'name' ? a.title.localeCompare(b.title) : a.tag.localeCompare(b.tag));
+  }, [search, section, sortBy]);
+
+  const selected = projectsData.find(project => project.id === selectedId);
+  const openProject = (project: Project) => onOpenProject(project.id);
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Toolbar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-black/5 bg-white/40">
-        <div className="flex-1 flex items-center gap-2 bg-black/5 rounded-lg px-3 py-1.5">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gray-400">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search projects..."
-            className="bg-transparent text-[12px] text-gray-700 outline-none w-full placeholder-gray-400"
-            style={{ userSelect: 'text' }}
-          />
+    <div className="portfolio-explorer" onClick={() => sortOpen && setSortOpen(false)}>
+      <div className="portfolio-commandbar">
+        <button type="button" className="portfolio-icon-button" aria-label="Back" disabled><ArrowLeft size={16} /></button>
+        <button type="button" className="portfolio-icon-button" aria-label="Forward" disabled><ArrowRight size={16} /></button>
+        <button type="button" className="portfolio-icon-button" aria-label="Up one level"><ChevronRight size={16} className="rotate-180" /></button>
+        <span className="portfolio-command-divider" />
+        <button type="button" className="portfolio-command-button"><FolderOpen size={15} /><span>New</span><ChevronDown size={13} /></button>
+        <button type="button" className="portfolio-command-button"><MoreHorizontal size={16} /><span>More</span></button>
+        <div className="portfolio-command-spacer" />
+        <div className="portfolio-sort-wrap">
+          <button type="button" className="portfolio-command-button portfolio-sort-button" onClick={event => { event.stopPropagation(); setSortOpen(value => !value); }}><span>Sort: {sortBy === 'name' ? 'Name' : 'Type'}</span><ChevronDown size={13} /></button>
+          {sortOpen && <div className="portfolio-sort-menu" role="menu"><button type="button" onClick={() => { setSortBy('name'); setSortOpen(false); }}>Name</button><button type="button" onClick={() => { setSortBy('type'); setSortOpen(false); }}>Type</button></div>}
         </div>
-        <span className="text-[11px] text-gray-400">{filtered.length} items</span>
+        <div className="portfolio-view-toggle" aria-label="View mode">
+          <button type="button" className={viewMode === 'grid' ? 'active' : ''} onClick={() => setViewMode('grid')} aria-label="Icon view"><Grid2X2 size={15} /></button>
+          <button type="button" className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} aria-label="List view"><List size={15} /></button>
+        </div>
       </div>
 
-      {/* Grid or List */}
-      <div className="flex-1 overflow-y-auto">
-        {viewMode === 'grid' ? (
-          <div className="p-4 grid grid-cols-3 gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
-            <AnimatePresence>
-              {filtered.map(p => <ProjectCard key={p.id} project={p} view="grid" />)}
-            </AnimatePresence>
-
-            {/* New project placeholder */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="rounded-xl border-2 border-dashed border-gray-200 h-[175px] flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-colors"
-            >
-              <Plus size={20} className="text-gray-300" />
-              <span className="text-[11px] text-gray-400 font-medium uppercase tracking-wide">New Project</span>
-            </motion.div>
-          </div>
-        ) : (
-          <div className="py-1">
-            {filtered.map(p => <ProjectCard key={p.id} project={p} view="list" />)}
-          </div>
-        )}
+      <div className="portfolio-addressbar">
+        <div className="portfolio-breadcrumb"><FolderOpen size={15} /><span>Weru OS</span><ChevronRight size={13} /><strong>Projects</strong></div>
+        <label className="portfolio-searchbox"><Search size={15} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search Projects" aria-label="Search projects" /></label>
       </div>
 
-      {/* Status bar */}
-      <div className="px-4 py-1.5 border-t border-black/5 bg-white/30 text-[11px] text-gray-400">
-        {filtered.length} items · weru.dev/projects
+      <div className="portfolio-explorer-layout">
+        <aside className="portfolio-quick-access" aria-label="Quick access">
+          <span className="portfolio-sidebar-label">Quick access</span>
+          {[
+            { label: 'Home', icon: FolderOpen, active: false, value: 'main' },
+            { label: 'Projects', icon: FolderKanban, active: section === 'main', value: 'main' },
+            { label: 'Recent', icon: FolderOpen, active: section === 'recent', value: 'recent' },
+            { label: 'Starred', icon: Star, active: section === 'starred', value: 'starred' },
+          ].map(item => { const Icon = item.icon; return <button type="button" key={item.label} className={`portfolio-quick-item ${item.active ? 'active' : ''}`} onClick={() => setSection(item.value)}><Icon size={16} /><span>{item.label}</span></button>; })}
+          <span className="portfolio-sidebar-label portfolio-sidebar-label-spaced">Tags</span>
+          {['AI', 'Dev', 'Design'].map(tag => <button type="button" key={tag} className={`portfolio-quick-item ${section === tag.toLowerCase() ? 'active' : ''}`} onClick={() => setSection(tag.toLowerCase())}><span className={`portfolio-tag-dot portfolio-tag-dot-${tag.toLowerCase()}`} /><span>{tag}</span></button>)}
+          <div className="portfolio-sidebar-note"><span className="portfolio-status-dot" /> Available for work</div>
+        </aside>
+
+        <main className="portfolio-project-area">
+          <div className="portfolio-project-heading"><div><p className="portfolio-eyebrow">Portfolio workspace</p><h2>Projects</h2></div><span className="portfolio-item-count">{filtered.length} items</span></div>
+
+          {viewMode === 'grid' ? (
+            <div className="portfolio-project-grid">
+              {filtered.map(project => <button type="button" key={project.id} className={`portfolio-project-card ${selectedId === project.id ? 'selected' : ''}`} onClick={() => { setSelectedId(project.id); openProject(project); }} onDoubleClick={() => openProject(project)}><ProjectPreview project={project} /><span className="portfolio-project-card-body"><span className="portfolio-project-title">{project.title}</span><span className="portfolio-project-description">{project.description}</span><span className={tagTone[project.tag] ?? 'portfolio-tag'}>{project.tag}</span></span></button>)}
+            </div>
+          ) : (
+            <div className="portfolio-project-list" role="table" aria-label="Projects">
+              <div className="portfolio-list-header" role="row"><span>Name</span><span>Type</span><span>Technologies</span><span>Open</span></div>
+              {filtered.map(project => <button type="button" role="row" key={project.id} className={`portfolio-project-row ${selectedId === project.id ? 'selected' : ''}`} onClick={() => { setSelectedId(project.id); openProject(project); }} onDoubleClick={() => openProject(project)}><span className="portfolio-list-name"><ProjectGlyph project={project} size={18} /><span>{project.title}</span></span><span>{project.tag} project</span><span className="portfolio-tech-list">{project.tech.slice(0, 3).join(' · ')}</span><span>{project.live || project.github ? <ExternalLink size={15} /> : '—'}</span></button>)}
+            </div>
+          )}
+
+          {filtered.length === 0 && <div className="portfolio-empty-state"><Search size={26} /><strong>No projects found</strong><span>Try a different name, tag, or technology.</span></div>}
+        </main>
       </div>
+
+      <div className="portfolio-explorer-status"><span>{filtered.length} item{filtered.length === 1 ? '' : 's'}</span><span className="portfolio-status-selection">{selected ? `${selected.title} · Project details opened` : 'Select a project to inspect it'}</span></div>
     </div>
   );
 };

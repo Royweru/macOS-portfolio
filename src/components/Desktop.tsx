@@ -1,39 +1,28 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { WindowId } from '../types';
+import type { OpenTarget } from '../features/os/os-types';
+import { useOsStore } from '../features/os/os-store';
+import AppIcon from './AppIcon';
+import { createFolderNode, createTextFileNode } from '../features/filesystem/filesystem-service';
+import { VIRTUAL_NODE_IDS } from '../features/filesystem/virtual-paths';
 
 interface DesktopProps {
   onOpenWindow: (id: WindowId) => void;
+  onOpenTarget: (target: OpenTarget) => void;
 }
-
-const FolderIcon = ({ color = '#1A73E8' }: { color?: string }) => (
-  <svg width="52" height="44" viewBox="0 0 52 44" fill="none">
-    <path d="M2 10C2 7.79 3.79 6 6 6H20L25 12H46C48.21 12 50 13.79 50 16V38C50 40.21 48.21 42 46 42H6C3.79 42 2 40.21 2 38V10Z"
-      fill="url(#fg)" />
-    <defs>
-      <linearGradient id="fg" x1="2" y1="6" x2="50" y2="42" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor={color} stopOpacity="0.9"/>
-        <stop offset="100%" stopColor={color} stopOpacity="0.7"/>
-      </linearGradient>
-    </defs>
-  </svg>
-);
-
-const desktopItems: { id: WindowId; label: string; color: string }[] = [
-  { id: 'projects',   label: 'Projects',   color: '#1A73E8' },
-  { id: 'skills',     label: 'Skills',     color: '#2E7D32' },
-  { id: 'experience', label: 'Experience', color: '#E65100' },
-];
 
 type ContextMenu = { x: number; y: number } | null;
 
-const Desktop: React.FC<DesktopProps> = ({ onOpenWindow }) => {
-  const [selected, setSelected] = useState<WindowId | null>(null);
+const Desktop: React.FC<DesktopProps> = ({ onOpenWindow, onOpenTarget }) => {
+  const shortcuts = useOsStore(state => state.shortcuts);
+  const setShortcutPosition = useOsStore(state => state.setShortcutPosition);
+  const [selected, setSelected] = useState<string | null>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenu>(null);
-  const [contextTarget, setContextTarget] = useState<WindowId | null>(null);
+  const [contextTarget, setContextTarget] = useState<string | null>(null);
   const desktopRef = useRef<HTMLDivElement>(null);
 
-  const handleContextMenu = useCallback((e: React.MouseEvent, id?: WindowId) => {
+  const handleContextMenu = useCallback((e: React.MouseEvent, id?: string) => {
     e.preventDefault();
     setContextMenu({ x: e.clientX, y: e.clientY });
     setContextTarget(id ?? null);
@@ -42,22 +31,42 @@ const Desktop: React.FC<DesktopProps> = ({ onOpenWindow }) => {
   const closeContext = useCallback(() => setContextMenu(null), []);
 
   const desktopContextItems = [
-    'New Folder',
-    'New Folder with Selection',
+    'New folder',
+    'New text document',
+    'Refresh',
     '—',
-    'Get Info',
-    'Change Desktop Background…',
+    'Sort by name',
+    'Sort by type',
+    'Sort by date modified',
     '—',
-    'Use Stacks',
-    'Sort By',
-    'Clean Up',
-    '—',
-    'Import from iPhone…',
+    'Open Terminal here',
+    'Personalize',
+    'Display settings',
   ];
 
   const iconContextItems = contextTarget
-    ? [`Open "${desktopItems.find(d=>d.id===contextTarget)?.label}"`, 'Get Info', '—', 'Move to Trash', '—', 'Compress', 'Duplicate']
+    ? [`Open "${shortcuts.find(d=>d.id===contextTarget)?.label}"`, 'Open in Terminal', 'Show in folder', 'Rename', 'Delete', 'Properties']
     : [];
+
+  const handleContextAction = useCallback(async (item: string) => {
+    if (item === 'New folder') {
+      await createFolderNode(VIRTUAL_NODE_IDS.desktop, 'New folder');
+    } else if (item === 'New text document') {
+      await createTextFileNode(VIRTUAL_NODE_IDS.desktop, 'New text document.txt');
+    } else if (item === 'Open Terminal here') {
+      onOpenWindow('terminal');
+    } else if (item.startsWith('Open "') && contextTarget) {
+      const shortcut = shortcuts.find(item => item.id === contextTarget);
+      if (shortcut?.nodeId) onOpenTarget({ kind: 'file', nodeId: shortcut.nodeId });
+      else if (shortcut?.appId === 'recycle-bin') onOpenTarget({ kind: 'recycle-bin' });
+      else if (shortcut?.appId) onOpenTarget({ kind: 'application', appId: shortcut.appId });
+    } else if (item === 'Open in Terminal') {
+      onOpenWindow('terminal');
+    } else if (item === 'Personalize') {
+      onOpenWindow('settings');
+    }
+    closeContext();
+  }, [closeContext, contextTarget, onOpenTarget, onOpenWindow, shortcuts]);
 
   return (
     <div
@@ -67,7 +76,18 @@ const Desktop: React.FC<DesktopProps> = ({ onOpenWindow }) => {
       onContextMenu={(e) => handleContextMenu(e)}
     >
       {/* Draggable Desktop Icons */}
-      {desktopItems.map((item, i) => (
+      {shortcuts.filter(item => item.isVisible).map((item, i) => {
+        const iconAppId: WindowId = item.appId === 'recycle-bin'
+          ? 'recycle-bin'
+          : item.id === 'shortcut-projects' || item.id === 'shortcut-this-pc'
+            ? 'explorer'
+            : item.appId === 'mail' ? 'mail' : 'notepad';
+        const openTarget = item.nodeId
+          ? { kind: 'file', nodeId: item.nodeId } as OpenTarget
+          : item.appId === 'recycle-bin'
+            ? { kind: 'recycle-bin' } as OpenTarget
+            : { kind: 'application', appId: item.appId ?? 'explorer' } as OpenTarget;
+        return (
         <motion.div
           key={item.id}
           drag
@@ -75,8 +95,8 @@ const Desktop: React.FC<DesktopProps> = ({ onOpenWindow }) => {
           dragConstraints={desktopRef}
           className={`desktop-icon absolute ${selected === item.id ? 'ring-2 ring-blue-400/50 bg-white/20' : ''}`}
           style={{
-            right: 24,
-            top: 40 + (i * 100), // Initial grid layout
+            left: item.x,
+            top: item.y,
             zIndex: selected === item.id ? 50 : 1,
           }}
           initial={{ opacity: 0, x: 24 }}
@@ -87,21 +107,26 @@ const Desktop: React.FC<DesktopProps> = ({ onOpenWindow }) => {
             setSelected(item.id);
             closeContext();
           }}
+          onDragEnd={(event, info) => {
+            const bounds = desktopRef.current?.getBoundingClientRect();
+            if (bounds) setShortcutPosition(item.id, Math.max(16, item.x + info.offset.x), Math.max(28, item.y + info.offset.y));
+          }}
           onDoubleClick={(e) => {
             e.stopPropagation();
-            onOpenWindow(item.id);
+            onOpenTarget(openTarget);
           }}
           onContextMenu={(e) => {
             e.stopPropagation();
             handleContextMenu(e, item.id);
           }}
           role="button"
-          aria-label={`${item.label} folder`}
+          aria-label={`Open ${item.label}`}
         >
-          <FolderIcon color={item.color} />
+          <span className="desktop-app-icon"><AppIcon appId={iconAppId} size={34} /></span>
           <span>{item.label}</span>
         </motion.div>
-      ))}
+        );
+      })}
 
       {/* Context Menu */}
       <AnimatePresence>
@@ -113,15 +138,14 @@ const Desktop: React.FC<DesktopProps> = ({ onOpenWindow }) => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94 }}
               transition={{ duration: 0.1 }}
-              className="fixed z-[160] py-1 rounded-xl overflow-hidden shadow-2xl"
+              className="fixed z-[160] py-1 overflow-hidden shadow-lg"
               style={{
                 top: Math.min(contextMenu.y, window.innerHeight - 280),
                 left: Math.min(contextMenu.x, window.innerWidth - 220),
                 minWidth: 210,
-                background: 'rgba(235,235,242,0.96)',
-                backdropFilter: 'blur(30px)',
-                border: '1px solid rgba(255,255,255,0.55)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.1)',
+                background: '#ffffff',
+                border: '1px solid #b8b8b8',
+                borderRadius: 4,
               }}
             >
               {(contextTarget ? iconContextItems : desktopContextItems).map((item, i) =>
@@ -130,11 +154,10 @@ const Desktop: React.FC<DesktopProps> = ({ onOpenWindow }) => {
                 ) : (
                   <div
                     key={i}
-                    className="px-4 py-[3px] text-[13px] text-gray-800 hover:bg-blue-500 hover:text-white cursor-default mx-1 rounded-sm transition-colors"
+                    className="mx-1 px-3 py-1 text-[13px] text-[#1f1f1f] hover:bg-[#e5f1fb] hover:text-[#005a9e] cursor-default transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (item.startsWith('Open') && contextTarget) onOpenWindow(contextTarget);
-                      closeContext();
+                      void handleContextAction(item);
                     }}
                   >
                     {item}

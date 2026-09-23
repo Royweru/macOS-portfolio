@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows 97 Boot Sequence</title>
+  <!-- Google Fonts: VT323 for BIOS, Share Tech Mono / Courier New fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000;
+      font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+      cursor: default;
+    }
+
+    /* Pixelated CRT Scanline Overlay */
+    .crt-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 6px 100%;
+      opacity: 0.85;
+    }
+
+    /* Screen Container - Fixed 1024x768 ratio or responsive full viewport */
+    .os-viewport {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    /* Skip hint badge */
+    .skip-hint {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      z-index: 90;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid #555;
+      color: #aaa;
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .skip-hint:hover {
+      color: #fff;
+      border-color: #aaa;
+      background: rgba(0,0,0,0.85);
+    }
+
+    /* SCENE 1: BIOS BOOT */
+    #scene-bios {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      color: #b0b0b0;
+      font-family: 'VT323', 'Courier New', monospace;
+      font-size: 20px;
+      line-height: 1.35;
+      padding: 30px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      z-index: 40;
+      letter-spacing: 0.5px;
+    }
+
+    .bios-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #555;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .bios-logo {
+      color: #00e0e0;
+      font-weight: bold;
+    }
+    .bios-energy-star {
+      border: 2px solid #ffcc00;
+      color: #ffcc00;
+      padding: 2px 8px;
+      font-size: 15px;
+      text-align: center;
+      line-height: 1.1;
+    }
+    .bios-line {
+      opacity: 0;
+      margin-bottom: 4px;
+    }
+    .bios-line.visible {
+      opacity: 1;
+    }
+    .cursor-blink {
+      display: inline-block;
+      width: 10px;
+      height: 18px;
+      background: #aaa;
+      vertical-align: middle;
+      animation: blink 0.7s infinite;
+    }
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    /* SCENE 2: STARTING MS-DOS / WINDOWS */
+    #scene-starting {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      z-index: 30;
+      display: none;
+      padding: 40px;
+    }
+    .starting-text {
+      position: absolute;
+      bottom: 45px;
+      left: 45px;
+      color: #ffffff;
+      font-family: Tahoma, "Segoe UI", sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+    }
+
+    /* SCENE 3: CLOUD SPLASH SCREEN WITH 4-COLOR LOGO */
+    #scene-splash {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #1b539c 0%, #3a75bb 30%, #68a7dd 60%, #95c8ec 85%, #bce0f8 100%);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      transition: opacity 0.8s ease-in-out;
+    }
+    
+    /* Subtle cloud graphics in splash */
+    .splash-cloud {
+      position: absolute;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0) 80%);
+      border-radius: 50%;
+      filter: blur(10px);
+      pointer-events: none;
+    }
+    .cloud-1 { width: 450px; height: 160px; top: 12%; left: 8%; opacity: 0.6; }
+    .cloud-2 { width: 550px; height: 220px; bottom: 25%; right: 5%; opacity: 0.5; }
+
+    .splash-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Windows 4-Color Wave Flag (Pure Pixel/SVG Style) */
+    .win-flag-wrap {
+      width: 130px;
+      height: 120px;
+      position: relative;
+      margin-bottom: 20px;
+      filter: drop-shadow(4px 5px 0px rgba(0,0,0,0.35));
+    }
+
+    .brand-title {
+      font-family: "Times New Roman", Times, serif;
+      font-weight: 700;
+      font-size: 58px;
+      color: #ffffff;
+      letter-spacing: -1px;
+      text-shadow: 2px 2px 0px #092c57, 4px 4px 6px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .brand-title span.ver {
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 900;
+      font-style: italic;
+      color: #ffffff;
+      font-size: 64px;
+      letter-spacing: -2px;
+      text-shadow: 3px 3px 0px #041b3a;
+    }
+
+    .brand-subtext {
+      font-family: Tahoma, sans-serif;
+      font-size: 15px;
+      font-weight: bold;
+      color: #e2f0fc;
+      margin-top: -6px;
+      margin-bottom: 45px;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      text-shadow: 1px 1px 2px #001f4d;
+    }
+
+    /* Segmented Blue Progress Bar (Authentic Windows 95/98 / OSR2) */
+    .progress-outer {
+      width: 320px;
+      height: 22px;
+      background: #0b1f3a;
+      border: 2px solid #5a8ab8;
+      box-shadow: inset 1px 1px 3px rgba(0,0,0,0.9), 1px 1px 0px #ffffff;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-track {
+      display: flex;
+      gap: 3px;
+      width: 100%;
+      height: 100%;
+    }
+
+    .progress-segment {
+      flex: 1;
+      height: 100%;
+      background: #102e52;
+      transition: background 0.1s linear;
+    }
+    .progress-segment.active {
+      background: linear-gradient(180deg, #53a7e8 0%, #1c7cd5 45%, #084992 100%);
+      box-shadow: 0 0 4px #4facfe;
+    }
+
+    .splash-footer {
+      position: absolute;
+      bottom: 22px;
+      font-family: Tahoma, sans-serif;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.7);
+      text-shadow: 1px 1px 1px #000;
+    }
+
+    /* SCENE 4: BLISS DESKTOP */
+    #scene-desktop {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      background: linear-gradient(180deg, #3A6EA5 0%, #5d9ad4 40%, #7BB3E8 60%, #7EC850 60%, #4C9A2A 100%);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    /* The Bliss Hill Background Simulation with realistic clouds */
+    .bliss-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .bliss-sky {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 62%;
+      background: linear-gradient(180deg, #2460a3 0%, #4081c7 45%, #6ea4dd 80%, #9bc4ed 100%);
+    }
+    /* Fluffy layered Bliss Clouds */
+    .cloud-svg-1 {
+      position: absolute;
+      top: 15%;
+      right: 12%;
+      width: 380px;
+      opacity: 0.85;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+    }
+    .cloud-svg-2 {
+      position: absolute;
+      top: 28%;
+      left: 6%;
+      width: 280px;
+      opacity: 0.75;
+    }
+    .bliss-hills {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 44%;
+      background: radial-gradient(ellipse 90% 75% at 50% 100%, #6ab738 0%, #4c9a2a 55%, #357218 100%);
+      border-top-left-radius: 65% 35%;
+      border-top-right-radius: 45% 25%;
+      box-shadow: inset 0 8px 16px rgba(180, 240, 110, 0.45);
+    }
+    .bliss-hill-front {
+      position: absolute;
+      bottom: 0;
+      left: -10%;
+      width: 120%;
+      height: 32%;
+      background: radial-gradient(ellipse 110% 85% at 30% 100%, #7ec850 0%, #53a52e 60%, #3d7d20 100%);
+      border-top-left-radius: 80% 40%;
+      border-top-right-radius: 90% 50%;
+      opacity: 0.95;
+    }
+
+    /* Desktop Icons Grid */
+    .desktop-area {
+      position: relative;
+      flex: 1;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 18px 24px;
+      z-index: 5;
+    }
+
+    .desktop-icon {
+      width: 76px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      padding: 4px;
+      border: 1px dotted transparent;
+      opacity: 0;
+      transform: scale(0.92);
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .desktop-icon.popped {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .desktop-icon:hover {
+      background: rgba(0, 0, 128, 0.25);
+    }
+    .desktop-icon.selected {
+      background: rgba(0, 0, 128, 0.55);
+      border-color: #ffff88;
+    }
+
+    .icon-img-wrap {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+      filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.3));
+    }
+    .icon-img-wrap svg {
+      width: 34px;
+      height: 34px;
+    }
+
+    .icon-label {
+      font-family: Tahoma, sans-serif;
+      font-size: 11px;
+      color: #ffffff;
+      text-shadow: 1px 1px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000;
+      line-height: 1.15;
+      word-break: break-word;
+      padding: 1px 3px;
+    }
+
+    /* Authentic System Dialog Box: "System Welcome" */
+    .retro-dialog {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      width: 360px;
+      background: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
+      z-index: 25;
+      display: none;
+    }
+    .dialog-titlebar {
+      height: 22px;
+      background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px 0 6px;
+      color: #ffffff;
+      font-family: Tahoma, sans-serif;
+      font-weight: bold;
+      font-size: 11px;
+    }
+    .dialog-close-btn {
+      width: 16px;
+      height: 14px;
+      background: #c0c0c0;
+      border-top: 1px solid #ffffff;
+      border-left: 1px solid #ffffff;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: bold;
+      color: #000;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .dialog-close-btn:active {
+      border-top: 1px solid #404040;
+      border-left: 1px solid #404040;
+      border-right: 1px solid #ffffff;
+      border-bottom: 1px solid #ffffff;
+      padding: 1px 0 0 1px;
+    }
+    .dialog-body {
+      padding: 16px 14px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      font-family: Tahoma, sans-serif;
+      font-size: 11px;
+      color: #000;
+    }
+    .dialog-icon {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+    }
+    .dialog-msg {
+      line-height: 1.4;
+    }
+    .dialog-buttons {
+      padding: 0 14px 12px 14px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .win-btn {
+      min-width: 68px;
+      height: 23px;
+      background: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      outline: 1px solid #000000;
+      font-family: Tahoma, sans-serif;
+      font-size: 11px;
+      color: #000;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .win-btn:active {
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      padding: 1px 0 0 1px;
+    }
+    .win-btn.default {
+      outline: 2px solid #000000;
+      font-weight: bold;
+    }
+
+    /* THE TASKBAR */
+    .taskbar {
+      position: relative;
+      height: 30px;
+      width: 100%;
+      background: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 4px;
+      z-index: 30;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
+    }
+    .taskbar.slide-up {
+      transform: translateY(0);
+    }
+
+    .start-btn {
+      height: 24px;
+      padding: 0 6px 0 4px;
+      background: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      font-family: Tahoma, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      color: #000;
+    }
+    .start-btn:active, .start-btn.active {
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      background: #d4d0c8;
+      padding: 1px 5px 0 5px;
+    }
+
+    .start-flag-icon {
+      width: 15px;
+      height: 15px;
+    }
+
+    .taskbar-divider {
+      width: 2px;
+      height: 20px;
+      border-left: 1px solid #808080;
+      border-right: 1px solid #ffffff;
+      margin: 0 4px;
+    }
+
+    .task-items-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow: hidden;
+    }
+
+    .task-tab {
+      height: 23px;
+      min-width: 120px;
+      max-width: 170px;
+      background: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      gap: 6px;
+      font-family: Tahoma, sans-serif;
+      font-size: 11px;
+      color: #000;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .task-tab.active {
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+      background: #e0e0e0;
+      font-weight: bold;
+    }
+
+    .tray-area {
+      height: 24px;
+      background: #c0c0c0;
+      border-top: 1px solid #808080;
+      border-left: 1px solid #808080;
+      border-right: 1px solid #ffffff;
+      border-bottom: 1px solid #ffffff;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 8px;
+      font-family: Tahoma, sans-serif;
+      font-size: 11px;
+      color: #000;
+    }
+    .tray-icon {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+    .tray-clock {
+      font-weight: normal;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Start Menu Pop-out simulation */
+    .start-menu {
+      position: absolute;
+      bottom: 30px;
+      left: 0;
+      width: 195px;
+      background: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+      z-index: 50;
+      display: none;
+      flex-direction: row;
+    }
+    .start-banner {
+      width: 25px;
+      background: linear-gradient(180deg, #000080 0%, #1084d0 100%);
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      font-weight: 900;
+      font-size: 14px;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 8px 0;
+      text-shadow: 1px 1px 0px #000;
+    }
+    .start-banner span {
+      color: #70c4ff;
+    }
+    .start-items {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 3px 0;
+    }
+    .start-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      font-family: Tahoma, sans-serif;
+      font-size: 11px;
+      color: #000;
+      cursor: pointer;
+    }
+    .start-menu-item:hover {
+      background: #000080;
+      color: #ffffff;
+    }
+    .start-menu-item .item-arrow {
+      margin-left: auto;
+      font-size: 8px;
+    }
+    .start-menu-sep {
+      height: 1px;
+      border-top: 1px solid #808080;
+      border-bottom: 1px solid #ffffff;
+      margin: 3px 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CRT Raster Scanline Layer -->
+  <div class="crt-overlay"></div>
+
+  <!-- Interactive Skip Badge -->
+  <div class="skip-hint" id="skip-btn" onclick="skipToDesktop()" title="Click to bypass boot">
+    [ Click anywhere to skip ]
+  </div>
+
+  <div class="os-viewport" id="viewport" onclick="handleViewportClick(event)">
+
+    <!-- ==================== SCENE 1: BIOS (2s) ==================== -->
+    <div id="scene-bios">
+      <div class="bios-header">
+        <div>
+          <div class="bios-logo">AWARD MODULAR BIOS v4.51PG, An Energy Star Ally</div>
+          <div>Copyright (C) 1984-97, Award Software, Inc.</div>
+        </div>
+        <div class="bios-energy-star">
+          EPA POLLUTION PREVENTER<br><strong>ENERGY STAR</strong>
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 14px; color: #888;">P5I430TX/250 TITAN-TURBO TITANIUM SERIES</div>
+      
+      <div class="bios-line" id="b1">PENTIUM-MMX CPU at 233MHz</div>
+      <div class="bios-line" id="b2">Memory Test : <span id="mem-count" style="color: #fff;">0K</span> <span id="mem-ok" style="color: #00ff66; display:none;">OK</span></div>
+      <div class="bios-line" id="b3" style="margin-top: 8px;">Award Plug and Play BIOS Extension v1.0A</div>
+      <div class="bios-line" id="b4">Initialize Plug and Play Cards...</div>
+      <div class="bios-line" id="b5">PNP Init Completed</div>
+      <div class="bios-line" id="b6" style="margin-top: 10px;">Detecting Primary Master ... QUANTUM FIREBALL ST3.2A</div>
+      <div class="bios-line" id="b7">Detecting Primary Slave  ... ATAPI CD-ROM 24X MAX</div>
+      <div class="bios-line" id="b8">Detecting Secondary Master ... None</div>
+      <div class="bios-line" id="b9" style="margin-top: 10px;">Verifying DMI Pool Data ..................... <span style="color:#fff;">Update Successful</span></div>
+      <div class="bios-line" id="b10" style="margin-top: 12px; color: #ffff77;">Booting from C:\ drive... <span class="cursor-blink"></span></div>
+    </div>
+
+    <!-- ==================== SCENE 2: STARTING WINDOWS (0.8s) ==================== -->
+    <div id="scene-starting">
+      <div class="starting-text">Starting Windows 97...</div>
+    </div>
+
+    <!-- ==================== SCENE 3: CLOUDS LOGO & PROGRESS (2.5s) ==================== -->
+    <div id="scene-splash">
+      <div class="splash-cloud cloud-1"></div>
+      <div class="splash-cloud cloud-2"></div>
+
+      <div class="splash-content">
+        <!-- 4-Color Wave Windows Flag -->
+        <div class="win-flag-wrap">
+          <svg viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Waving flag shadow/perspective -->
+            <path d="M12 18 Q26 12 44 20 Q46 38 43 56 Q24 48 10 56 Z" fill="#D32F2F" />
+            <path d="M48 21 Q66 29 86 20 Q88 38 84 56 Q66 64 47 57 Z" fill="#1976D2" />
+            <path d="M9 60 Q24 53 43 60 Q41 78 40 85 Q22 78 8 85 Z" fill="#388E3C" />
+            <path d="M46 61 Q66 68 83 60 Q82 78 80 85 Q64 91 44 85 Z" fill="#FBC02D" />
+            <!-- Bevel line highlights inside flag tiles -->
+            <path d="M13 19 Q26 14 43 21" stroke="#fff" stroke-width="1.5" opacity="0.6"/>
+            <path d="M49 22 Q66 30 85 21" stroke="#fff" stroke-width="1.5" opacity="0.6"/>
+            <!-- Pixel dot tails trailing the flag -->
+            <rect x="88" y="24" width="3" height="3" fill="#1976D2" opacity="0.7"/>
+            <rect x="94" y="27" width="2" height="2" fill="#1976D2" opacity="0.5"/>
+            <rect x="85" y="64" width="3" height="3" fill="#FBC02D" opacity="0.7"/>
+            <rect x="91" y="66" width="2" height="2" fill="#FBC02D" opacity="0.5"/>
+          </svg>
+        </div>
+
+        <!-- Typography -->
+        <div class="brand-title">
+          Microsoft <span class="ver">Windows<span>97</span></span>
+        </div>
+        <div class="brand-subtext">Portfolio Edition</div>
+
+        <!-- Classic Segmented Progress Bar -->
+        <div class="progress-outer">
+          <div class="progress-track" id="progress-track">
+            <!-- 18 distinct segments -->
+            <div class="progress-segment"></div><div class="progress-segment"></div><div class="progress-segment"></div>
+            <div class="progress-segment"></div><div class="progress-segment"></div><div class="progress-segment"></div>
+            <div class="progress-segment"></div><div class="progress-segment"></div><div class="progress-segment"></div>
+            <div class="progress-segment"></div><div class="progress-segment"></div><div class="progress-segment"></div>
+            <div class="progress-segment"></div><div class="progress-segment"></div><div class="progress-segment"></div>
+            <div class="progress-segment"></div><div class="progress-segment"></div><div class="progress-segment"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="splash-footer">
+        Based on Microsoft Windows 95 4.00.950 B OSR2 architecture
+      </div>
+    </div>
+
+    <!-- ==================== SCENE 4: BLISS DESKTOP ==================== -->
+    <div id="scene-desktop">
+      <!-- Background Hills & Clouds -->
+      <div class="bliss-bg">
+        <div class="bliss-sky"></div>
+        <!-- Vector Clouds -->
+        <svg class="cloud-svg-1" viewBox="0 0 200 60" fill="#ffffff">
+          <path d="M10 45 Q30 20 60 30 Q80 10 115 25 Q145 15 165 35 Q190 35 190 48 Q180 58 150 55 Q90 58 10 52 Z" opacity="0.9"/>
+        </svg>
+        <svg class="cloud-svg-2" viewBox="0 0 200 60" fill="#ffffff">
+          <path d="M20 45 Q40 25 70 35 Q90 15 125 30 Q155 20 175 40 Q180 50 160 55 Q100 58 20 50 Z" opacity="0.75"/>
+        </svg>
+        <!-- Rolling Bliss Hills -->
+        <div class="bliss-hills"></div>
+        <div class="bliss-hill-front"></div>
+      </div>
+
+      <!-- Desktop Icons (Popped in Left-to-Right sequentially) -->
+      <div class="desktop-area" id="desktop-icons">
+        <!-- 1. My Computer -->
+        <div class="desktop-icon" id="icon-1" onclick="selectIcon(this, event)">
+          <div class="icon-img-wrap">
+            <svg viewBox="0 0 32 32">
+              <rect x="4" y="3" width="24" height="18" rx="1" fill="#c0c0c0" stroke="#000" stroke-width="1.2"/>
+              <rect x="7" y="6" width="18" height="12" fill="#000080"/>
+              <rect x="9" y="8" width="14" height="8" fill="#1084d0"/>
+              <path d="M10 21 L8 26 L24 26 L22 21 Z" fill="#808080" stroke="#000" stroke-width="1"/>
+              <rect x="6" y="26" width="20" height="3" fill="#c0c0c0" stroke="#000" stroke-width="1"/>
+              <rect x="18" y="27" width="5" height="1" fill="#000"/>
+              <circle cx="10" cy="27.5" r="0.7" fill="#00ff00"/>
+            </svg>
+          </div>
+          <div class="icon-label">My Computer</div>
+        </div>
+
+        <!-- 2. My Documents -->
+        <div class="desktop-icon" id="icon-2" onclick="selectIcon(this, event)">
+          <div class="icon-img-wrap">
+            <svg viewBox="0 0 32 32">
+              <path d="M3 8 L13 8 L15 11 L29 11 L29 25 L3 25 Z" fill="#F8D878" stroke="#7a5813" stroke-width="1.2"/>
+              <path d="M4 12 L28 12 L28 24 L4 24 Z" fill="#fce49f"/>
+              <!-- paper peek -->
+              <rect x="7" y="6" width="11" height="7" fill="#ffffff" stroke="#808080" stroke-width="1"/>
+              <line x1="9" y1="8" x2="15" y2="8" stroke="#808080"/>
+              <line x1="9" y1="10" x2="13" y2="10" stroke="#808080"/>
+            </svg>
+          </div>
+          <div class="icon-label">My Documents</div>
+        </div>
+
+        <!-- 3. Projects (Portfolio Core) -->
+        <div class="desktop-icon" id="icon-3" onclick="selectIcon(this, event)">
+          <div class="icon-img-wrap">
+            <svg viewBox="0 0 32 32">
+              <!-- Folder with special blue badge -->
+              <path d="M3 7 L12 7 L14 10 L29 10 L29 25 L3 25 Z" fill="#F8D878" stroke="#7a5813" stroke-width="1.2"/>
+              <path d="M5 11 L27 11 L25 24 L3 24 Z" fill="#ffeaa7"/>
+              <circle cx="19" cy="18" r="6" fill="#000080" stroke="#fff" stroke-width="1"/>
+              <path d="M17 15 L22 18 L17 21 Z" fill="#ffff00"/>
+            </svg>
+          </div>
+          <div class="icon-label">Projects</div>
+        </div>
+
+        <!-- 4. Videos -->
+        <div class="desktop-icon" id="icon-4" onclick="selectIcon(this, event)">
+          <div class="icon-img-wrap">
+            <svg viewBox="0 0 32 32">
+              <rect x="4" y="6" width="24" height="20" fill="#202020" stroke="#000" stroke-width="1.2"/>
+              <rect x="6" y="8" width="4" height="3" fill="#ffffff"/>
+              <rect x="6" y="13" width="4" height="3" fill="#ffffff"/>
+              <rect x="6" y="18" width="4" height="3" fill="#ffffff"/>
+              <rect x="22" y="8" width="4" height="3" fill="#ffffff"/>
+              <rect x="22" y="13" width="4" height="3" fill="#ffffff"/>
+              <rect x="22" y="18" width="4" height="3" fill="#ffffff"/>
+              <polygon points="13,11 20,16 13,21" fill="#00ffff"/>
+            </svg>
+          </div>
+          <div class="icon-label">Videos</div>
+        </div>
+
+        <!-- 5. My Music -->
+        <div class="desktop-icon" id="icon-5" onclick="selectIcon(this, event)">
+          <div class="icon-img-wrap">
+            <svg viewBox="0 0 32 32">
+              <circle cx="15" cy="16" r="12" fill="#c0c0c0" stroke="#404040" stroke-width="1.2"/>
+              <circle cx="15" cy="16" r="4" fill="#ffffff" stroke="#404040" stroke-width="1"/>
+              <path d="M12 6 Q15 9 18 6" stroke="#00e1ff" stroke-width="2" fill="none"/>
+              <path d="M11 24 Q15 21 19 24" stroke="#ff00cc" stroke-width="2" fill="none"/>
+              <!-- Note symbol -->
+              <path d="M22 6 L28 4 L28 14 L24 16 C22 17 21 15 22 13 C23 11 25 12 25 12 L25 8 L22 9 Z" fill="#000080"/>
+            </svg>
+          </div>
+          <div class="icon-label">My Music</div>
+        </div>
+
+        <!-- 6. Internet Explorer -->
+        <div class="desktop-icon" id="icon-6" onclick="selectIcon(this, event)">
+          <div class="icon-img-wrap">
+            <svg viewBox="0 0 32 32">
+              <circle cx="16" cy="16" r="11" fill="#0080ff" stroke="#004080" stroke-width="1"/>
+              <path d="M3 13 C8 6, 24 5, 29 13 C24 22, 10 24, 3 13 Z" fill="none" stroke="#ffff00" stroke-width="2.5"/>
+              <text x="11" y="21" font-family="Arial" font-weight="bold" font-size="16" fill="#ffffff" font-style="italic">e</text>
+            </svg>
+          </div>
+          <div class="icon-label">Internet Explorer</div>
+        </div>
+
+        <!-- 7. Games -->
+        <div class="desktop-icon" id="icon-7" onclick="selectIcon(this, event)">
+          <div class="icon-img-wrap">
+            <svg viewBox="0 0 32 32">
+              <rect x="4" y="9" width="24" height="15" rx="3" fill="#444" stroke="#000" stroke-width="1.2"/>
+              <line x1="9" y1="16.5" x2="15" y2="16.5" stroke="#fff" stroke-width="2.5"/>
+              <line x1="12" y1="13.5" x2="12" y2="19.5" stroke="#fff" stroke-width="2.5"/>
+              <circle cx="20" cy="17" r="1.8" fill="#d32f2f"/>
+              <circle cx="24" cy="15" r="1.8" fill="#fbc02d"/>
+            </svg>
+          </div>
+          <div class="icon-label">Games</div>
+        </div>
+
+        <!-- 8. Recycle Bin -->
+        <div class="desktop-icon" id="icon-8" onclick="selectIcon(this, event)">
+          <div class="icon-img-wrap">
+            <svg viewBox="0 0 32 32">
+              <polygon points="7,8 25,8 22,27 10,27" fill="#d8d8d8" stroke="#404040" stroke-width="1.2"/>
+              <rect x="5" y="6" width="22" height="3" fill="#b0b0b0" stroke="#404040" stroke-width="1"/>
+              <!-- Green recycle arrows -->
+              <path d="M14 13 L17 13 L15.5 10 Z" fill="#008000"/>
+              <path d="M13 14 Q16 12 18 15" stroke="#008000" stroke-width="1.5" fill="none"/>
+              <path d="M18 19 L18 16 L21 17.5 Z" fill="#008000"/>
+              <path d="M17 18 Q14 21 13 17" stroke="#008000" stroke-width="1.5" fill="none"/>
+            </svg>
+          </div>
+          <div class="icon-label">Recycle Bin</div>
+        </div>
+      </div>
+
+      <!-- Playful System Welcome Dialog Box -->
+      <div class="retro-dialog" id="welcome-dialog">
+        <div class="dialog-titlebar">
+          <span>System Information</span>
+          <div class="dialog-close-btn" onclick="closeDialog()">✕</div>
+        </div>
+        <div class="dialog-body">
+          <div class="dialog-icon">
+            <svg viewBox="0 0 32 32">
+              <circle cx="16" cy="16" r="13" fill="#000080"/>
+              <text x="13" y="22" font-family="'Times New Roman', serif" font-weight="bold" font-size="19" fill="#ffffff">i</text>
+            </svg>
+          </div>
+          <div class="dialog-msg">
+            <strong>Windows 97 Boot Complete!</strong><br>
+            All virtual hardware drivers loaded successfully.<br>
+            Double-click <strong>Projects</strong> to inspect the work, or open <strong>My Documents</strong> for the CV.
+          </div>
+        </div>
+        <div class="dialog-buttons">
+          <button class="win-btn default" onclick="closeDialog()">OK</button>
+        </div>
+      </div>
+
+      <!-- Start Menu (Click Start to open) -->
+      <div class="start-menu" id="start-menu">
+        <div class="start-banner">
+          Windows<span>97</span>
+        </div>
+        <div class="start-items">
+          <div class="start-menu-item" onclick="triggerAlert('Programs')">
+            <span style="font-size: 13px;">📁</span> <span>Programs</span> <span class="item-arrow">▶</span>
+          </div>
+          <div class="start-menu-item" onclick="triggerAlert('Documents')">
+            <span style="font-size: 13px;">📄</span> <span>Documents</span> <span class="item-arrow">▶</span>
+          </div>
+          <div class="start-menu-item" onclick="triggerAlert('Settings')">
+            <span style="font-size: 13px;">⚙️</span> <span>Settings</span> <span class="item-arrow">▶</span>
+          </div>
+          <div class="start-menu-item" onclick="triggerAlert('Find')">
+            <span style="font-size: 13px;">🔍</span> <span>Find</span> <span class="item-arrow">▶</span>
+          </div>
+          <div class="start-menu-item" onclick="triggerAlert('Help')">
+            <span style="font-size: 13px;">❓</span> <span>Help</span>
+          </div>
+          <div class="start-menu-item" onclick="triggerAlert('Run')">
+            <span style="font-size: 13px;">💻</span> <span>Run...</span>
+          </div>
+          <div class="start-menu-sep"></div>
+          <div class="start-menu-item" onclick="restartBoot()">
+            <span style="font-size: 13px;">🔌</span> <span>Restart Computer...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pinned Taskbar -->
+      <div class="taskbar" id="taskbar">
+        <div style="display: flex; align-items: center;">
+          <div class="start-btn" id="start-btn" onclick="toggleStartMenu(event)">
+            <!-- Mini 4-color Windows Flag -->
+            <svg class="start-flag-icon" viewBox="0 0 16 16">
+              <rect x="2" y="2" width="5" height="5" fill="#D32F2F"/>
+              <rect x="8" y="2" width="5" height="5" fill="#1976D2"/>
+              <rect x="2" y="8" width="5" height="5" fill="#388E3C"/>
+              <rect x="8" y="8" width="5" height="5" fill="#FBC02D"/>
+            </svg>
+            <span>Start</span>
+          </div>
+
+          <div class="taskbar-divider"></div>
+
+          <div class="task-items-area">
+            <div class="task-tab active" id="taskbar-dialog-tab" style="display: none;">
+              <span style="color:#000080; font-size: 10px;">ℹ</span>
+              <span>System Information</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tray-area">
+          <!-- Small Speaker Icon -->
+          <svg class="tray-icon" viewBox="0 0 16 16" fill="#000" title="Volume">
+            <polygon points="2,5 6,5 10,2 10,14 6,11 2,11"/>
+            <path d="M12 5 Q14 8 12 11" fill="none" stroke="#000" stroke-width="1.2"/>
+          </svg>
+          <!-- Small Display Icon -->
+          <svg class="tray-icon" viewBox="0 0 16 16" fill="#000" title="Display">
+            <rect x="2" y="3" width="12" height="8" rx="1" fill="none" stroke="#000"/>
+            <line x1="8" y1="11" x2="8" y2="14" stroke="#000"/>
+            <line x1="5" y1="14" x2="11" y2="14" stroke="#000"/>
+          </svg>
+          <div class="tray-clock" id="clock">04:20 PM</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // State machine management
+    let currentScene = 1;
+    let skipped = false;
+    let biosTimeout;
+    let memInterval;
+
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+      const clockEl = document.getElementById('clock');
+      if (clockEl) clockEl.innerText = `${hours}:${minutes} ${ampm}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Scene 1: BIOS Sequence
+    function runBios() {
+      const biosLines = ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10'];
+      let delay = 100;
+
+      // Line by line revelation
+      biosLines.forEach((id, index) => {
+        setTimeout(() => {
+          if (skipped) return;
+          const el = document.getElementById(id);
+          if (el) el.classList.add('visible');
+
+          // Memory count animation on line b2
+          if (id === 'b2') {
+            let mem = 0;
+            const target = 65536;
+            const step = 8192;
+            memInterval = setInterval(() => {
+              if (skipped) { clearInterval(memInterval); return; }
+              mem += step;
+              if (mem >= target) {
+                mem = target;
+                clearInterval(memInterval);
+                document.getElementById('mem-count').innerText = mem + 'K';
+                document.getElementById('mem-ok').style.display = 'inline';
+              } else {
+                document.getElementById('mem-count').innerText = mem + 'K';
+              }
+            }, 60);
+          }
+        }, delay);
+        delay += (index === 1 ? 700 : 130);
+      });
+
+      // Transition to Scene 2 after ~2.0s
+      biosTimeout = setTimeout(() => {
+        if (!skipped) transitionToScene2();
+      }, 2100);
+    }
+
+    // Scene 2: "Starting Windows 97..."
+    function transitionToScene2() {
+      currentScene = 2;
+      document.getElementById('scene-bios').style.display = 'none';
+      const scene2 = document.getElementById('scene-starting');
+      scene2.style.display = 'block';
+
+      setTimeout(() => {
+        if (!skipped) transitionToScene3();
+      }, 900);
+    }
+
+    // Scene 3: Cloud splash & progress bar
+    function transitionToScene3() {
+      currentScene = 3;
+      document.getElementById('scene-starting').style.display = 'none';
+      const scene3 = document.getElementById('scene-splash');
+      scene3.style.display = 'flex';
+
+      const segments = document.querySelectorAll('.progress-segment');
+      let currentSeg = 0;
+
+      // Animate progress segments forward over 2.4s
+      const segInterval = setInterval(() => {
+        if (skipped) { clearInterval(segInterval); return; }
+        if (currentSeg < segments.length) {
+          segments[currentSeg].classList.add('active');
+          currentSeg++;
+        } else {
+          clearInterval(segInterval);
+          setTimeout(() => {
+            if (!skipped) transitionToDesktop();
+          }, 350);
+        }
+      }, 120);
+    }
+
+    // Scene 4: Bliss Desktop Reveal
+    function transitionToDesktop() {
+      currentScene = 4;
+      skipped = true;
+
+      // Hide all prior scenes
+      document.getElementById('scene-bios').style.display = 'none';
+      document.getElementById('scene-starting').style.display = 'none';
+      
+      const splash = document.getElementById('scene-splash');
+      splash.style.opacity = '0';
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 700);
+
+      // Show Desktop
+      const desktop = document.getElementById('scene-desktop');
+      desktop.style.opacity = '1';
+
+      // Hide skip button
+      const skipBtn = document.getElementById('skip-btn');
+      if (skipBtn) skipBtn.style.display = 'none';
+
+      // 1. Taskbar slides up
+      setTimeout(() => {
+        document.getElementById('taskbar').classList.add('slide-up');
+      }, 300);
+
+      // 2. Desktop icons pop in sequentially left-to-right
+      const icons = document.querySelectorAll('.desktop-icon');
+      icons.forEach((icon, idx) => {
+        setTimeout(() => {
+          icon.classList.add('popped');
+        }, 600 + (idx * 90));
+      });
+
+      // 3. Show System Welcome dialog
+      setTimeout(() => {
+        const dlg = document.getElementById('welcome-dialog');
+        if (dlg) dlg.style.display = 'block';
+        const tab = document.getElementById('taskbar-dialog-tab');
+        if (tab) tab.style.display = 'flex';
+      }, 1600);
+    }
+
+    // Manual Skip handler
+    function skipToDesktop() {
+      if (currentScene === 4) return;
+      skipped = true;
+      clearTimeout(biosTimeout);
+      clearInterval(memInterval);
+      transitionToDesktop();
+    }
+
+    // Click anywhere to skip during scenes 1-3
+    function handleViewportClick(e) {
+      if (currentScene < 4) {
+        skipToDesktop();
+      }
+    }
+
+    // Icon selection helper
+    function selectIcon(el, e) {
+      e.stopPropagation();
+      document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    // Dialog controls
+    function closeDialog() {
+      const dlg = document.getElementById('welcome-dialog');
+      if (dlg) dlg.style.display = 'none';
+      const tab = document.getElementById('taskbar-dialog-tab');
+      if (tab) tab.style.display = 'none';
+    }
+
+    // Start Menu toggling
+    function toggleStartMenu(e) {
+      e.stopPropagation();
+      const menu = document.getElementById('start-menu');
+      const btn = document.getElementById('start-btn');
+      const isVisible = menu.style.display === 'flex';
+      menu.style.display = isVisible ? 'none' : 'flex';
+      btn.classList.toggle('active', !isVisible);
+    }
+
+    document.addEventListener('click', (e) => {
+      const menu = document.getElementById('start-menu');
+      const btn = document.getElementById('start-btn');
+      if (menu && menu.style.display === 'flex' && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.style.display = 'none';
+        btn.classList.remove('active');
+      }
+    });
+
+    function triggerAlert(name) {
+      alert(`Windows 97: Opening ${name}...`);
+    }
+
+    function restartBoot() {
+      location.reload();
+    }
+
+    // Start sequence on page load
+    window.addEventListener('DOMContentLoaded', runBios);
+  </script>
+</body>
+</html>

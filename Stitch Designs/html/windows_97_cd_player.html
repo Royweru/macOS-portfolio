@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&amp;family=Space+Grotesk:wght@700&amp;family=Work+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.bevel-raised{border-top:2px solid #FFFFFF;border-left:2px solid #FFFFFF;border-right:2px solid #404040;border-bottom:2px solid #404040;box-shadow:inset 1px 1px 0px #DFDFDF,inset -1px -1px 0px #808080;}.bevel-sunken{border-top:2px solid #404040;border-left:2px solid #404040;border-right:2px solid #FFFFFF;border-bottom:2px solid #FFFFFF;box-shadow:inset 1px 1px 0px #808080,inset -1px -1px 0px #DFDFDF;}.scanlines{background:linear-gradient(rgba(18,16,16,0) 50%,rgba(0,0,0,0.25) 50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03));background-size:100% 3px,6px 100%;pointer-events:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-low":"#f4f3f3","surface-tint":"#4b53bc","surface-container-high":"#e8e8e8","on-background":"#1a1c1c","primary-container":"#000080","surface-variant":"#e3e2e2","window-body-bg":"#FFFFFF","folder-yellow":"#F8D878","on-primary":"#ffffff","bevel-dark-shadow":"#404040","outline":"#767684","surface-bright":"#faf9f9","on-secondary-fixed-variant":"#004a78","primary":"#00003c","on-primary-fixed":"#00006e","bevel-shadow":"#808080","outline-variant":"#c6c5d5","inverse-primary":"#bfc2ff","inactive-title-start":"#808080","tertiary":"#220000","secondary-fixed":"#cfe5ff","on-primary-container":"#777eea","desktop-grass-start":"#4C9A2A","surface-dim":"#dadada","on-error-container":"#93000a","on-surface":"#1a1c1c","tertiary-fixed-dim":"#ffb4a8","error":"#ba1a1a","tertiary-fixed":"#ffdad4","secondary-fixed-dim":"#9acbff","secondary-container":"#53aefd","secondary":"#00629e","tertiary-container":"#4d0000","on-tertiary":"#ffffff","desktop-sky-end":"#7BB3E8","error-container":"#ffdad6","bevel-highlight":"#FFFFFF","on-primary-fixed-variant":"#3239a3","primary-fixed":"#e0e0ff","on-surface-variant":"#464653","surface-container":"#eeeeee","primary-fixed-dim":"#bfc2ff","on-tertiary-fixed-variant":"#82271c","on-secondary-container":"#00406a","on-secondary":"#ffffff","on-secondary-fixed":"#001d34","on-tertiary-fixed":"#410000","surface-container-lowest":"#ffffff","folder-shadow":"#C0A860","surface-container-highest":"#e3e2e2","on-error":"#ffffff","desktop-sky-start":"#3A6EA5","on-tertiary-container":"#d96756","inverse-on-surface":"#f1f0f0","selection-blue":"#000080","surface":"#faf9f9","system-error":"#D40000","desktop-grass-end":"#7EC850","inverse-surface":"#2f3131","inactive-title-end":"#B5B5B5","background":"#faf9f9","system-warning":"#FFFF00"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{"space-lg":"0.5rem","space-md":"0.375rem",gutter:"0.5rem","space-xs":"0.125rem","space-xl":"1rem",margin:"0.25rem","space-sm":"0.25rem"},fontFamily:{"body-md":["Courier Prime"],"body-sm":["Courier Prime"],"label-lg":["Work Sans"],"headline-lg":["Space Grotesk"],"label-sm":["Work Sans"],"headline-sm":["Work Sans"],"label-md":["Work Sans"]},fontSize:{"body-md":["12px",{lineHeight:"16px",fontWeight:"400"}],"body-sm":["10px",{lineHeight:"14px",fontWeight:"400"}],"label-lg":["11px",{lineHeight:"14px",fontWeight:"700"}],"headline-lg":["16px",{lineHeight:"20px",letterSpacing:"0.05em",fontWeight:"700"}],"label-sm":["8px",{lineHeight:"10px",fontWeight:"400"}],"headline-sm":["11px",{lineHeight:"14px",fontWeight:"700"}],"label-md":["9px",{lineHeight:"12px",fontWeight:"400"}]}}}}</script></head><body class="min-h-screen bg-gradient-to-b from-desktop-sky-start via-desktop-sky-end to-desktop-grass-end text-on-surface select-none overflow-x-hidden font-label-md text-label-md"><div class="fixed inset-0 scanlines z-50 pointer-events-none opacity-30"></div><header class="fixed top-0 left-0 right-0 h-6 z-40 bg-surface-container flex items-center justify-between px-space-md border-b border-bevel-dark-shadow"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-primary text-[14px]">desktop_windows</span><span class="font-label-lg text-label-lg text-primary uppercase">Windows 97 System Manager</span></div><div class="flex items-center gap-space-md"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><aside class="fixed left-0 top-6 bottom-8 w-24 z-30 p-space-sm flex flex-col gap-space-lg overflow-y-auto"><nav class="flex flex-col gap-space-md" data-active-classes="bg-selection-blue text-on-primary font-label-md border border-dotted border-bevel-highlight"><a class="group flex flex-col items-center justify-center p-space-xs text-center text-on-primary hover:bg-selection-blue hover:text-on-primary" data-path="desktop-my-computer" href="#"><div class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-folder-yellow text-[28px]">computer</span></div><span class="font-label-md text-label-md tracking-tight px-space-xs drop-shadow">My Computer</span></a><a class="group flex flex-col items-center justify-center p-space-xs text-center text-on-primary hover:bg-selection-blue hover:text-on-primary" data-path="desktop-my-documents" href="#"><div class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-folder-yellow text-[28px]">folder</span></div><span class="font-label-md text-label-md tracking-tight px-space-xs drop-shadow">My Documents</span></a><a class="group flex flex-col items-center justify-center p-space-xs text-center text-on-primary hover:bg-selection-blue hover:text-on-primary" data-path="desktop-projects" href="#"><div class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-folder-shadow text-[28px]">folder_special</span></div><span class="font-label-md text-label-md tracking-tight px-space-xs drop-shadow">Projects</span></a><a class="group flex flex-col items-center justify-center p-space-xs text-center text-on-primary hover:bg-selection-blue hover:text-on-primary" data-path="desktop-videos" href="#"><div class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-folder-yellow text-[28px]">video_library</span></div><span class="font-label-md text-label-md tracking-tight px-space-xs drop-shadow">Videos</span></a><a aria-current="page" class="group flex flex-col items-center justify-center p-space-xs bg-selection-blue text-on-primary font-label-md border border-dotted border-bevel-highlight" data-path="desktop-my-music" href="#"><div class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-secondary-container text-[28px]">album</span></div><span class="font-label-md text-label-md tracking-tight px-space-xs drop-shadow">My Music</span></a><a class="group flex flex-col items-center justify-center p-space-xs text-center text-on-primary hover:bg-selection-blue hover:text-on-primary" data-path="desktop-internet-explorer" href="#"><div class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-secondary-container text-[28px]">public</span></div><span class="font-label-md text-label-md tracking-tight px-space-xs drop-shadow">Internet Explorer</span></a><a class="group flex flex-col items-center justify-center p-space-xs text-center text-on-primary hover:bg-selection-blue hover:text-on-primary" data-path="desktop-games" href="#"><div class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-error text-[28px]">sports_esports</span></div><span class="font-label-md text-label-md tracking-tight px-space-xs drop-shadow">Games</span></a><a class="group flex flex-col items-center justify-center p-space-xs text-center text-on-primary hover:bg-selection-blue hover:text-on-primary" data-path="desktop-recycle-bin" href="#"><div class="w-8 h-8 flex items-center justify-center"><span class="material-symbols-outlined text-surface-container-high text-[28px]">delete</span></div><span class="font-label-md text-label-md tracking-tight px-space-xs drop-shadow">Recycle Bin</span></a></nav></aside><div class="pl-24"><main class="w-full pt-6 pb-10 min-h-screen px-space-lg relative z-20"><div class="flex flex-col w-full">
+<div class="w-full relative min-h-[680px] p-space-sm flex flex-col gap-space-lg select-none">
+<!-- DESKTOP WORKSPACE / WINDOWS LAYER -->
+<div class="w-full flex flex-row items-start justify-center gap-space-xl flex-wrap lg:flex-nowrap pt-space-sm">
+<!-- ========================================================================= -->
+<!-- WINDOW 1: CD PLAYER (MAIN ACTIVE WINDOW)                                -->
+<!-- ========================================================================= -->
+<div class="w-full max-w-[540px] bg-surface-container bevel-raised flex flex-col shadow-xl z-30" id="cd-player-window">
+<!-- Window Title Bar -->
+<div class="h-[18px] bg-gradient-to-r from-primary-container to-secondary flex items-center justify-between px-space-xs cursor-default">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-on-primary text-[14px] leading-none" style="font-variation-settings: 'FILL' 1;">album</span>
+<span class="font-headline-sm text-headline-sm text-on-primary tracking-tight truncate">CD Player</span>
+</div>
+<!-- Title Bar Controls -->
+<div class="flex items-center gap-[2px]">
+<button class="w-[14px] h-[14px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface font-label-sm leading-none focus:outline-none" title="Minimize">
+<span class="font-bold -mt-[2px]">_</span>
+</button>
+<button class="w-[14px] h-[14px] bg-surface-container bevel-raised opacity-60 cursor-not-allowed flex items-center justify-center text-bevel-shadow font-label-sm leading-none" disabled="" title="Maximize (Disabled)">
+<span class="font-bold text-[9px] leading-none">□</span>
+</button>
+<button class="w-[14px] h-[14px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface font-label-sm leading-none focus:outline-none" title="Close">
+<span class="font-bold text-[10px] leading-none">✕</span>
+</button>
+</div>
+</div>
+<!-- Menu Bar -->
+<div class="h-[18px] bg-surface-container flex items-center px-space-xs gap-space-xs border-b border-bevel-shadow text-on-surface">
+<button class="px-space-xs hover:bg-selection-blue hover:text-on-primary font-label-md text-label-md leading-none py-[2px]"><u>D</u>isc</button>
+<button class="px-space-xs hover:bg-selection-blue hover:text-on-primary font-label-md text-label-md leading-none py-[2px]"><u>V</u>iew</button>
+<button class="px-space-xs hover:bg-selection-blue hover:text-on-primary font-label-md text-label-md leading-none py-[2px]"><u>O</u>ptions</button>
+<button class="px-space-xs hover:bg-selection-blue hover:text-on-primary font-label-md text-label-md leading-none py-[2px]"><u>H</u>elp</button>
+</div>
+<!-- Upper Control Deck: LCD Panel & Transport Buttons -->
+<div class="p-space-md flex flex-col gap-space-md bg-surface-container">
+<div class="flex flex-row items-stretch gap-space-md">
+<!-- DUAL DIGITAL LCD PANEL (VINTAGE FLUORESCENT GREEN) -->
+<div class="flex-1 bg-primary bevel-sunken p-space-sm flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-[4px]">
+<span class="inline-block w-2 h-2 rounded-full bg-desktop-grass-end animate-pulse"></span>
+<span class="font-body-sm text-body-sm text-desktop-grass-end tracking-wider uppercase font-bold">PLAYING</span>
+</div>
+<div class="font-body-sm text-body-sm text-desktop-sky-end font-bold tracking-widest uppercase">DISC (D:)</div>
+</div>
+<!-- Main Segments Display -->
+<div class="flex items-baseline justify-center py-space-xs gap-space-sm">
+<div class="flex items-baseline">
+<span class="font-body-md text-body-md text-desktop-grass-end opacity-75 font-bold">[</span>
+<span class="font-body-md text-[26px] leading-[28px] text-desktop-grass-end font-bold tracking-tighter" id="lcd-track-num" style="text-shadow: 0 0 6px rgba(126, 200, 80, 0.8);">01</span>
+<span class="font-body-md text-body-md text-desktop-grass-end opacity-75 font-bold">]</span>
+</div>
+<span class="font-body-md text-[34px] leading-[34px] text-desktop-grass-end font-bold tracking-wider" id="lcd-time" style="text-shadow: 0 0 8px rgba(126, 200, 80, 0.9);">02:41</span>
+</div>
+<!-- Sub Indicator Strip -->
+<div class="flex items-center justify-between border-t border-bevel-dark-shadow pt-[2px]">
+<span class="font-body-sm text-[9px] leading-[10px] text-desktop-sky-end uppercase">MODE: TRACK TIME</span>
+<span class="font-body-sm text-[9px] leading-[10px] text-desktop-grass-end uppercase tracking-widest">STEREO 44.1k</span>
+</div>
+</div>
+<!-- TIME DISPLAY RADIO SELECTORS -->
+<div class="w-[140px] bevel-sunken bg-surface-container-high p-space-xs flex flex-col justify-around text-on-surface">
+<label class="flex items-center gap-space-xs cursor-pointer">
+<input checked="" class="accent-selection-blue w-3 h-3 cursor-pointer" name="time_mode" type="radio"/>
+<span class="font-label-md text-label-md leading-tight">Track Elapsed</span>
+</label>
+<label class="flex items-center gap-space-xs cursor-pointer">
+<input class="accent-selection-blue w-3 h-3 cursor-pointer" name="time_mode" type="radio"/>
+<span class="font-label-md text-label-md leading-tight">Track Remain</span>
+</label>
+<label class="flex items-center gap-space-xs cursor-pointer">
+<input class="accent-selection-blue w-3 h-3 cursor-pointer" name="time_mode" type="radio"/>
+<span class="font-label-md text-label-md leading-tight">Disc Remain</span>
+</label>
+</div>
+</div>
+<!-- RETRO TACTILE TRANSPORT KEYPAD -->
+<div class="bevel-raised bg-surface-container p-space-xs flex items-center justify-between gap-[3px]">
+<!-- Prev Track -->
+<button class="flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright" id="btn-prev" title="Previous Track (|◀)">
+<span class="font-bold text-[12px] tracking-tighter">|◀</span>
+</button>
+<!-- Fast Reverse -->
+<button class="flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright" id="btn-rew" title="Fast Reverse (◀◀)">
+<span class="font-bold text-[11px] tracking-tighter">◀◀</span>
+</button>
+<!-- Play Button: ACTIVE / PRESSED SUNKEN STATE -->
+<button class="flex-1 h-[28px] bg-surface-variant bevel-sunken flex items-center justify-center text-desktop-grass-start font-bold translate-x-[1px] translate-y-[1px]" id="btn-play" title="Play (▶)">
+<span class="material-symbols-outlined text-[16px] leading-none" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<!-- Pause Button -->
+<button class="flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright" id="btn-pause" title="Pause (❚❚)">
+<span class="material-symbols-outlined text-[14px] leading-none" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<!-- Stop Button -->
+<button class="flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-error hover:bg-surface-bright" id="btn-stop" title="Stop (■)">
+<span class="material-symbols-outlined text-[14px] leading-none" style="font-variation-settings: 'FILL' 1;">stop</span>
+</button>
+<!-- Fast Forward -->
+<button class="flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright" id="btn-ff" title="Fast Forward (▶▶)">
+<span class="font-bold text-[11px] tracking-tighter">▶▶</span>
+</button>
+<!-- Next Track -->
+<button class="flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright" id="btn-next" title="Next Track (▶|)">
+<span class="font-bold text-[12px] tracking-tighter">▶|</span>
+</button>
+<!-- Eject CD Tray -->
+<button class="flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright" id="btn-eject" title="Eject Drive (⏏)">
+<span class="font-bold text-[13px] leading-none">⏏</span>
+</button>
+</div>
+<!-- CD TRAY SIMULATION NOTIFICATION (TOGGLEABLE) -->
+<div class="hidden bg-system-warning text-primary px-space-sm py-space-xs bevel-sunken flex items-center justify-between" id="tray-indicator">
+<span class="font-label-md text-label-md font-bold uppercase flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[14px]">eject</span>
+              CD-ROM TRAY OPEN: DRIVE D:\ READY FOR INSERTION
+            </span>
+<button class="px-space-xs bg-surface-container bevel-raised font-label-sm text-label-sm uppercase font-bold" onclick="document.getElementById('tray-indicator').classList.add('hidden')">Close Tray</button>
+</div>
+<!-- METADATA COMBO BOXES -->
+<div class="bg-surface-container p-space-xs flex flex-col gap-space-xs">
+<!-- Artist Combo -->
+<div class="flex items-center gap-space-xs">
+<span class="w-[50px] font-label-md text-label-md text-on-surface text-right pr-space-xs">Artist:</span>
+<div class="flex-1 bevel-sunken bg-window-body-bg flex items-center justify-between px-space-xs h-[22px]">
+<span class="font-body-md text-body-md text-on-surface truncate">My Music &lt;D:\AUDIO_CD&gt;</span>
+<button class="h-[18px] w-[16px] bg-surface-container bevel-raised flex items-center justify-center text-on-surface font-bold text-[8px]">▼</button>
+</div>
+</div>
+<!-- Title Combo -->
+<div class="flex items-center gap-space-xs">
+<span class="w-[50px] font-label-md text-label-md text-on-surface text-right pr-space-xs">Title:</span>
+<div class="flex-1 bevel-sunken bg-window-body-bg flex items-center justify-between px-space-xs h-[22px]">
+<span class="font-body-md text-body-md text-on-surface truncate">Portfolio Theme (Original Mix)</span>
+<button class="h-[18px] w-[16px] bg-surface-container bevel-raised flex items-center justify-center text-on-surface font-bold text-[8px]">▼</button>
+</div>
+</div>
+<!-- Track Selector Combo -->
+<div class="flex items-center gap-space-xs">
+<span class="w-[50px] font-label-md text-label-md text-on-surface text-right pr-space-xs">Track:</span>
+<div class="flex-1 bevel-sunken bg-window-body-bg flex items-center justify-between px-space-xs h-[22px]">
+<span class="font-body-md text-body-md text-on-surface truncate font-bold">[01] 01_portfolio-theme.wav (03:42)</span>
+<button class="h-[18px] w-[16px] bg-surface-container bevel-raised flex items-center justify-center text-on-surface font-bold text-[8px]" id="track-dropdown-toggle">▼</button>
+</div>
+</div>
+<!-- TRACK LIST VIEWER (POPUP / SUNKEN SELECTOR) -->
+<div class="w-full bevel-sunken bg-window-body-bg mt-[2px] p-[2px] max-h-[76px] overflow-y-auto">
+<div class="flex items-center justify-between px-space-xs py-[2px] bg-selection-blue text-on-primary font-body-sm text-body-sm border border-dotted border-bevel-highlight">
+<span>[01] 01_portfolio-theme.wav</span>
+<span class="font-bold">03:42</span>
+</div>
+<div class="flex items-center justify-between px-space-xs py-[2px] hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm cursor-pointer">
+<span>[02] 02_ui-sounds-demo.mid</span>
+<span>01:15</span>
+</div>
+<div class="flex items-center justify-between px-space-xs py-[2px] hover:bg-surface-container-high text-on-surface font-body-sm text-body-sm cursor-pointer">
+<span>[03] 03_startup-mix.wav</span>
+<span>02:50</span>
+</div>
+</div>
+</div>
+<!-- HARDWARE SLIDERS & FUNCTION TOGGLE ROW -->
+<div class="flex items-center justify-between gap-space-md pt-space-xs border-t border-bevel-shadow">
+<!-- Hardware Volume Slider -->
+<div class="flex-1 flex flex-col gap-[2px]">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-bold flex items-center gap-[2px]">
+<span class="material-symbols-outlined text-[13px]">volume_up</span> Volume
+                </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-bold">85%</span>
+</div>
+<div class="h-4 bevel-sunken bg-surface-container-high relative flex items-center px-1">
+<div class="w-full h-[2px] bg-bevel-dark-shadow absolute left-0 right-0 mx-1"></div>
+<div class="w-3 h-5 bg-surface-container bevel-raised relative z-10 -ml-1 cursor-ew-resize hover:bg-surface-bright" style="left: 80%;"></div>
+</div>
+</div>
+<!-- Hardware Balance Slider -->
+<div class="w-[120px] flex flex-col gap-[2px]">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-bold">Balance</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">C</span>
+</div>
+<div class="h-4 bevel-sunken bg-surface-container-high relative flex items-center justify-center px-1">
+<div class="w-full h-[2px] bg-bevel-dark-shadow absolute left-0 right-0 mx-1"></div>
+<div class="w-3 h-5 bg-surface-container bevel-raised relative z-10 cursor-ew-resize hover:bg-surface-bright"></div>
+</div>
+</div>
+<!-- Playback Mode Buttons -->
+<div class="flex items-end gap-[3px] pt-3">
+<button class="h-[22px] px-space-xs bg-surface-container bevel-raised active:bevel-sunken font-label-md text-label-md font-bold text-on-surface" title="Random Shuffle">
+                Rand
+              </button>
+<button class="h-[22px] px-space-xs bg-surface-variant bevel-sunken font-label-md text-label-md font-bold text-selection-blue" title="Continuous Repeat Active">
+                Cont
+              </button>
+<button class="h-[22px] px-space-xs bg-surface-container bevel-raised active:bevel-sunken font-label-md text-label-md font-bold text-on-surface" title="Intro Scan 10s">
+                Intro
+              </button>
+</div>
+</div>
+</div>
+<!-- Classic Windows 95 Status Bar -->
+<div class="h-[18px] bg-surface-container border-t border-bevel-highlight px-[2px] py-[1px] flex items-center gap-[3px]">
+<div class="h-full flex-1 bevel-sunken px-space-xs flex items-center">
+<span class="font-label-md text-[9px] leading-tight text-on-surface truncate">Total Play: 07:47 m:s</span>
+</div>
+<div class="h-full w-[110px] bevel-sunken px-space-xs flex items-center">
+<span class="font-label-md text-[9px] leading-tight text-on-surface truncate">Track: 03:42 m:s</span>
+</div>
+<div class="h-full w-[130px] bevel-sunken px-space-xs flex items-center gap-1">
+<span class="inline-block w-[6px] h-[6px] rounded-full bg-desktop-grass-start"></span>
+<span class="font-label-md text-[9px] leading-tight text-on-surface truncate font-bold">CD-ROM (D:) Ready</span>
+</div>
+</div>
+</div>
+<!-- ========================================================================= -->
+<!-- WINDOW 2: COMPANION GRAPHIC EQUALIZER                                   -->
+<!-- ========================================================================= -->
+<div class="w-full max-w-[390px] bg-surface-container bevel-raised flex flex-col shadow-xl z-20" id="eq-window">
+<!-- Companion Title Bar (Slightly Muted Inactive Appearance) -->
+<div class="h-[18px] bg-gradient-to-r from-inactive-title-start to-inactive-title-end flex items-center justify-between px-space-xs cursor-default">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-surface-container text-[14px] leading-none">equalizer</span>
+<span class="font-headline-sm text-headline-sm text-surface-container tracking-tight truncate">Now Playing - Graphic Equalizer</span>
+</div>
+<div class="flex items-center gap-[2px]">
+<button class="w-[14px] h-[14px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface font-label-sm leading-none focus:outline-none">
+<span class="font-bold -mt-[2px]">_</span>
+</button>
+<button class="w-[14px] h-[14px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface font-label-sm leading-none focus:outline-none">
+<span class="font-bold text-[10px] leading-none">✕</span>
+</button>
+</div>
+</div>
+<!-- Equalizer Body -->
+<div class="p-space-sm flex flex-col gap-space-sm bg-surface-container">
+<!-- Audio Codec Readout Header -->
+<div class="bevel-sunken bg-surface-container-high px-space-xs py-[2px] flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface font-bold">PCM WAV AUDIO</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">16-Bit Stereo | 44,100 Hz</span>
+</div>
+<!-- 7-Band Retro LED Spectrum Display -->
+<div class="bg-primary bevel-sunken p-space-sm flex flex-col gap-space-xs relative overflow-hidden">
+<div class="flex items-center justify-between text-bevel-shadow border-b border-bevel-dark-shadow pb-[2px]">
+<span class="font-body-sm text-[8px] text-desktop-sky-end font-bold">PEAK METER +3dB</span>
+<span class="font-body-sm text-[8px] text-desktop-grass-end font-bold">REALTIME FFT</span>
+</div>
+<!-- Equalizer Bar Canvas -->
+<div class="flex items-end justify-between h-[100px] px-space-xs pt-space-xs">
+<!-- Band 1: 60Hz -->
+<div class="flex flex-col items-center gap-[2px] w-6">
+<div class="w-full flex flex-col gap-[2px]">
+<div class="h-[6px] bg-system-error opacity-90 bevel-raised"></div>
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-primary">60Hz</span>
+</div>
+<!-- Band 2: 150Hz -->
+<div class="flex flex-col items-center gap-[2px] w-6">
+<div class="w-full flex flex-col gap-[2px]">
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-primary">150</span>
+</div>
+<!-- Band 3: 400Hz -->
+<div class="flex flex-col items-center gap-[2px] w-6">
+<div class="w-full flex flex-col gap-[2px]">
+<div class="h-[6px] bg-system-error opacity-90 bevel-raised"></div>
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-primary">400</span>
+</div>
+<!-- Band 4: 1kHz -->
+<div class="flex flex-col items-center gap-[2px] w-6">
+<div class="w-full flex flex-col gap-[2px]">
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-primary">1kHz</span>
+</div>
+<!-- Band 5: 3kHz -->
+<div class="flex flex-col items-center gap-[2px] w-6">
+<div class="w-full flex flex-col gap-[2px]">
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-primary">3kHz</span>
+</div>
+<!-- Band 6: 6kHz -->
+<div class="flex flex-col items-center gap-[2px] w-6">
+<div class="w-full flex flex-col gap-[2px]">
+<div class="h-[6px] bg-system-error opacity-90 bevel-raised"></div>
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-primary">6kHz</span>
+</div>
+<!-- Band 7: 14kHz -->
+<div class="flex flex-col items-center gap-[2px] w-6">
+<div class="w-full flex flex-col gap-[2px]">
+<div class="h-[6px] bg-system-warning bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+<div class="h-[6px] bg-desktop-grass-end bevel-raised"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-primary">14k</span>
+</div>
+</div>
+</div>
+<!-- Vintage Potentiometer Controls (Preamp, Bass, Treble) -->
+<div class="flex items-center justify-around bevel-sunken bg-surface-container-high py-space-xs px-space-sm">
+<div class="flex flex-col items-center gap-[2px]">
+<span class="font-label-sm text-label-sm text-on-surface font-bold uppercase">Preamp</span>
+<div class="w-12 h-3 bevel-sunken bg-window-body-bg relative flex items-center">
+<div class="w-2 h-4 bg-surface-container bevel-raised absolute left-1/2 -ml-1 cursor-ew-resize"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-surface-variant">+0 dB</span>
+</div>
+<div class="flex flex-col items-center gap-[2px]">
+<span class="font-label-sm text-label-sm text-on-surface font-bold uppercase">Bass</span>
+<div class="w-12 h-3 bevel-sunken bg-window-body-bg relative flex items-center">
+<div class="w-2 h-4 bg-surface-container bevel-raised absolute left-2/3 -ml-1 cursor-ew-resize"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-surface-variant">+3 dB</span>
+</div>
+<div class="flex flex-col items-center gap-[2px]">
+<span class="font-label-sm text-label-sm text-on-surface font-bold uppercase">Treble</span>
+<div class="w-12 h-3 bevel-sunken bg-window-body-bg relative flex items-center">
+<div class="w-2 h-4 bg-surface-container bevel-raised absolute left-3/4 -ml-1 cursor-ew-resize"></div>
+</div>
+<span class="font-body-sm text-[8px] text-on-surface-variant">+4 dB</span>
+</div>
+</div>
+<!-- Bottom Audio Preset Bar -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<button class="h-[20px] px-space-xs bg-surface-container bevel-raised active:bevel-sunken font-label-md text-label-md font-bold">Pres<u>e</u>ts</button>
+<button class="h-[20px] px-space-xs bg-surface-container bevel-raised active:bevel-sunken font-label-md text-label-md">Reset</button>
+</div>
+<label class="flex items-center gap-1 cursor-pointer">
+<input checked="" class="accent-selection-blue w-3 h-3" type="checkbox"/>
+<span class="font-label-md text-label-md font-bold">EQ Active</span>
+</label>
+</div>
+</div>
+<!-- Status Bar -->
+<div class="h-[18px] bg-surface-container border-t border-bevel-highlight px-[2px] py-[1px] flex items-center">
+<div class="h-full w-full bevel-sunken px-space-xs flex items-center justify-between">
+<span class="font-label-md text-[9px] text-on-surface">DSP Processor: Yamaha OPL3-SAx</span>
+<span class="font-label-md text-[9px] text-on-surface font-bold">DIRECTSOUND</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Micro-interactions: Play/Stop/Eject state switcher -->
+<script>
+    (function() {
+      const playBtn = document.getElementById('btn-play');
+      const stopBtn = document.getElementById('btn-stop');
+      const pauseBtn = document.getElementById('btn-pause');
+      const ejectBtn = document.getElementById('btn-eject');
+      const tray = document.getElementById('tray-indicator');
+      const lcdTime = document.getElementById('lcd-time');
+      let isPlaying = true;
+      let seconds = 161; // 02:41
+
+      function formatTime(sec) {
+        const m = Math.floor(sec / 60).toString().padStart(2, '0');
+        const s = (sec % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+      }
+
+      setInterval(() => {
+        if (isPlaying && lcdTime) {
+          seconds++;
+          lcdTime.innerText = formatTime(seconds);
+        }
+      }, 1000);
+
+      if (playBtn && stopBtn && pauseBtn && ejectBtn) {
+        playBtn.addEventListener('click', () => {
+          isPlaying = true;
+          playBtn.className = 'flex-1 h-[28px] bg-surface-variant bevel-sunken flex items-center justify-center text-desktop-grass-start font-bold translate-x-[1px] translate-y-[1px]';
+          pauseBtn.className = 'flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright';
+        });
+
+        pauseBtn.addEventListener('click', () => {
+          isPlaying = !isPlaying;
+          if (!isPlaying) {
+            pauseBtn.className = 'flex-1 h-[28px] bg-surface-variant bevel-sunken flex items-center justify-center text-on-surface font-bold translate-x-[1px] translate-y-[1px]';
+            playBtn.className = 'flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright';
+          } else {
+            playBtn.click();
+          }
+        });
+
+        stopBtn.addEventListener('click', () => {
+          isPlaying = false;
+          seconds = 0;
+          if (lcdTime) lcdTime.innerText = '00:00';
+          playBtn.className = 'flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright';
+          pauseBtn.className = 'flex-1 h-[28px] bg-surface-container bevel-raised active:bevel-sunken flex items-center justify-center text-on-surface hover:bg-surface-bright';
+        });
+
+        ejectBtn.addEventListener('click', () => {
+          if (tray) {
+            tray.classList.toggle('hidden');
+          }
+        });
+      }
+    })();
+  </script>
+</div></main></div><footer class="fixed bottom-0 left-0 right-0 h-8 bg-surface-container bevel-raised z-40 flex items-center justify-between px-space-xs"><div class="flex items-center gap-space-xs h-full py-[2px]"><button class="h-[22px] px-space-sm bg-surface-container bevel-raised active:bevel-sunken flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[14px]">grid_view</span><span class="font-headline-sm text-headline-sm text-on-surface">Start</span></button><div class="w-[1px] h-5 bg-bevel-shadow mx-[1px]"></div><div class="flex items-center gap-space-xs h-full"><div class="h-[22px] px-space-md bg-surface-container-high bevel-sunken flex items-center gap-space-xs text-on-surface"><span class="material-symbols-outlined text-primary text-[12px]">folder_open</span><span class="font-label-md text-label-md max-w-[120px] truncate">Explorer</span></div><div class="h-[22px] px-space-md bg-surface-container bevel-raised active:bevel-sunken flex items-center gap-space-xs text-on-surface-variant"><span class="material-symbols-outlined text-[12px]">terminal</span><span class="font-label-md text-label-md max-w-[120px] truncate">Command Prompt</span></div></div></div><div class="h-[22px] px-space-md bg-surface-container bevel-sunken flex items-center gap-space-md"><span class="material-symbols-outlined text-[12px] text-on-surface">volume_up</span><span class="material-symbols-outlined text-[12px] text-on-surface">album</span><span class="font-label-md text-label-md text-on-surface tracking-tight font-bold">04:20 PM</span></div></footer></body></html>

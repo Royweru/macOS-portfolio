@@ -1,7 +1,9 @@
 // ─── components/Sidebar/index.tsx ────────────────────────────────────────────
 import React from 'react';
+import { Clock3, Star } from 'lucide-react';
 import type { WindowId, TagFilter } from '../../types';
 import { WINDOW_CONFIGS, SIDEBAR_FAVORITES, SIDEBAR_TAGS } from '../../constants';
+import AppIcon from '../AppIcon';
 
 interface SidebarProps {
   windowId: WindowId;
@@ -13,21 +15,21 @@ const Sidebar: React.FC<SidebarProps> = ({ windowId, active, onSelect }) => {
   const cfg = WINDOW_CONFIGS[windowId];
 
   // Replace "All" label with window title for the first item
-  const favorites = SIDEBAR_FAVORITES.map((f, i) =>
-    i === 0 ? { ...f, label: cfg.title, icon: cfg.icon } : f
-  );
+  const favorites = SIDEBAR_FAVORITES.map((f, i) => i === 0 ? { ...f, label: cfg.title } : f);
 
   return (
     <>
       <div className="px-3 mb-1">
         <p className="sidebar-section-label mb-1">Favorites</p>
-        {favorites.map(f => (
+        {favorites.map((f, i) => (
           <div
             key={f.id}
             className={`sidebar-item ${active === f.id ? 'active' : ''}`}
             onClick={() => onSelect(f.id as TagFilter)}
           >
-            <span className="text-[13px]">{f.icon}</span>
+            <span className="sidebar-item-icon">
+              {i === 0 ? <AppIcon appId={windowId} size={15} /> : i === 1 ? <Clock3 size={15} /> : <Star size={15} />}
+            </span>
             <span>{f.label}</span>
           </div>
         ))}

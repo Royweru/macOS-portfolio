@@ -80,5 +80,12 @@ module.exports = {
       },
     },
   },
+  // Next's CSS evaluator virtualizes Tailwind v3's package directory. The
+  // built-in preflight loader then looks for a package asset under C:\\ROOT.
+  // base.css already owns the application's reset, so keep utilities while
+  // avoiding that evaluator-specific filesystem lookup.
+  corePlugins: {
+    preflight: false,
+  },
   plugins: [],
 };

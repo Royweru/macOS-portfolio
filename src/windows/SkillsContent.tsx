@@ -2,7 +2,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { SKILLS } from '../constants';
-import '../styles/tokens.css';
 
 const SkillBar: React.FC<{ name: string; proof: string; color: string; delay: number }> = ({ name, proof, color, delay }) => (
   <div className="mb-3">

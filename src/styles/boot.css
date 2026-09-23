@@ -1,38 +1,101 @@
-/* ─── boot.css ───────────────────────────────────────────────────────────────
-   macOS-style boot screen: black background, Apple logo, progress bar.
-──────────────────────────────────────────────────────────────────────────── */
+.boot97 { position: fixed; inset: 0; z-index: 2000; display: block; width: 100vw; height: 100vh; height: 100dvh; min-width: 100%; min-height: 100%; overflow: hidden; color: #fff; background: #000; font: 14px var(--w95-font-mono); }
+.boot97-crt-overlay { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,.25) 50%), linear-gradient(90deg, rgba(255,0,0,.03), rgba(0,255,0,.01), rgba(0,0,255,.03)); background-size: 100% 3px, 6px 100%; opacity: .85; }
+.boot97-skip { position: absolute; top: 14px; right: 18px; z-index: 4; padding: 4px 10px; border: 1px solid #555; color: #aaa; background: rgba(0,0,0,.65); font: 16px 'VT323', 'Courier New', monospace; cursor: pointer; }
+.boot97-skip:hover { color: #fff; text-decoration: underline; }
+.boot97-bios { position: absolute; inset: 0; z-index: 1; display: block; padding: 30px 40px; color: #b0b0b0; background: #000; font: 20px/1.35 'VT323', 'Courier New', monospace; letter-spacing: .5px; }
+.boot97-bios-lines { display: grid; gap: 0; }
+.boot97-bios-line { min-height: 27px; margin-bottom: 4px; }
+.boot97-bios-line-3 { margin-top: 8px; }
+.boot97-bios-line-6 { margin-top: 10px; }
+.boot97-bios-line-9 { margin-top: 10px; }
+.boot97-bios-line-10 { margin-top: 12px; }
+.boot97-memory-count { color: #fff; }
+.boot97-memory-ok { display: none; color: #00ff66; }
+.boot97-memory-ok[data-complete="true"] { display: inline; }
+.boot97-dmi-success { color: #fff; }
+.boot97-cursor { color: #fff; animation: boot97-blink .8s steps(2, start) infinite; }
+.boot97-start-logo { display: flex; align-items: center; gap: 12px; font: bold 22px Tahoma, sans-serif; }
+.boot97-start-logo span, .boot97-windows-mark, .boot97-welcome-icon { display: grid; width: 42px; height: 42px; place-items: center; color: #fff; background: #000080; border: 2px solid #fff; font: bold 24px Arial; }
+.boot97-progress { width: 100%; height: 14px; padding: 2px; border: 1px solid #fff; }
+.boot97-progress span { display: block; height: 100%; background: #1084d0; transition: width .08s linear; }
+.boot97-logo-screen { display: flex; flex-direction: column; align-items: center; gap: 12px; font: 18px Tahoma, sans-serif; }
+.boot97-windows-mark { width: 64px; height: 64px; font-size: 36px; }
+.boot97-welcome { width: min(440px, calc(100vw - 30px)); color: #000; background: #c0c0c0; border: 2px solid; border-color: #fff #404040 #404040 #fff; box-shadow: 2px 2px #000; font: 11px var(--w95-font-ui); }
+.boot97-welcome-title { padding: 4px 6px; color: #fff; background: linear-gradient(90deg, #000080, #1084d0); font-weight: bold; }
+.boot97-welcome-body { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 18px; align-items: start; }
+.boot97-welcome-body p { grid-column: 2; margin: 0; line-height: 1.45; }
+.boot97-welcome-body button { grid-column: 2; justify-self: end; margin-top: 8px; }
+@keyframes boot97-blink { 50% { opacity: 0; } }
 
-.boot-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background: #090909;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 40px;
+.boot-screen { display: none; }
+.boot-screen::before { content: ''; position: absolute; inset: 0; background: rgba(8,25,48,.18); backdrop-filter: blur(3px); }
+.boot-loading, .boot-lock-content, .boot-welcome-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+.boot-loading { gap: 38px; }
+.boot-windows-mark { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 74px; height: 74px; transform: skewY(-5deg); }
+.boot-windows-mark span { background: rgba(255,255,255,.94); box-shadow: 0 0 24px rgba(142,211,255,.3); }
+.boot-progress-track { width: 210px; height: 4px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.18); }
+.boot-progress-fill { height: 100%; border-radius: inherit; background: #fff; }
+.boot-lock-content { width: 100%; min-height: 100%; padding: 9vh 24px 24px; justify-content: space-between; text-align: center; }
+.boot-lock-clock { font-size: clamp(58px, 9vw, 104px); font-weight: 300; letter-spacing: -.06em; text-shadow: 0 2px 20px rgba(0,0,0,.2); }
+.boot-lock-date { margin-top: -24px; font-size: 17px; color: rgba(255,255,255,.88); }
+.boot-lock-card { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 24px 30px 20px; border: 1px solid rgba(255,255,255,.22); border-radius: 16px; background: rgba(9,26,45,.32); box-shadow: 0 18px 60px rgba(0,0,0,.24); backdrop-filter: blur(20px); }
+.boot-avatar { display: grid; place-items: center; width: 78px; height: 78px; margin-bottom: 4px; border-radius: 50%; background: linear-gradient(145deg, #d4ecff, #6295c7); font-size: 40px; box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+.boot-lock-card strong { font-size: 18px; }
+.boot-lock-card > span { font-size: 12px; color: rgba(255,255,255,.68); }
+.boot-lock-card button { display: flex; align-items: center; gap: 7px; margin-top: 15px; padding: 9px 14px; border: 1px solid rgba(255,255,255,.25); border-radius: 7px; color: #fff; background: rgba(255,255,255,.16); cursor: pointer; font-size: 12px; }
+.boot-lock-card button:hover { background: rgba(255,255,255,.25); }
+.boot-lock-card small { margin-top: 9px; color: rgba(255,255,255,.58); font-size: 10px; }
+.boot-lock-status { display: flex; gap: 18px; color: rgba(255,255,255,.78); font-size: 12px; }
+.boot-lock-status span { display: flex; align-items: center; gap: 6px; }
+.boot-welcome-content { gap: 20px; font-size: 15px; }
+.boot-spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.28); border-top-color: #fff; border-radius: 50%; animation: boot-spin .8s linear infinite; }
+@keyframes boot-spin { to { transform: rotate(360deg); } }
+
+/* Stitch boot reference: full-viewport Award BIOS -> starting text -> cloud splash. */
+.boot97 { display: block; width: 100vw; height: 100vh; height: 100dvh; min-width: 100%; min-height: 100%; color: #b0b0b0; background: #000; font-family: 'Courier New', monospace; }
+.boot97-skip { top: 14px; right: 18px; bottom: auto; padding: 4px 10px; border: 1px solid #555; color: #aaa; background: rgba(0, 0, 0, .65); font-size: 16px; }
+.boot97-skip:hover { border-color: #aaa; color: #fff; background: rgba(0, 0, 0, .85); text-decoration: none; }
+.boot97-bios { position: absolute; inset: 0; display: block; padding: 30px 40px; color: #b0b0b0; background: #000; font: 20px/1.35 'VT323', 'Courier New', monospace; letter-spacing: .5px; }
+.boot97-bios-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #555; }
+.boot97-bios-header > div:first-child { display: grid; gap: 2px; }
+.boot97-bios-header strong { color: #00e0e0; }
+.boot97-bios-header span { color: #b0b0b0; }
+.boot97-energy-star { padding: 2px 8px; border: 2px solid #ffcc00; color: #ffcc00; font-size: 15px; line-height: 1.1; text-align: center; }
+.boot97-bios-board { margin: 0 0 14px; color: #888; }
+.boot97-bios-lines { display: grid; gap: 0; }
+.boot97-bios-lines > div { min-height: 27px; }
+.boot97-bios-boot-line { margin-top: 4px; color: #ffff77; }
+.boot97-bios-line-10.boot97-bios-boot-line { margin-top: 12px; }
+.boot97-bios-boot-line i { display: inline-block; width: 10px; height: 18px; margin-left: 6px; vertical-align: middle; background: #aaa; animation: boot97-blink .7s steps(2, start) infinite; }
+.boot97-cursor { display: inline-block; width: 10px; height: 18px; background: #aaa; animation: boot97-blink .7s steps(2, start) infinite; }
+.boot97-starting { position: absolute; inset: 0; z-index: 1; display: flex; width: 100%; height: 100%; flex-direction: row; align-items: flex-end; justify-content: flex-start; padding: 0 45px 45px; color: #fff; background: #000; font: 14px Tahoma, 'Segoe UI', sans-serif; letter-spacing: .3px; text-align: left; }
+.boot97-splash { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; color: #fff; background: linear-gradient(180deg, #1b539c 0%, #3a75bb 30%, #68a7dd 60%, #95c8ec 85%, #bce0f8 100%); transition: opacity .8s ease-in-out; }
+.boot97-fading { background: transparent; transition: background .8s ease-in-out; }
+.boot97-fading .boot97-splash { opacity: 0; }
+.boot97-splash-cloud { position: absolute; border-radius: 50%; filter: blur(10px); pointer-events: none; background: radial-gradient(ellipse at center, rgba(255,255,255,.7) 0%, rgba(255,255,255,.2) 60%, rgba(255,255,255,0) 80%); }
+.boot97-splash-cloud-one { top: 12%; left: 8%; width: 450px; height: 160px; opacity: .6; }
+.boot97-splash-cloud-two { right: 5%; bottom: 25%; width: 550px; height: 220px; opacity: .5; }
+.boot97-splash-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.boot97-flag { width: 130px; height: 120px; margin-bottom: 20px; filter: drop-shadow(4px 5px 0 rgba(0,0,0,.35)); }
+.boot97-brand-title { display: flex; align-items: baseline; gap: 12px; color: #fff; font: 700 58px 'Times New Roman', serif; letter-spacing: -1px; text-shadow: 2px 2px 0 #092c57, 4px 4px 6px rgba(0,0,0,.5); }
+.boot97-brand-title b { color: #fff; font: 900 italic 64px Arial, sans-serif; letter-spacing: -2px; text-shadow: 3px 3px 0 #041b3a; }
+.boot97-brand-subtext { margin: -6px 0 45px; color: #e2f0fc; font: bold 15px Tahoma, sans-serif; letter-spacing: 3.5px; text-transform: uppercase; text-shadow: 1px 1px 2px #001f4d; }
+.boot97-progress-outer { width: 320px; height: 22px; padding: 2px; overflow: hidden; border: 2px solid #5a8ab8; background: #0b1f3a; box-shadow: inset 1px 1px 3px rgba(0,0,0,.9), 1px 1px 0 #fff; }
+.boot97-progress-track { display: flex; gap: 3px; width: 100%; height: 100%; }
+.boot97-progress-track span { flex: 1; height: 100%; background: #102e52; }
+.boot97-progress-track span.active { background: linear-gradient(180deg, #53a7e8 0%, #1c7cd5 45%, #084992 100%); box-shadow: 0 0 4px #4facfe; }
+.boot97-splash footer { position: absolute; bottom: 22px; color: rgba(255,255,255,.7); font: 11px Tahoma, sans-serif; text-shadow: 1px 1px 1px #000; }
+@media (max-width: 640px) {
+  .boot97-bios { padding: 22px 16px; font-size: 16px; }
+  .boot97-bios-header { gap: 12px; }
+  .boot97-energy-star { font-size: 10px; }
+  .boot97-bios-lines > div { min-height: 18px; }
+  .boot97-flag { width: 96px; height: 88px; margin-bottom: 10px; }
+  .boot97-brand-title { font-size: 40px; }
+  .boot97-brand-title b { font-size: 44px; }
+  .boot97-brand-subtext { margin-bottom: 28px; font-size: 11px; }
+  .boot97-progress-outer { width: min(320px, calc(100vw - 36px)); }
 }
-
-.boot-logo {
-  font-size: 72px;
-  line-height: 1;
-  filter: drop-shadow(0 0 24px rgba(255,255,255,0.12));
+@media (prefers-reduced-motion: reduce) {
+  .boot97-bios-boot-line i, .boot97-cursor { animation: none; }
 }
-
-.boot-progress-track {
-  width: 180px;
-  height: 4px;
-  background: rgba(255,255,255,0.10);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.boot-progress-fill {
-  height: 100%;
-  background: rgba(255,255,255,0.85);
-  border-radius: 999px;
-  transition: width 0.28s ease-out;
-}
-
-/* Fade-out handled by Framer Motion AnimatePresence in BootScreen.tsx */

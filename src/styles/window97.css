@@ -1,0 +1,135 @@
+.window97 { position: absolute; display: flex; flex-direction: column; min-width: 240px; min-height: 160px; overflow: hidden; background: var(--w95-window-bg); color: var(--w95-text); box-shadow: 2px 2px 0 #000; }
+.window97.inactive { filter: saturate(.75); }
+.window97.maximized { position: absolute; }
+.window97-content { min-width: 0; min-height: 0; flex: 1; overflow: hidden; background: var(--w95-window-bg); }
+.window97-sidebar { width: 180px; overflow: auto; background: var(--w95-surface); }
+.window97-view-controls { border-bottom: 1px solid var(--w95-bevel-dark); }
+.window97-status { display: flex; justify-content: space-between; gap: 10px; min-height: var(--w95-statusbar-h); padding: 3px 5px; background: var(--w95-surface); border-top: 1px solid var(--w95-bevel-light); font: 10px var(--w95-font-ui); }
+.win97-window-spinner { display: grid; place-items: center; gap: 8px; height: 100%; min-height: 120px; color: #000; background: #c0c0c0; font: 11px var(--w95-font-ui); }
+.win97-window-spinner-bars { position: relative; display: block; width: 28px; height: 28px; }
+.win97-window-spinner-bars i { position: absolute; left: 13px; top: 1px; display: block; width: 2px; height: 8px; transform-origin: 1px 13px; background: #000080; animation: win97-spinner-pulse .8s steps(8, end) infinite; }
+.win97-window-spinner-bars i:nth-child(2) { animation-delay: .1s; }.win97-window-spinner-bars i:nth-child(3) { animation-delay: .2s; }.win97-window-spinner-bars i:nth-child(4) { animation-delay: .3s; }.win97-window-spinner-bars i:nth-child(5) { animation-delay: .4s; }.win97-window-spinner-bars i:nth-child(6) { animation-delay: .5s; }.win97-window-spinner-bars i:nth-child(7) { animation-delay: .6s; }.win97-window-spinner-bars i:nth-child(8) { animation-delay: .7s; }
+@keyframes win97-spinner-pulse { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+.window97-resize { position: absolute; z-index: 5; }
+.window97-resize-n, .window97-resize-s { left: 8px; right: 8px; height: 6px; cursor: var(--w95-cursor-ns); }
+.window97-resize-n { top: 0; }.window97-resize-s { bottom: 0; }
+.window97-resize-e, .window97-resize-w { top: 8px; bottom: 8px; width: 6px; cursor: var(--w95-cursor-ew); }
+.window97-resize-e { right: 0; }.window97-resize-w { left: 0; }
+.window97-resize-ne, .window97-resize-sw, .window97-resize-nw, .window97-resize-se { width: 10px; height: 10px; }
+.window97-resize-ne { top: 0; right: 0; cursor: var(--w95-cursor-nesw); }.window97-resize-sw { bottom: 0; left: 0; cursor: var(--w95-cursor-nesw); }.window97-resize-nw { top: 0; left: 0; cursor: var(--w95-cursor-nwse); }.window97-resize-se { right: 0; bottom: 0; cursor: var(--w95-cursor-nwse); }
+
+.win97-app { height: 100%; min-width: 0; overflow: auto; background: var(--w95-window-bg); color: var(--w95-text); font: 11px var(--w95-font-ui); }
+.win97-app h2 { margin: 8px 0; font-size: 14px; }
+.win97-muted { color: var(--w95-text-disabled); }
+.win97-path { overflow-wrap: anywhere; font-family: var(--w95-font-mono); }
+.win97-toolbar { display: flex; align-items: center; gap: 6px; min-height: 28px; padding: 3px; background: var(--w95-surface); border-block: 1px solid var(--w95-bevel-dark); }
+.win97-toolbar input { min-width: 0; flex: 1; height: 22px; padding: 2px 4px; border: 2px solid; border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); font: 11px var(--w95-font-ui); }
+.win97-display { margin: 8px; padding: 7px; overflow: hidden; text-align: right; font: 18px var(--w95-font-mono); background: #fff; }
+.win97-calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 8px; }
+.win97-dialog-layout { display: flex; min-height: 0; flex-direction: column; padding: 12px; }
+.win97-property-header { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; }
+.win97-property-header p { margin: 2px 0; }
+.win97-property-list { display: grid; gap: 6px; padding: 10px; background: #fff; }
+.win97-dialog-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: auto; padding-top: 12px; }
+.win97-system-properties-app { display: flex; min-height: 0; flex-direction: column; }
+.win97-system-properties { display: flex; min-height: 0; flex: 1; flex-direction: column; }
+.win97-property-tabs { display: flex; flex-wrap: wrap; gap: 2px; align-items: end; padding: 8px 8px 0; border-bottom: 2px solid #fff; background: var(--w95-surface); }
+.win97-property-tab { min-height: 24px; padding: 3px 8px; border: 2px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); background: var(--w95-surface); color: var(--w95-text); font: 10px var(--w95-font-ui); }
+.win97-property-tab.active { position: relative; z-index: 1; margin-bottom: -1px; border-bottom-color: var(--w95-window-bg); background: var(--w95-window-bg); }
+.win97-property-panel { min-height: 0; flex: 1; overflow: auto; padding: 12px; background: var(--w95-surface); }
+.win97-property-panel-general { display: flex; flex-direction: column; gap: 6px; }
+.win97-property-overview { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 4px; }
+.win97-property-computer { display: grid; width: 80px; height: 80px; flex: 0 0 80px; place-items: center; padding: 6px; border: 2px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); background: #d4d0c8; }
+.win97-property-computer svg { display: block; width: 64px; height: 64px; }
+.win97-property-copy { display: grid; min-width: 0; flex: 1; gap: 7px; line-height: 1.35; }
+.win97-property-copy p { margin: 0; }
+.win97-property-indent { padding-left: 12px; }
+.win97-release { color: #404040; font-size: 10px; }
+.win97-owner { color: #000; font-weight: bold; }
+.win97-hardware-text { overflow-wrap: anywhere; color: #333; font: 10px var(--w95-font-mono); }
+.win97-system-specs { display: grid; gap: 4px; padding: 8px; background: var(--w95-surface); font: 10px var(--w95-font-mono); }
+.win97-resource-gauges { display: grid; gap: 5px; margin-top: 8px; font: 10px var(--w95-font-ui); }
+.win97-resource-gauges > div { display: grid; gap: 2px; }
+.win97-resource-gauges i { display: block; height: 10px; padding: 1px; border: 2px solid; border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); background: #fff; }
+.win97-resource-gauges b { display: block; height: 100%; background: #008000; }
+.win97-resource-group { position: relative; min-width: 0; margin: 4px 0 8px; padding: 7px 8px 6px; border: 1px solid; border-color: #808080 #fff #fff #808080; }
+.win97-resource-group legend { position: absolute; top: -7px; left: 8px; padding: 0 4px; background: var(--w95-surface); font-size: 11px; }
+.win97-resource-row { display: grid; gap: 3px; }
+.win97-resource-label { display: flex; justify-content: space-between; gap: 8px; font-weight: bold; }
+.win97-resource-meter { display: flex; height: 14px; gap: 2px; padding: 1px; border: 1px solid; border-color: #808080 #fff #fff #808080; background: #fff; box-shadow: inset 1px 1px 0 #000; }
+.win97-resource-cell { display: block; width: 7px; height: 100%; flex: 0 0 7px; background: #008000; }
+.win97-system-properties-app > .win97-dialog-actions { margin: 0; padding: 0 12px 12px; }
+.win97-device-tree, .win97-profile-details { display: grid; gap: 5px; padding: 10px; background: #fff; font: 10px var(--w95-font-mono); }
+.win97-device-tree .indent { padding-left: 20px; }
+.win97-profile-option { display: block; margin: 8px 0; }
+.win97-profile-details { margin-top: 14px; font-family: var(--w95-font-ui); }
+.win97-profile-details span { display: block; margin-top: 4px; }
+.win97-control-panel { padding: 8px; }
+.win97-control-panel-header { display: flex; align-items: center; gap: 8px; min-height: 40px; margin-bottom: 8px; padding: 4px 6px; border-bottom: 1px solid var(--w95-bevel-dark); }
+.win97-control-panel-header div { display: grid; gap: 2px; }
+.win97-control-panel-header b { font-size: 13px; }
+.win97-control-panel-header span { color: var(--w95-text-disabled); font-size: 10px; }
+.win97-settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; background: var(--w95-surface); }
+.win97-control-tile { display: grid; grid-template-columns: 32px 1fr; gap: 2px 8px; min-height: 54px; padding: 6px; color: inherit; background: var(--w95-surface); border: 2px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); text-align: left; font: 11px var(--w95-font-ui); cursor: pointer; }
+.win97-control-tile:active { border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); }
+.win97-control-tile small { grid-column: 2; color: var(--w95-text-disabled); }
+.win97-browser-page { min-height: 260px; margin: 8px; padding: 14px; background: #fff; }
+.win97-browser-page p { max-width: 65ch; }
+.win97-canvas { display: grid; min-height: 380px; place-items: center; margin: 8px; overflow: auto; background: #fff; text-align: center; }
+.win97-canvas img { object-fit: contain; image-rendering: auto; }
+.win97-cd-player { display: flex; flex-direction: column; gap: 10px; padding: 12px; background: #000080; color: #fff; }
+.win97-lcd { padding: 9px; background: #001a00; color: #00ff66; font: 15px var(--w95-font-mono); }
+.win97-lcd small { display: block; margin-top: 5px; font-size: 10px; }
+.win97-empty-media { padding: 16px; background: var(--w95-window-bg); color: var(--w95-text); }
+.win97-media-player { overflow: auto; }
+.win97-media-screen { display: grid; min-height: 220px; place-items: center; margin: 8px; background: #111; border: 2px solid; border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); }
+.win97-media-screen video { display: block; width: 100%; max-height: 320px; object-fit: contain; }
+.win97-audio-visual { display: grid; place-items: center; gap: 8px; color: #53aefd; font: 18px var(--w95-font-mono); }
+.win97-audio-visual span { font-size: 64px; }
+.win97-media-controls { display: flex; align-items: center; gap: 5px; padding: 6px; background: var(--w95-surface); border-block: 1px solid var(--w95-bevel-dark); }
+.win97-media-controls input[type='range'] { min-width: 60px; flex: 1; accent-color: #000080; }
+.win97-media-time, .win97-media-status { font: 10px var(--w95-font-mono); }
+.win97-media-status { padding: 5px 7px; color: var(--w95-text-disabled); }
+.win97-media-empty { display: grid; min-height: 240px; place-items: center; padding: 16px; }
+.win97-equalizer { display: flex; align-items: end; justify-content: center; gap: 3px; height: 54px; margin: 0 12px; padding: 5px; background: #001a00; border: 2px solid; border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); }
+.win97-equalizer span { width: 12px; min-height: 4px; background: #00ff66; transition: height .12s linear; }
+.win97-msdos { height: 100%; background: #000; color: #c0c0c0; }
+.win97-minesweeper { padding: 8px; background: var(--w95-surface); }
+.win97-scoreboard { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 5px; background: var(--w95-surface); border: 2px solid; border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); font: bold 16px var(--w95-font-mono); }
+.win97-mine-grid { display: grid; grid-template-columns: repeat(9, 1fr); border: 2px solid; border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); }
+.win97-mine-cell { aspect-ratio: 1; padding: 0; color: #000080; background: var(--w95-surface); border: 2px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); font: bold 12px var(--w95-font-ui); }
+.win97-mine-cell:active { border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); }
+.win97-dialog-layout > input { height: 23px; margin-top: 4px; padding: 2px 4px; border: 2px solid; border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); font: 11px var(--w95-font-ui); }
+.win97-result-row { display: flex; justify-content: space-between; gap: 10px; padding: 4px; border: 0; background: transparent; text-align: left; font: 11px var(--w95-font-ui); }
+.win97-result-row:hover { color: #fff; background: var(--w95-highlight); }
+.win97-result-row small { color: var(--w95-text-disabled); }
+.win97-result-row:hover small { color: #fff; }
+.win97-safe-shutdown { position: absolute; inset: 0; display: grid; place-content: center; gap: 14px; border: 0; background: #000; color: #ff8000; font: 16px var(--w95-font-mono); text-align: center; cursor: pointer; }
+.win97-safe-shutdown small { color: #c0c0c0; font: 11px var(--w95-font-ui); }
+.window-manager97 { position: absolute; inset: 0 0 var(--w95-taskbar-h, 30px); pointer-events: none; }
+.window-manager97 > .window97 { pointer-events: auto; }
+.window97-drag-surface { touch-action: none; cursor: default; }
+.window97-drag-surface .win95-titlebar { cursor: move; }
+.win95-titlebar-controls { position: relative; z-index: 30; }
+.window97-title-context { position: absolute; top: 22px; left: 3px; z-index: 20; min-width: 130px; padding: 2px; background: var(--w95-surface); border: 2px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); box-shadow: 2px 2px #000; }
+.window97-title-context button { display: block; width: 100%; padding: 4px 8px; border: 0; background: transparent; text-align: left; font: 11px var(--w95-font-ui); }
+.window97-title-context button:hover { color: #fff; background: var(--w95-highlight); }
+.window97-title-context hr { margin: 2px 0; border: 0; border-top: 1px solid var(--w95-bevel-dark); }
+.welcome97-backdrop { position: fixed; inset: 0; z-index: 1800; display: grid; place-items: center; background: rgba(0,0,0,.18); }
+.welcome97 { width: min(440px, calc(100vw - 24px)); background: var(--w95-surface); color: var(--w95-text); }
+.welcome97-titlebar { padding: 4px 6px; color: #fff; background: linear-gradient(90deg, #000080, #1084d0); font-weight: bold; }
+.welcome97-body { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 18px; line-height: 1.45; }
+.welcome97-body p { margin: 0; }
+.welcome97-checkbox { display: block; padding: 0 18px 10px; }
+.welcome97-actions { display: flex; justify-content: flex-end; gap: 6px; padding: 8px 12px 12px; }
+.screensaver97, .bsod97 { position: fixed; inset: 0; z-index: 2500; }
+.screensaver97 canvas { display: block; width: 100%; height: 100%; }
+.bsod97 { padding: 10vh 10vw; color: #fff; background: #000080; font: 18px 'Courier New', monospace; line-height: 1.35; outline: 0; }
+.bsod97 strong { font-size: 22px; }
+.bsod97 p { max-width: 900px; }
+.win95-scrollbar { display: flex; background: var(--w95-surface); }
+.win95-scrollbar-vertical { width: 16px; flex-direction: column; }
+.win95-scrollbar-horizontal { height: 16px; flex-direction: row; }
+.win95-scrollbar button { width: 16px; height: 16px; padding: 0; border: 1px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); background: var(--w95-surface); font-size: 8px; }
+.win95-scrollbar span { flex: 1; background: #c0c0c0; }
+@media (prefers-reduced-motion: reduce) { .win97-window-spinner-bars i { animation: none; opacity: .7; } }

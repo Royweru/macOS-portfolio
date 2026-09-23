@@ -1,0 +1,66 @@
+.win95-button,
+.win95-titlebar-controls button,
+.win95-menubar button,
+.win95-taskbar-button {
+  font: 11px var(--w95-font-ui);
+  color: var(--w95-text);
+  background: var(--w95-surface);
+}
+
+.win95-button {
+  min-width: 72px;
+  min-height: 23px;
+  padding: 2px 9px;
+  border: var(--w95-bevel-width) solid;
+  border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+}
+
+.win95-button:active,
+.win95-button-pressed {
+  border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+  padding-left: 10px;
+  padding-top: 3px;
+}
+
+.win95-button:focus-visible,
+.win95-menubar button:focus-visible,
+.win95-titlebar-controls button:focus-visible {
+  outline: 1px dotted var(--w95-text);
+  outline-offset: -4px;
+}
+
+.win95-titlebar {
+  height: var(--w95-titlebar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 2px 2px 4px;
+  color: var(--w95-title-text);
+  font: bold 11px var(--w95-font-ui);
+  user-select: none;
+}
+
+.win95-titlebar.active { background: var(--w95-title-active); }
+.win95-titlebar.inactive { background: var(--w95-title-inactive); }
+.win95-titlebar-label { min-width: 0; display: flex; align-items: center; gap: 4px; overflow: hidden; }
+.win95-titlebar-label > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win95-titlebar-icon { display: inline-flex; align-items: center; }
+.win95-titlebar-controls { display: flex; gap: 2px; }
+.win95-titlebar-controls button { width: 16px; height: 14px; padding: 0; line-height: 10px; border: 1px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); font-weight: bold; }
+.win95-titlebar-controls button:active { border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); }
+
+.win95-menubar { height: var(--w95-menubar-h); display: flex; align-items: center; background: var(--w95-surface); padding: 1px 3px; }
+.win95-menubar button { border: 0; padding: 1px 7px; height: 18px; }
+.win95-menubar button:hover:not(:disabled) { background: var(--w95-highlight); color: var(--w95-highlight-text); }
+.win95-menubar button:disabled { color: var(--w95-text-disabled); }
+
+.win95-toolbar { display: flex; align-items: center; gap: 5px; min-height: 28px; padding: 3px; background: var(--w95-surface); border-top: 1px solid var(--w95-bevel-light); border-bottom: 1px solid var(--w95-bevel-dark); }
+.win95-statusbar { min-height: var(--w95-statusbar-h); display: flex; align-items: center; gap: 4px; padding: 2px 4px; background: var(--w95-surface); border-top: 1px solid var(--w95-bevel-light); font: 11px var(--w95-font-ui); }
+.win95-dialog { background: var(--w95-surface); min-width: 280px; }
+.win95-dialog-body { padding: 12px; }
+.win95-dialog-footer { display: flex; justify-content: flex-end; gap: 6px; padding: 0 12px 12px; }
+.win95-icon32 { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 26px; }
+.win95-taskbar-button { display: flex; align-items: center; gap: 5px; height: 24px; max-width: 180px; padding: 2px 8px; border: 2px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); overflow: hidden; }
+.win95-taskbar-button.active, .win95-taskbar-button.pressed { border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); background: var(--w95-surface-light); }
+.win95-taskbar-button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win95-clock { min-width: 58px; padding: 4px 7px; text-align: center; border: 2px solid; border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); font: 11px var(--w95-font-ui); }

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+
+<html class="h-full w-full overflow-hidden select-none" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Windows 97 Desktop Simulation</title>
+<!-- Tailwind CSS CDN with forms and container plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- BEGIN: Custom Retro Styles -->
+<style data-purpose="cursor-and-reset">
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-font-smoothing: none;
+      -moz-osx-font-smoothing: grayscale;
+      font-smooth: never;
+    }
+    /* Authentic Windows 95/97 retro arrow cursor */
+    body, button, input, div, span, a, label {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 16 24"><polygon points="0,0 0,20 4.5,15.5 8,23 11,21.5 7.5,14 13.5,14" fill="%23ffffff" stroke="%23000000" stroke-width="1.5" stroke-linejoin="miter"/></svg>') 0 0, auto !important;
+      font-family: 'Tahoma', 'MS Sans Serif', Geneva, sans-serif;
+    }
+  </style>
+<style data-purpose="3d-bevels">
+    /* Windows 95/97 classic beveled borders */
+    .win-outset {
+      border: 2px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+      box-shadow: 1px 1px 0px 0px #000000;
+    }
+    .win-outset-thin {
+      border: 1px solid;
+      border-color: #ffffff #808080 #808080 #ffffff;
+    }
+    .win-inset {
+      border: 2px solid;
+      border-color: #808080 #ffffff #ffffff #808080;
+      box-shadow: inset 1px 1px 0px 0px #000000;
+    }
+    .win-inset-thin {
+      border: 1px solid;
+      border-color: #808080 #ffffff #ffffff #808080;
+    }
+    .win-btn {
+      background-color: #c0c0c0;
+      border: 2px solid;
+      border-color: #ffffff #404040 #404040 #ffffff;
+      box-shadow: inset 1px 1px 0px #dfdfdf, 1px 1px 0px 0px #000000;
+    }
+    .win-btn:active, .win-btn-pressed {
+      background-color: #c0c0c0;
+      border: 2px solid;
+      border-color: #404040 #ffffff #ffffff #404040;
+      box-shadow: inset 1px 1px 0px #000000;
+    }
+    .taskbar-dither-active {
+      background-color: #e0e0e0;
+      background-image: radial-gradient(#a0a0a0 25%, transparent 25%);
+      background-size: 2px 2px;
+      border: 2px solid;
+      border-color: #404040 #ffffff #ffffff #404040;
+    }
+    .icon-selected {
+      background-color: #000080 !important;
+      color: #ffffff !important;
+      outline: 1px dotted #ffff80;
+    }
+    .icon-selected-box {
+      outline: 1px dotted #ffffff;
+      background-color: rgba(0, 0, 128, 0.4);
+    }
+  </style>
+<style data-purpose="crt-and-wallpaper">
+    /* Scanline overlay for vintage monitor look */
+    .crt-overlay {
+      background: repeating-linear-gradient(
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.04) 3px,
+        rgba(0, 0, 0, 0.04) 4px
+      );
+    }
+    /* Pixel desktop text shadow */
+    .win-text-shadow {
+      text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    }
+    /* Start Menu vertical banner */
+    .win97-banner {
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      background: linear-gradient(180deg, #000080 0%, #1084d0 60%, #000020 100%);
+    }
+  </style>
+<!-- END: Custom Retro Styles -->
+</head>
+<body class="w-screen h-screen overflow-hidden m-0 p-0 relative bg-black flex items-center justify-center">
+<!-- BEGIN: Desktop Canvas Container (Fixed 4:3 / 16:9 1024x768 reference base) -->
+<div class="relative w-full h-full overflow-hidden flex flex-col justify-between" data-purpose="desktop-screen" id="desktop-viewport">
+<!-- BEGIN: Bliss Rolling Hills Wallpaper (CSS & Vector Rendered) -->
+<div class="absolute inset-0 z-0 overflow-hidden" data-purpose="bliss-wallpaper">
+<!-- Sky gradient -->
+<div class="absolute inset-0 bg-gradient-to-b from-[#1b6ee0] via-[#4d9ef5] to-[#99cdfb] h-[65%]"></div>
+<!-- Bliss Clouds (Vector SVG for authentic high clarity) -->
+<svg class="absolute top-0 left-0 w-full h-[65%] opacity-90 pointer-events-none" preserveaspectratio="none" viewbox="0 0 1000 500">
+<g fill="#ffffff" filter="blur(2px)">
+<!-- Top cloud bank -->
+<ellipse cx="780" cy="180" opacity="0.85" rx="140" ry="45"></ellipse>
+<ellipse cx="830" cy="160" opacity="0.95" rx="100" ry="55"></ellipse>
+<ellipse cx="730" cy="190" opacity="0.75" rx="80" ry="35"></ellipse>
+<ellipse cx="890" cy="200" opacity="0.7" rx="90" ry="35"></ellipse>
+<ellipse cx="640" cy="230" opacity="0.6" rx="70" ry="25"></ellipse>
+<!-- Mid clouds -->
+<ellipse cx="320" cy="160" opacity="0.7" rx="55" ry="20"></ellipse>
+<ellipse cx="345" cy="150" opacity="0.8" rx="40" ry="24"></ellipse>
+<ellipse cx="560" cy="210" opacity="0.6" rx="60" ry="18"></ellipse>
+<!-- Small distant cumulus -->
+<ellipse cx="140" cy="270" opacity="0.5" rx="75" ry="16"></ellipse>
+<ellipse cx="370" cy="300" opacity="0.5" rx="90" ry="18"></ellipse>
+<ellipse cx="700" cy="280" opacity="0.6" rx="110" ry="22"></ellipse>
+<ellipse cx="850" cy="315" opacity="0.65" rx="80" ry="19"></ellipse>
+</g>
+</svg>
+<!-- Rolling Green Hills (Lower 45%) -->
+<div class="absolute bottom-0 left-0 right-0 h-[48%] overflow-hidden">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 1200 400">
+<defs>
+<lineargradient id="hillBack" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#4d9b23"></stop>
+<stop offset="100%" stop-color="#245a13"></stop>
+</lineargradient>
+<lineargradient id="hillFront" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#7ec842"></stop>
+<stop offset="40%" stop-color="#55a525"></stop>
+<stop offset="100%" stop-color="#26610c"></stop>
+</lineargradient>
+</defs>
+<!-- Distant subtle hill -->
+<path d="M0,210 Q320,130 650,190 T1200,160 L1200,400 L0,400 Z" fill="url(#hillBack)" opacity="0.85"></path>
+<!-- Main Bliss crest hill -->
+<path d="M0,170 Q460,95 820,180 T1200,240 L1200,400 L0,400 Z" fill="url(#hillFront)"></path>
+<!-- Accent sunlight highlight curve -->
+<path d="M0,172 Q460,97 820,182" fill="none" opacity="0.6" stroke="#99e356" stroke-width="3"></path>
+</svg>
+</div>
+</div>
+<!-- END: Bliss Wallpaper -->
+<!-- BEGIN: Desktop Icons Matrix -->
+<main class="relative z-10 flex-1 p-3 flex flex-col flex-wrap items-start content-start gap-y-4 gap-x-6 w-fit h-[calc(100vh-32px)]" data-purpose="desktop-icon-grid" id="desktop-grid">
+<!-- 1. My Computer -->
+<div class="desktop-icon w-[72px] flex flex-col items-center text-center p-1 rounded-none select-none" data-icon-id="my-computer" tabindex="0">
+<!-- Pixel Computer Icon (32x32 SVG) -->
+<svg class="w-8 h-8 pointer-events-none mb-1 drop-shadow-sm" viewbox="0 0 32 32">
+<!-- Monitor casing -->
+<rect fill="#d4d0c8" height="20" stroke="#808080" stroke-width="1" width="26" x="3" y="2"></rect>
+<rect fill="#000080" height="15" width="22" x="5" y="4"></rect>
+<rect fill="#1084d0" height="11" width="18" x="7" y="6"></rect>
+<!-- Windows logo on monitor screen -->
+<polygon fill="#e04040" points="10,8 14,8 14,11 10,11"></polygon>
+<polygon fill="#40a040" points="15,8 19,8 19,11 15,11"></polygon>
+<polygon fill="#3060d0" points="10,12 14,12 14,15 10,15"></polygon>
+<polygon fill="#f0c020" points="15,12 19,12 19,15 15,15"></polygon>
+<!-- Monitor stand -->
+<rect fill="#808080" height="3" width="8" x="12" y="22"></rect>
+<rect fill="#d4d0c8" height="2" stroke="#404040" stroke-width="0.5" width="16" x="8" y="25"></rect>
+<!-- Floppy slot details -->
+<rect fill="#404040" height="1" width="3" x="20" y="23"></rect>
+</svg>
+<span class="text-[10px] leading-3 text-white win-text-shadow px-1 tracking-tight">My Computer</span>
+</div>
+<!-- 2. My Documents (Selected Style Default for Visual Interest) -->
+<div class="desktop-icon icon-selected-box w-[72px] flex flex-col items-center text-center p-1 rounded-none select-none" data-icon-id="my-documents" id="icon-my-documents" tabindex="0">
+<!-- Pixel Folder Icon (32x32 SVG) -->
+<svg class="w-8 h-8 pointer-events-none mb-1" viewbox="0 0 32 32">
+<!-- Back tab -->
+<polygon fill="#f0be28" points="2,8 12,8 14,11 28,11 28,26 2,26" stroke="#806000" stroke-width="1"></polygon>
+<!-- Sheet paper inside -->
+<rect fill="#ffffff" height="14" stroke="#c0c0c0" stroke-width="0.5" width="18" x="6" y="7"></rect>
+<line stroke="#808080" stroke-width="1" x1="9" x2="20" y1="10" y2="10"></line>
+<line stroke="#808080" stroke-width="1" x1="9" x2="18" y1="13" y2="13"></line>
+<!-- Front flap -->
+<polygon fill="#fbd84e" points="1,12 27,12 30,27 4,27" stroke="#806000" stroke-width="1"></polygon>
+</svg>
+<span class="text-[10px] leading-3 text-white icon-selected px-1">My Documents</span>
+</div>
+<!-- 3. Projects -->
+<div class="desktop-icon w-[72px] flex flex-col items-center text-center p-1 rounded-none select-none" data-icon-id="projects" tabindex="0">
+<svg class="w-8 h-8 pointer-events-none mb-1" viewbox="0 0 32 32">
+<polygon fill="#4fa3d1" points="2,8 12,8 14,11 28,11 28,26 2,26" stroke="#1d4860" stroke-width="1"></polygon>
+<polygon fill="#6bc2f0" points="1,12 27,12 30,27 4,27" stroke="#1d4860" stroke-width="1"></polygon>
+<text fill="#003366" font-family="monospace" font-size="9" font-weight="bold" x="11" y="22">&lt;&gt;</text>
+</svg>
+<span class="text-[10px] leading-3 text-white win-text-shadow px-1 tracking-tight">Projects</span>
+</div>
+<!-- 4. Videos / Media -->
+<div class="desktop-icon w-[72px] flex flex-col items-center text-center p-1 rounded-none select-none" data-icon-id="videos" tabindex="0">
+<svg class="w-8 h-8 pointer-events-none mb-1" viewbox="0 0 32 32">
+<rect fill="#333333" height="20" stroke="#000" stroke-width="1" width="28" x="2" y="6"></rect>
+<circle cx="9" cy="16" fill="#c0c0c0" r="5" stroke="#808080" stroke-width="1"></circle>
+<circle cx="23" cy="16" fill="#c0c0c0" r="5" stroke="#808080" stroke-width="1"></circle>
+<rect fill="#ffffff" height="4" width="18" x="7" y="9"></rect>
+<rect fill="#ffffff" height="3" width="18" x="7" y="19"></rect>
+<circle cx="9" cy="16" fill="#000" r="2"></circle>
+<circle cx="23" cy="16" fill="#000" r="2"></circle>
+</svg>
+<span class="text-[10px] leading-3 text-white win-text-shadow px-1 tracking-tight">Videos</span>
+</div>
+<!-- 5. My Music (Silver CD) -->
+<div class="desktop-icon w-[72px] flex flex-col items-center text-center p-1 rounded-none select-none" data-icon-id="music" tabindex="0">
+<svg class="w-8 h-8 pointer-events-none mb-1" viewbox="0 0 32 32">
+<circle cx="15" cy="16" fill="#dcdcdc" r="13" stroke="#707070" stroke-width="1"></circle>
+<!-- Holographic reflections -->
+<path d="M15,3 A13,13 0 0,1 26,10 L19,13 A5,5 0 0,0 15,11 Z" fill="#78d5e3" opacity="0.6"></path>
+<path d="M15,29 A13,13 0 0,1 4,22 L11,19 A5,5 0 0,0 15,21 Z" fill="#ec72a8" opacity="0.6"></path>
+<!-- Center hole -->
+<circle cx="15" cy="16" fill="#f0f0f0" r="4.5" stroke="#808080" stroke-width="1"></circle>
+<circle cx="15" cy="16" fill="#2d6896" r="2"></circle>
+<!-- Note icon -->
+<path d="M21,6 L26,4 L26,14 A2,2 0 1,1 23,12 L23,8 L21,9 Z" fill="#000080"></path>
+</svg>
+<span class="text-[10px] leading-3 text-white win-text-shadow px-1 tracking-tight">My Music</span>
+</div>
+<!-- 6. My Pictures -->
+<div class="desktop-icon w-[72px] flex flex-col items-center text-center p-1 rounded-none select-none" data-icon-id="pictures" tabindex="0">
+<svg class="w-8 h-8 pointer-events-none mb-1" viewbox="0 0 32 32">
+<rect fill="#e0cfab" height="22" stroke="#6b5020" stroke-width="1" width="26" x="3" y="4"></rect>
+<rect fill="#58a0e8" height="18" width="22" x="5" y="6"></rect>
+<!-- Sun -->
+<circle cx="10" cy="11" fill="#fbe049" r="3"></circle>
+<!-- Mountain landscape -->
+<polygon fill="#328e34" points="5,24 13,14 18,20 22,15 27,24"></polygon>
+<polygon fill="#ffffff" points="12,15 13,14 15,17"></polygon>
+</svg>
+<span class="text-[10px] leading-3 text-white win-text-shadow px-1 tracking-tight">My Pictures</span>
+</div>
+<!-- 7. Internet Explorer -->
+<div class="desktop-icon w-[72px] flex flex-col items-center text-center p-1 rounded-none select-none" data-icon-id="ie" tabindex="0">
+<svg class="w-8 h-8 pointer-events-none mb-1" viewbox="0 0 32 32">
+<!-- Outer gold ring -->
+<ellipse cx="16" cy="15" fill="none" rx="14" ry="7" stroke="#e0c030" stroke-width="2" transform="rotate(-30 16 15)"></ellipse>
+<!-- Classic blue e -->
+<path d="M18,6 C10,6 7,12 7,16 C7,22 12,26 21,26 C25,26 27,24 28,22 L22,22 C20,23 16,23 14,21 C12,19 12,17 26,17 C26,13 25,6 18,6 Z M13,13 C14,10 16,9 18,9 C20,9 21,10 21,13 L13,13 Z" fill="#0066cc"></path>
+<!-- Gold orbit halo front overlay -->
+<path d="M5,22 Q14,29 27,10" fill="none" stroke="#fcd836" stroke-width="2.2"></path>
+</svg>
+<span class="text-[10px] leading-3 text-white win-text-shadow px-1 tracking-tight">Internet</span>
+</div>
+<!-- 8. Games -->
+<div class="desktop-icon w-[72px] flex flex-col items-center text-center p-1 rounded-none select-none" data-icon-id="games" tabindex="0">
+<svg class="w-8 h-8 pointer-events-none mb-1" viewbox="0 0 32 32">
+<!-- Gamepad body -->
+<rect fill="#c0c0c0" height="14" rx="4" stroke="#404040" stroke-width="1" width="26" x="3" y="10"></rect>
+<!-- D-Pad -->
+<rect fill="#000" height="3" width="8" x="7" y="14"></rect>
+<rect fill="#000" height="8" width="3" x="9.5" y="11.5"></rect>
+<!-- Action Buttons -->
+<circle cx="21" cy="17" fill="#d92525" r="2"></circle>
+<circle cx="25" cy="14" fill="#2d68c4" r="2"></circle>
+</svg>
+<span class="text-[10px] leading-3 text-white win-text-shadow px-1 tracking-tight">Games</span>
+</div>
+<!-- 9. Recycle Bin -->
+<div class="desktop-icon w-[72px] flex flex-col items-center text-center p-1 rounded-none select-none mt-2" data-icon-id="recycle-bin" tabindex="0">
+<svg class="w-8 h-8 pointer-events-none mb-1" viewbox="0 0 32 32">
+<!-- Ribbed metal basket -->
+<polygon fill="#e8e8e8" points="6,9 26,9 23,29 9,29" stroke="#707070" stroke-width="1"></polygon>
+<ellipse cx="16" cy="9" fill="#b0b0b0" rx="10" ry="2.5" stroke="#707070" stroke-width="1"></ellipse>
+<!-- Recycle 3-arrow logo -->
+<path d="M13,16 L17,13 L17,15 L20,15 L18,19 L16,19 L16,17 L13,17 Z" fill="#2e8b2e"></path>
+<path d="M13,21 L16,24 L14,24 L15,26 L12,25 L13,22 Z" fill="#2e8b2e"></path>
+</svg>
+<span class="text-[10px] leading-3 text-white win-text-shadow px-1 tracking-tight">Recycle Bin</span>
+</div>
+</main>
+<!-- END: Desktop Icons Matrix -->
+<!-- BEGIN: Active Window: "My Documents" -->
+<div class="win-outset absolute left-[120px] top-[40px] md:left-[240px] md:top-[60px] w-[94vw] max-w-[560px] h-[410px] bg-[#c0c0c0] flex flex-col z-30 shadow-2xl" data-purpose="retro-window" id="window-my-documents">
+<!-- Window Title Bar -->
+<div class="h-[20px] bg-gradient-to-r from-[#000080] via-[#0845a5] to-[#1084d0] px-1 flex items-center justify-between text-white select-none cursor-move" data-purpose="window-titlebar" id="window-titlebar">
+<div class="flex items-center space-x-1.5 overflow-hidden">
+<!-- Mini 14x14 Folder Icon -->
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#fbd84e" points="1,3 6,3 7,5 15,5 15,14 1,14" stroke="#7e5900" stroke-width="0.8"></polygon>
+</svg>
+<span class="text-[11px] font-bold tracking-wide font-sans truncate">My Documents</span>
+</div>
+<!-- Window Control Buttons (Minimize, Maximize, Close) -->
+<div class="flex items-center space-x-1">
+<!-- Minimize -->
+<button class="win-btn w-[16px] h-[14px] flex items-center justify-center text-black text-[9px] font-bold leading-none" onclick="toggleWindow('window-my-documents')" title="Minimize">
+<span class="relative -top-[3px]">_</span>
+</button>
+<!-- Maximize / Restore -->
+<button class="win-btn w-[16px] h-[14px] flex items-center justify-center text-black text-[9px] font-bold leading-none" title="Maximize">
+<div class="w-[9px] h-[7px] border-[1.5px] border-black"></div>
+</button>
+<!-- Close -->
+<button class="win-btn w-[16px] h-[14px] flex items-center justify-center text-black text-[10px] font-bold leading-none" onclick="toggleWindow('window-my-documents')" title="Close">
+            ✕
+          </button>
+</div>
+</div>
+<!-- Window Menu Bar -->
+<div class="h-[21px] bg-[#c0c0c0] border-b border-[#808080] flex items-center px-1 space-x-3 text-[11px] text-black">
+<span class="hover:bg-[#000080] hover:text-white px-1"><u>F</u>ile</span>
+<span class="hover:bg-[#000080] hover:text-white px-1"><u>E</u>dit</span>
+<span class="hover:bg-[#000080] hover:text-white px-1"><u>V</u>iew</span>
+<span class="hover:bg-[#000080] hover:text-white px-1"><u>H</u>elp</span>
+</div>
+<!-- Window Toolbar Buttons -->
+<div class="h-[28px] bg-[#c0c0c0] border-b border-[#808080] flex items-center px-1 space-x-1 text-[10px]">
+<button class="win-outset-thin h-[22px] px-1.5 flex items-center space-x-1 bg-[#c0c0c0] active:border-[#808080]">
+<span class="text-[#008000] font-black text-xs">←</span>
+<span>Back</span>
+</button>
+<button class="win-outset-thin h-[22px] px-1.5 flex items-center space-x-1 bg-[#c0c0c0] opacity-60">
+<span class="text-[#808080] font-black text-xs">→</span>
+<span>Forward</span>
+</button>
+<button class="win-outset-thin h-[22px] px-1.5 flex items-center space-x-1 bg-[#c0c0c0]">
+<span class="text-[#808000] text-xs">⬆</span>
+<span>Up</span>
+</button>
+<div class="h-[18px] w-[1px] bg-[#808080] border-r border-white mx-0.5"></div>
+<button class="win-outset-thin h-[22px] px-1.5 bg-[#c0c0c0]">Cut</button>
+<button class="win-outset-thin h-[22px] px-1.5 bg-[#c0c0c0]">Copy</button>
+<button class="win-outset-thin h-[22px] px-1.5 bg-[#c0c0c0]">Paste</button>
+<div class="h-[18px] w-[1px] bg-[#808080] border-r border-white mx-0.5"></div>
+<button class="win-outset-thin h-[22px] px-1.5 bg-[#c0c0c0]">Views</button>
+</div>
+<!-- Address / Location Bar -->
+<div class="h-[22px] bg-[#c0c0c0] border-b border-[#808080] flex items-center px-1.5 text-[10px] space-x-1">
+<span class="text-[#404040]">Address</span>
+<div class="flex-1 h-[18px] win-inset bg-white px-1 flex items-center space-x-1 overflow-hidden">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#fbd84e" points="1,3 6,3 7,5 15,5 15,14 1,14" stroke="#7e5900" stroke-width="0.8"></polygon>
+</svg>
+<span class="text-black font-sans truncate text-[11px]">C:\My Documents</span>
+</div>
+</div>
+<!-- Explorer Content Area (File list canvas) -->
+<div class="flex-1 win-inset bg-white m-1 p-2 overflow-y-auto flex flex-wrap content-start gap-4" data-purpose="folder-contents">
+<!-- Item 1: Text Document -->
+<div class="folder-item flex flex-col items-center w-[64px] p-1 hover:bg-[#000080] hover:text-white group" tabindex="0">
+<svg class="w-7 h-7 mb-1" viewbox="0 0 24 28">
+<polygon fill="#ffffff" points="2,0 16,0 22,6 22,28 2,28" stroke="#404040" stroke-width="1.2"></polygon>
+<polygon fill="#d0d0d0" points="16,0 16,6 22,6" stroke="#404040" stroke-width="1"></polygon>
+<line stroke="#404040" stroke-width="1" x1="5" x2="14" y1="9" y2="9"></line>
+<line stroke="#404040" stroke-width="1" x1="5" x2="19" y1="13" y2="13"></line>
+<line stroke="#404040" stroke-width="1" x1="5" x2="19" y1="17" y2="17"></line>
+<line stroke="#404040" stroke-width="1" x1="5" x2="16" y1="21" y2="21"></line>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white break-all">about_me.txt</span>
+</div>
+<!-- Item 2: Word / Rich Document -->
+<div class="folder-item flex flex-col items-center w-[64px] p-1 hover:bg-[#000080] hover:text-white group" tabindex="0">
+<svg class="w-7 h-7 mb-1" viewbox="0 0 24 28">
+<polygon fill="#ffffff" points="2,0 16,0 22,6 22,28 2,28" stroke="#000080" stroke-width="1.2"></polygon>
+<polygon fill="#80a0e0" points="16,0 16,6 22,6" stroke="#000080" stroke-width="1"></polygon>
+<!-- Big Blue W -->
+<rect fill="#000080" height="15" width="16" x="4" y="9"></rect>
+<text fill="#ffffff" font-family="Arial" font-size="11" font-weight="bold" x="7" y="21">W</text>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white break-all">resume_97.doc</span>
+</div>
+<!-- Item 3: Skills notes -->
+<div class="folder-item flex flex-col items-center w-[64px] p-1 hover:bg-[#000080] hover:text-white group" tabindex="0">
+<svg class="w-7 h-7 mb-1" viewbox="0 0 24 28">
+<polygon fill="#ffffea" points="2,0 16,0 22,6 22,28 2,28" stroke="#404040" stroke-width="1.2"></polygon>
+<polygon fill="#d0d0d0" points="16,0 16,6 22,6" stroke="#404040" stroke-width="1"></polygon>
+<line stroke="#3030b0" stroke-width="1.5" x1="5" x2="13" y1="8" y2="8"></line>
+<line stroke="#404040" stroke-width="1" x1="5" x2="19" y1="12" y2="12"></line>
+<line stroke="#404040" stroke-width="1" x1="5" x2="19" y1="16" y2="16"></line>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white break-all">skills.txt</span>
+</div>
+<!-- Item 4: Contact card (Rolodex) -->
+<div class="folder-item flex flex-col items-center w-[64px] p-1 hover:bg-[#000080] hover:text-white group" tabindex="0">
+<svg class="w-7 h-7 mb-1" viewbox="0 0 26 24">
+<rect fill="#fdfae8" height="18" rx="1" stroke="#7a6020" stroke-width="1.2" width="22" x="2" y="3"></rect>
+<!-- Rolodex notch -->
+<circle cx="13" cy="21" fill="#404040" r="2.5"></circle>
+<circle cx="8" cy="9" fill="#1b4d8c" r="2.5"></circle>
+<line stroke="#404040" stroke-width="1" x1="13" x2="20" y1="8" y2="8"></line>
+<line stroke="#808080" stroke-width="1" x1="13" x2="18" y1="12" y2="12"></line>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white break-all">contact.vcf</span>
+</div>
+<!-- Item 5: Subfolder Certificates -->
+<div class="folder-item flex flex-col items-center w-[64px] p-1 hover:bg-[#000080] hover:text-white group" tabindex="0">
+<svg class="w-7 h-7 mb-1" viewbox="0 0 28 24">
+<polygon fill="#fbd84e" points="1,3 10,3 12,6 25,6 25,21 1,21" stroke="#8a6500" stroke-width="1"></polygon>
+<polygon fill="#ffd952" points="1,7 27,7 25,21 1,21" stroke="#8a6500" stroke-width="1"></polygon>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white break-all">Certificates</span>
+</div>
+<!-- Item 6: System DAT Specs -->
+<div class="folder-item flex flex-col items-center w-[64px] p-1 hover:bg-[#000080] hover:text-white group" tabindex="0">
+<svg class="w-7 h-7 mb-1" viewbox="0 0 24 28">
+<polygon fill="#e8e8e8" points="2,0 16,0 22,6 22,28 2,28" stroke="#404040" stroke-width="1.2"></polygon>
+<!-- Mini gear pixel graphic -->
+<circle cx="12" cy="16" fill="#808080" r="4" stroke="#202020" stroke-width="1"></circle>
+<circle cx="12" cy="16" fill="#ffffff" r="1.5"></circle>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white break-all">specs.dat</span>
+</div>
+</div>
+<!-- Window Status Bar -->
+<div class="h-[20px] bg-[#c0c0c0] px-1 pb-0.5 flex items-center space-x-2 text-[10px] text-black">
+<div class="win-inset-thin px-2 h-[16px] flex items-center flex-1">
+<span>6 object(s)</span>
+</div>
+<div class="win-inset-thin px-2 h-[16px] flex items-center w-[180px]">
+<span>14.2 KB (Free: 1.44 MB)</span>
+</div>
+</div>
+</div>
+<!-- END: Active Window -->
+<!-- BEGIN: Start Menu (Hidden by default, toggled via JS) -->
+<div class="hidden absolute left-0 bottom-[30px] z-50 win-outset bg-[#c0c0c0] w-[210px] flex shadow-2xl" data-purpose="start-menu" id="start-menu">
+<!-- Left Vertical Blue Stripe -->
+<div class="win97-banner w-[28px] flex items-center justify-end py-2 select-none">
+<span class="text-white font-bold text-base tracking-widest pl-1">Windows<span class="text-[#c0c0c0] font-light">97</span></span>
+</div>
+<!-- Menu Item List -->
+<div class="flex-1 py-1 flex flex-col text-[11px] text-black">
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-[#000080] hover:text-white cursor-pointer group">
+<span class="w-4 h-4 flex items-center justify-center font-bold text-xs text-yellow-500">📁</span>
+<span class="flex-1"><u>P</u>rograms</span>
+<span class="text-[9px]">►</span>
+</div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-[#000080] hover:text-white cursor-pointer group">
+<span class="w-4 h-4 flex items-center justify-center font-bold text-xs text-blue-500">📄</span>
+<span class="flex-1"><u>D</u>ocuments</span>
+<span class="text-[9px]">►</span>
+</div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-[#000080] hover:text-white cursor-pointer group">
+<span class="w-4 h-4 flex items-center justify-center font-bold text-xs text-gray-700">⚙</span>
+<span class="flex-1"><u>S</u>ettings</span>
+<span class="text-[9px]">►</span>
+</div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-[#000080] hover:text-white cursor-pointer group">
+<span class="w-4 h-4 flex items-center justify-center font-bold text-xs text-amber-600">🔍</span>
+<span class="flex-1"><u>F</u>ind</span>
+<span class="text-[9px]">►</span>
+</div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-[#000080] hover:text-white cursor-pointer group">
+<span class="w-4 h-4 flex items-center justify-center font-bold text-xs text-purple-600">❓</span>
+<span class="flex-1"><u>H</u>elp</span>
+</div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-[#000080] hover:text-white cursor-pointer group">
+<span class="w-4 h-4 flex items-center justify-center font-bold text-xs text-cyan-600">🏃</span>
+<span class="flex-1"><u>R</u>un...</span>
+</div>
+<div class="h-[1px] bg-[#808080] border-b border-white my-1 mx-1"></div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-[#000080] hover:text-white cursor-pointer group">
+<span class="w-4 h-4 flex items-center justify-center font-bold text-xs text-red-600">⏻</span>
+<span class="flex-1">Sh<u>u</u>t Down...</span>
+</div>
+</div>
+</div>
+<!-- END: Start Menu -->
+<!-- BEGIN: Taskbar (Pinned Bottom 30px, Windows 95/97 Style) -->
+<footer class="relative z-40 h-[30px] bg-[#c0c0c0] border-t-2 border-[#ffffff] flex items-center px-1 justify-between select-none shadow-md" data-purpose="taskbar">
+<!-- Left side: Start Button & Quick Launch & Active Apps -->
+<div class="flex items-center space-x-1.5 h-full py-0.5">
+<!-- Start Button -->
+<button class="win-btn h-[24px] px-2 flex items-center space-x-1 bg-[#c0c0c0] active:win-btn-pressed" data-purpose="start-button" id="btn-start" onclick="toggleStartMenu()">
+<!-- 4-Color Windows Flag Logo (Pixel SVG) -->
+<svg class="w-4 h-4" viewbox="0 0 16 16">
+<path d="M1,2 L7,1 L7,7 L1,8 Z" fill="#ff3333"></path>
+<path d="M8,1 L15,0 L15,7 L8,7 Z" fill="#33cc33"></path>
+<path d="M1,9 L7,8 L7,14 L1,15 Z" fill="#3366ff"></path>
+<path d="M8,8 L15,7 L15,15 L8,14 Z" fill="#ffcc00"></path>
+</svg>
+<span class="font-bold text-[11px] text-black tracking-normal">Start</span>
+</button>
+<!-- Quick Launch Divider -->
+<div class="h-[20px] w-[2px] border-l border-[#808080] border-r border-[#ffffff] mx-0.5"></div>
+<!-- Quick Launch Mini Icons -->
+<div class="flex items-center space-x-1 px-1">
+<button class="w-[18px] h-[18px] flex items-center justify-center hover:win-outset-thin" title="Show Desktop">
+<svg class="w-3.5 h-3.5" viewbox="0 0 16 16">
+<rect fill="#000080" height="9" width="12" x="2" y="2"></rect>
+<rect fill="#808080" height="2" width="8" x="4" y="12"></rect>
+</svg>
+</button>
+<button class="w-[18px] h-[18px] flex items-center justify-center hover:win-outset-thin" title="Launch Internet Explorer">
+<svg class="w-3.5 h-3.5" viewbox="0 0 16 16">
+<ellipse cx="8" cy="8" fill="none" rx="6" ry="3" stroke="#e0c030" stroke-width="1.2" transform="rotate(-20 8 8)"></ellipse>
+<text fill="#0066cc" font-size="10" font-weight="bold" x="4" y="11">e</text>
+</svg>
+</button>
+<button class="w-[18px] h-[18px] flex items-center justify-center hover:win-outset-thin" title="Notepad">
+<svg class="w-3.5 h-3.5" viewbox="0 0 16 16">
+<rect fill="#fff" height="13" stroke="#404040" stroke-width="0.8" width="10" x="3" y="1"></rect>
+<line stroke="#008080" stroke-width="1" x1="5" x2="11" y1="4" y2="4"></line>
+</svg>
+</button>
+</div>
+<!-- Divider -->
+<div class="h-[20px] w-[2px] border-l border-[#808080] border-r border-[#ffffff] mx-0.5"></div>
+<!-- Taskbar Windows List -->
+<div class="flex items-center space-x-1">
+<!-- Button 1: Active "My Documents" (Sunken / Pressed / Dithered) -->
+<button class="taskbar-dither-active h-[23px] w-[140px] px-1.5 flex items-center space-x-1.5 text-left truncate" id="taskbar-item-docs" onclick="toggleWindow('window-my-documents')">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#fbd84e" points="1,3 6,3 7,5 15,5 15,14 1,14" stroke="#7e5900" stroke-width="0.8"></polygon>
+</svg>
+<span class="text-[11px] font-bold text-black truncate">My Documents</span>
+</button>
+<!-- Button 2: Inactive Background Task "CD Player" (Raised bevel) -->
+<button class="win-btn h-[23px] w-[110px] px-1.5 flex items-center space-x-1.5 text-left opacity-90 truncate">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<circle cx="8" cy="8" fill="#d0d0d0" r="6" stroke="#606060" stroke-width="0.8"></circle>
+<circle cx="8" cy="8" fill="#404040" r="2"></circle>
+</svg>
+<span class="text-[11px] text-black truncate">CD Player</span>
+</button>
+</div>
+</div>
+<!-- Right side: System Tray (Inset Box with Clock & Notification Icons) -->
+<div class="win-inset h-[23px] px-2 bg-[#c0c0c0] flex items-center space-x-2 text-black" data-purpose="system-tray">
+<!-- Volume / Speaker Icon -->
+<svg class="w-3.5 h-3.5" title="Volume" viewbox="0 0 16 16">
+<polygon fill="#000000" points="1,5 4,5 8,2 8,14 4,11 1,11"></polygon>
+<path d="M10,5 Q13,8 10,11" fill="none" stroke="#000000" stroke-width="1.2"></path>
+</svg>
+<!-- Network / Dialup Icon -->
+<svg class="w-3.5 h-3.5" title="Connected" viewbox="0 0 16 16">
+<rect fill="#1b72e8" height="5" stroke="#000" stroke-width="0.6" width="6" x="2" y="3"></rect>
+<rect fill="#4fa83d" height="5" stroke="#000" stroke-width="0.6" width="6" x="7" y="6"></rect>
+</svg>
+<!-- Task Scheduler / Time Icon -->
+<svg class="w-3.5 h-3.5" title="Task Scheduler" viewbox="0 0 16 16">
+<circle cx="8" cy="8" fill="#ffffff" r="6" stroke="#000" stroke-width="0.8"></circle>
+<polyline fill="none" points="8,4 8,8 11,8" stroke="#c00000" stroke-width="1"></polyline>
+</svg>
+<!-- Tray Live Clock (Tahoma 11px) -->
+<span class="text-[11px] font-sans text-black tracking-tight ml-1" id="tray-clock">8:52 PM</span>
+</div>
+</footer>
+<!-- END: Taskbar -->
+<!-- BEGIN: Fullscreen CRT Scanline Overlay -->
+<div class="crt-overlay absolute inset-0 pointer-events-none z-50 w-full h-full"></div>
+<!-- END: Fullscreen CRT Scanline Overlay -->
+</div>
+<!-- END: Desktop Canvas Container -->
+<!-- BEGIN: Vanilla JavaScript for Retro Micro-Interactions -->
+<script data-purpose="retro-interactivity">
+    // 1. Clock updater
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const clockEl = document.getElementById('tray-clock');
+      if (clockEl) {
+        clockEl.textContent = `${hours}:${minutes} ${ampm}`;
+      }
+    }
+    updateClock();
+    setInterval(updateClock, 10000);
+
+    // 2. Start Menu Toggle
+    function toggleStartMenu() {
+      const menu = document.getElementById('start-menu');
+      const startBtn = document.getElementById('btn-start');
+      if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        startBtn.classList.add('win-btn-pressed');
+      } else {
+        menu.classList.add('hidden');
+        startBtn.classList.remove('win-btn-pressed');
+      }
+    }
+
+    // Close Start Menu if clicking outside
+    document.addEventListener('click', (e) => {
+      const startMenu = document.getElementById('start-menu');
+      const startBtn = document.getElementById('btn-start');
+      if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+        startMenu.classList.add('hidden');
+        startBtn.classList.remove('win-btn-pressed');
+      }
+    });
+
+    // 3. Window Toggle & Taskbar State
+    function toggleWindow(windowId) {
+      const win = document.getElementById(windowId);
+      const taskBtn = document.getElementById('taskbar-item-docs');
+      if (win.style.display === 'none') {
+        win.style.display = 'flex';
+        taskBtn.className = 'taskbar-dither-active h-[23px] w-[140px] px-1.5 flex items-center space-x-1.5 text-left truncate';
+      } else {
+        win.style.display = 'none';
+        taskBtn.className = 'win-btn h-[23px] w-[140px] px-1.5 flex items-center space-x-1.5 text-left opacity-90 truncate';
+      }
+    }
+
+    // 4. Desktop Icon Selection Handling
+    const desktopIcons = document.querySelectorAll('.desktop-icon');
+    desktopIcons.forEach(icon => {
+      icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        desktopIcons.forEach(i => {
+          i.classList.remove('icon-selected-box');
+          const span = i.querySelector('span');
+          if (span) {
+            span.classList.remove('icon-selected');
+            span.classList.add('win-text-shadow');
+          }
+        });
+
+        icon.classList.add('icon-selected-box');
+        const span = icon.querySelector('span');
+        if (span) {
+          span.classList.remove('win-text-shadow');
+          span.classList.add('icon-selected');
+        }
+      });
+
+      // Double click to trigger action (e.g. My Documents opens window)
+      icon.addEventListener('dblclick', () => {
+        const iconId = icon.getAttribute('data-icon-id');
+        if (iconId === 'my-documents') {
+          const win = document.getElementById('window-my-documents');
+          win.style.display = 'flex';
+          const taskBtn = document.getElementById('taskbar-item-docs');
+          taskBtn.className = 'taskbar-dither-active h-[23px] w-[140px] px-1.5 flex items-center space-x-1.5 text-left truncate';
+        }
+      });
+    });
+
+    // Desktop background click deselects icons
+    document.getElementById('desktop-viewport').addEventListener('click', (e) => {
+      if (e.target.id === 'desktop-viewport' || e.target.getAttribute('data-purpose') === 'bliss-wallpaper') {
+        desktopIcons.forEach(i => {
+          i.classList.remove('icon-selected-box');
+          const span = i.querySelector('span');
+          if (span) {
+            span.classList.remove('icon-selected');
+            span.classList.add('win-text-shadow');
+          }
+        });
+      }
+    });
+
+    // 5. Draggable Window Titlebar
+    (function makeDraggable() {
+      const win = document.getElementById('window-my-documents');
+      const handle = document.getElementById('window-titlebar');
+      let isDragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      handle.addEventListener('mousedown', (e) => {
+        if (e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
+        isDragging = true;
+        const rect = win.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        let newX = e.clientX - offsetX;
+        let newY = e.clientY - offsetY;
+        
+        // Clamping to desktop boundaries
+        newX = Math.max(0, Math.min(window.innerWidth - 60, newX));
+        newY = Math.max(0, Math.min(window.innerHeight - 60, newY));
+
+        win.style.left = `${newX}px`;
+        win.style.top = `${newY}px`;
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+    })();
+  </script>
+<!-- END: Retro Interactivity -->
+</body></html>

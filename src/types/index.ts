@@ -3,7 +3,7 @@
 // Import from here — never redeclare inline in components.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type WindowId = 'about' | 'projects' | 'experience' | 'skills' | 'contact';
+export type WindowId = 'about' | 'projects' | 'project-detail' | 'media-player' | 'experience' | 'skills' | 'contact' | 'explorer' | 'recycle-bin' | 'terminal' | 'notepad' | 'settings' | 'photos' | 'mail' | 'ie4' | 'paint' | 'cd-player' | 'calculator' | 'minesweeper' | 'msdos' | 'system-properties' | 'control-panel' | 'run' | 'find' | 'shutdown';
 export type ViewMode  = 'grid' | 'list';
 export type TagFilter = 'main' | 'recent' | 'starred' | 'design' | 'dev' | 'ai' | 'archived';
 

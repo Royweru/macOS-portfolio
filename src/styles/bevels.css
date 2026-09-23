@@ -1,0 +1,49 @@
+/* Windows 97 bevel primitives. They deliberately use hard edges and no
+   rounded corners so controls remain recognisable at low logical resolutions. */
+.bevel-outset {
+  border-top: 2px solid var(--win97-white);
+  border-left: 2px solid var(--win97-white);
+  border-right: 2px solid var(--win97-surface-deep);
+  border-bottom: 2px solid var(--win97-surface-deep);
+}
+
+.raised,
+.window-frame {
+  border: var(--w95-bevel-width) solid;
+  border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+}
+
+.sunken,
+.field {
+  border: var(--w95-bevel-width) solid;
+  border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+}
+
+.etched {
+  border: 1px solid var(--w95-bevel-dark);
+  box-shadow: inset 0 0 0 1px var(--w95-bevel-light);
+}
+
+.pressed {
+  border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+}
+
+.bevel-inset {
+  border-top: 2px solid var(--win97-surface-deep);
+  border-left: 2px solid var(--win97-surface-deep);
+  border-right: 2px solid var(--win97-white);
+  border-bottom: 2px solid var(--win97-white);
+}
+
+.bevel-button:active,
+.bevel-button[data-pressed='true'] {
+  border-top-color: var(--win97-surface-deep);
+  border-left-color: var(--win97-surface-deep);
+  border-right-color: var(--win97-white);
+  border-bottom-color: var(--win97-white);
+}
+
+.win97-focus:focus-visible {
+  outline: 1px dotted var(--win97-focus-outline);
+  outline-offset: -4px;
+}

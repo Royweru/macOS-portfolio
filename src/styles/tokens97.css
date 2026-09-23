@@ -1,0 +1,81 @@
+/* Weru 97 system palette. Keep these tokens primitive so every window and
+   shell surface can share the same period-correct rendering rules. */
+:root {
+  --w95-surface: #c0c0c0;
+  --w95-surface-dark: #808080;
+  --w95-surface-light: #dfdfdf;
+  --w95-window-bg: #ffffff;
+  --w95-desktop-bg: #008080;
+  --w95-bevel-light: #ffffff;
+  --w95-bevel-dark: #808080;
+  --w95-bevel-shadow: #404040;
+  --w95-title-active: linear-gradient(90deg, #000080, #1084d0);
+  --w95-title-inactive: #808080;
+  --w95-title-text: #ffffff;
+  --w95-highlight: #000080;
+  --w95-highlight-text: #ffffff;
+  --w95-text: #000000;
+  --w95-text-disabled: #808080;
+  --w95-taskbar-bg: #c0c0c0;
+  --w95-start-green: #008000;
+  --w95-font-ui: Tahoma, 'MS Sans Serif', Arial, sans-serif;
+  --w95-font-mono: 'Courier New', Courier, monospace;
+  --w95-font-terminal: 'VT323', 'Courier New', monospace;
+  --w95-font-bios: 'VT323', 'Courier New', monospace;
+  --w95-font-lcd: 'VT323', monospace;
+  --w95-titlebar-h: 20px;
+  --w95-menubar-h: 20px;
+  --w95-statusbar-h: 22px;
+  --w95-taskbar-h: 46px;
+  --w95-icon-size: 40px;
+  --w95-icon-small: 16px;
+  --w95-bevel-width: 2px;
+  --w95-cursor-default: url('/assets/win97/cursors/default.svg') 0 0, default;
+  --w95-cursor-pointer: url('/assets/win97/cursors/pointer.svg') 7 2, pointer;
+  --w95-cursor-text: text;
+  --w95-cursor-wait: url('/assets/win97/cursors/busy.svg') 8 8, wait;
+  --w95-cursor-hand: url('/assets/win97/cursors/hand.svg') 7 2, pointer;
+  --w95-cursor-move: url('/assets/win97/cursors/move.svg') 12 12, move;
+  --w95-cursor-ns: url('/assets/win97/cursors/ns.svg') 8 8, ns-resize;
+  --w95-cursor-ew: url('/assets/win97/cursors/ew.svg') 8 8, ew-resize;
+  --w95-cursor-nwse: url('/assets/win97/cursors/nwse.svg') 8 8, nwse-resize;
+  --w95-cursor-nesw: url('/assets/win97/cursors/nesw.svg') 8 8, nesw-resize;
+
+  --win97-desktop: #008080;
+  --win97-surface: #c0c0c0;
+  --win97-surface-light: #dfdfdf;
+  --win97-surface-dark: #808080;
+  --win97-surface-deep: #404040;
+  --win97-white: #ffffff;
+  --win97-black: #000000;
+  --win97-navy: #000080;
+  --win97-blue: #0000aa;
+  --win97-selection: #000080;
+  --win97-selection-text: #ffffff;
+  --win97-green: #008000;
+  --win97-red: #800000;
+  --win97-yellow: #ffff00;
+  --win97-text: #000000;
+  --win97-muted-text: #404040;
+  --win97-titlebar-inactive: #808080;
+  --win97-focus-outline: #000000;
+
+  --os-accent: var(--win97-navy);
+  --os-accent-strong: var(--win97-blue);
+  --os-ink: var(--win97-text);
+  --os-muted: var(--win97-muted-text);
+  --os-surface: var(--win97-surface);
+  --os-surface-strong: var(--win97-surface-light);
+  --os-surface-muted: var(--win97-surface);
+  --os-border: var(--win97-surface-dark);
+  --os-border-strong: var(--win97-black);
+  --os-danger: var(--win97-red);
+  --os-shadow-window: 2px 2px 0 var(--win97-black);
+  --os-shadow-flyout: 2px 2px 0 var(--win97-black);
+  --font-system: var(--w95-font-ui);
+}
+
+body {
+  background: var(--win97-desktop);
+  color: var(--win97-text);
+}
