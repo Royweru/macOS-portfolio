@@ -152,13 +152,13 @@ const project = (definition: ProjectInput): ProjectDefinition => {
 export const PROJECTS: ProjectDefinition[] = [
   project({
     legacyId: 1,
-    title: 'MoniePal',
+    title: 'MoniePal POS and ERP',
     description: 'MoniePal is built around two facts of Kenyan retail: the internet drops, and customers pay with M-Pesa. Every till keeps trading when the connection is gone, writing each sale as an event to a local SQLite database. When the network returns, the tills sync to the cloud on their own. Owners see every branch, till and report from one dashboard, from a laptop or a phone.',
     tag:"AI",
     color: '#1a1a2e',
     accent: '#7c3aed',
     readme:"/text/moniepal_readme.txt",
-    live: null,
+    live: "https://moniepal-two.vercel.app",
     tech: ['Python', 'React18', 'FastAPI', 'Docker', 'Celery'],
     files:{
       demo:{
