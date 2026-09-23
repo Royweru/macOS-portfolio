@@ -167,10 +167,30 @@ export const createProjectMediaNodes = (manifests = PROJECT_MEDIA_MANIFEST): Vfs
           captionSource: asset.captionSource,
         },
       };
-    });
+  });
 });
 
-const createMediaNodes = () => [...createPersonalMediaNodes(), ...createProjectMediaNodes()];
+const createProjectDemoNodes = (): VfsNode[] => PROJECTS.flatMap(project => {
+  const demo = project.files?.demo;
+  if (!demo) return [];
+  const projectId = `project-${project.id}`;
+  return [{
+    ...createFile(`${projectId}-demo`, projectId, 'demo.avi', '', demo.mimeType ?? 'video/mp4', 'media-player'),
+    media: {
+      mediaId: `${project.id}-demo`,
+      projectId: project.legacyId ?? 0,
+      kind: 'video',
+      source: demo.src,
+      poster: demo.poster,
+      title: demo.title ?? `${project.title} Demo`,
+      durationSeconds: demo.durationSeconds,
+    },
+  }];
+});
+
+// Synchronize inline project demos on every filesystem startup too, so a
+// corrected public asset URL reaches already-seeded IndexedDB nodes safely.
+const createMediaNodes = () => [...createPersonalMediaNodes(), ...createProjectMediaNodes(), ...createProjectDemoNodes()];
 
 const syncMediaNodes = async () => {
   const nodes = createMediaNodes();
@@ -288,21 +308,6 @@ export const createWin97Nodes = () => {
         project.techStack.other?.length ? `Other: ${project.techStack.other.join(', ')}` : '',
       ].filter(Boolean).join('\n');
       nodes.push(createFile(`${projectId}-tech`, projectId, 'tech-stack.spec', techLines, 'text/plain', 'system-properties'));
-    }
-
-    if (project.files?.demo) {
-      nodes.push({
-        ...createFile(`${projectId}-demo`, projectId, 'demo.avi', '', project.files.demo.mimeType ?? 'video/mp4', 'media-player'),
-        media: {
-          mediaId: `${project.id}-demo`,
-          projectId: project.legacyId ?? 0,
-          kind: 'video',
-          source: project.files.demo.src,
-          poster: project.files.demo.poster,
-          title: project.files.demo.title ?? `${project.title} Demo`,
-          durationSeconds: project.files.demo.durationSeconds,
-        },
-      });
     }
 
     if (project.files?.screenshots && project.files.screenshots.length > 0) {

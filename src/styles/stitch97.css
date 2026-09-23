@@ -88,11 +88,12 @@
 .win97-recycle-confirm-body { display: flex; align-items: center; gap: 10px; padding: 14px 12px 4px; }
 .win97-recycle-confirm-body p { margin: 4px 0 0; }
 .win97-explorer .win97-explorer-folder button { border-radius: 0 !important; }
-.win97-notepad textarea { font-family: 'Courier New', monospace !important; font-size: 12px !important; }
-.win97-notepad > div { display: flex; min-height: 0; flex-direction: column; background: #fff !important; }
+.win97-notepad { display: flex; width: 100%; height: 100%; min-width: 0; min-height: 0; flex: 1 1 0%; }
+.win97-notepad textarea { font-family: 'Courier New', monospace !important; font-size: 14px !important; }
+.win97-notepad > div { display: flex; width: 100%; height: 100%; min-width: 0; min-height: 0; flex: 1 1 0%; flex-direction: column; background: #fff !important; }
 .win97-notepad > div > div:nth-child(2) { min-height: 24px; padding: 3px 6px; border-bottom: 1px solid #808080; background: #c0c0c0 !important; font-size: 10px; }
 .win97-notepad > div > div:nth-child(3) { min-height: 20px; padding: 2px 5px; border-bottom: 1px solid #808080; background: #c0c0c0 !important; color: #404040 !important; font: 10px var(--w95-font-mono); }
-.win97-notepad textarea { min-height: 0; flex: 1; padding: 8px !important; border: 0 !important; outline: 0 !important; background: #fff !important; color: #000 !important; line-height: 1.35 !important; }
+.win97-notepad textarea { min-height: 0; flex: 1; padding: 10px !important; border: 0 !important; outline: 0 !important; background: #fff !important; color: #000 !important; line-height: 1.45 !important; }
 .win97-notepad > div > div:last-of-type { min-height: 24px; padding: 3px 5px; border-top: 1px solid #fff; background: #c0c0c0 !important; color: #000 !important; }
 .win97-notepad > div > div:last-of-type button { min-height: 20px; padding: 2px 7px; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0 !important; color: #000 !important; }
 .win97-notepad > div > div[role='dialog'] form, .win97-explorer form { border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0 !important; box-shadow: 2px 2px #000 !important; }
