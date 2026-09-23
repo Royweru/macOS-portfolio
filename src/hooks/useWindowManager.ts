@@ -4,6 +4,7 @@ import type { WindowId, ViewMode, TagFilter } from '../types';
 import type { WindowInstance, WindowRect } from '../features/os/os-types';
 import { useOsStore } from '../features/os/os-store';
 import { getResponsiveWindowSize, getWindowCenterPosition } from '../utils/layout';
+import { getCenteredWindowPosition97 } from '../wm/geometry97';
 
 export interface WindowManagerActions {
   openWindow: (id: WindowId, options?: { instanceId?: string; projectId?: number; allowMultiple?: boolean; title?: string; fileId?: string; locationId?: string; readOnly?: boolean; rect?: WindowRect }) => void;
@@ -77,7 +78,9 @@ export function useWindowManager(initial: WindowId[] = []): WindowManagerActions
       ? Math.min(existingInstances.length * 44, 176)
       : 0;
     const rect = options?.rect ?? (() => {
-      const { x, y } = getWindowCenterPosition(width, height, (cfg.ox ?? 0) + cascade, (cfg.oy ?? 0) + cascade);
+      const { x, y } = cfg.centered
+        ? getCenteredWindowPosition97(width, height, cfg.verticalBias ?? 0)
+        : getWindowCenterPosition(width, height, (cfg.ox ?? 0) + cascade, (cfg.oy ?? 0) + cascade);
       return { x, y, width, height };
     })();
     open(id, { id: options?.instanceId ?? id, projectId: options?.projectId, allowMultiple: options?.allowMultiple, title: options?.title ?? cfg.title, icon: cfg.icon, rect, fileId: options?.fileId, locationId: options?.locationId, readOnly: options?.readOnly });

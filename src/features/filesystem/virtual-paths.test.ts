@@ -21,9 +21,11 @@ describe('virtual path normalization', () => {
 
   it('keeps media libraries separate from My Documents', () => {
     expect(VIRTUAL_PATHS.videos).toBe('C:\\Videos');
-    expect(VIRTUAL_PATHS.pictures).toBe('C:\\My Pictures');
+    expect(VIRTUAL_PATHS.pictures).toBe('C:\\Pictures');
+    expect(VIRTUAL_PATHS.music).toBe('C:\\Music');
     expect(normalizeVirtualPath('c:/Videos/demo.avi')).toBe('C:\\Videos\\demo.avi');
-    expect(normalizeVirtualPath('c:/My Pictures/Screenshots/screen.bmp')).toBe('C:\\My Pictures\\Screenshots\\screen.bmp');
+    expect(normalizeVirtualPath('c:/My Pictures/Screenshots/screen.bmp')).toBe('C:\\Pictures\\Screenshots\\screen.bmp');
+    expect(normalizeVirtualPath('c:/Music/Track01.mp3')).toBe('C:\\Music\\Track01.mp3');
     expect(normalizeVirtualPath('c:/My Documents/..\\Videos')).toBe('C:\\Videos');
   });
 

@@ -4,6 +4,7 @@ import { DOCUMENTS, PROJECTS } from '../../data/portfolio-manifest';
 import projectsData from '../../data/projects_data.json';
 import { PORTFOLIO_DOCUMENTS } from '../../data/portfolio-document-manifest';
 import { PROJECT_MEDIA_MANIFEST } from '../../data/project-media-manifest';
+import { PERSONAL_MEDIA_ENTRIES } from '../../data/personal-media-manifest';
 import { filesystemDb, legacyFilesystemDb } from './filesystem-db';
 import type { TrashEntry, VfsNode } from './filesystem-types';
 import { VIRTUAL_LAYOUT_VERSION, VIRTUAL_NODE_IDS, VIRTUAL_PATHS, normalizeVirtualPath } from './virtual-paths';
@@ -93,47 +94,110 @@ const createShortcut = (id: string, parentId: string, name: string, targetId?: s
   shortcutTargetPath: targetPath,
 });
 
+const createDesktopShortcut = (...args: Parameters<typeof createShortcut>): VfsNode => ({
+  ...createShortcut(...args),
+  isSystem: true,
+  isReadOnly: true,
+});
+
 const mediaParent = (kind: 'video' | 'audio' | 'image') => kind === 'video'
   ? VIRTUAL_NODE_IDS.videos
   : kind === 'audio' ? VIRTUAL_NODE_IDS.music : VIRTUAL_NODE_IDS.pictures;
 
-const mediaPath = (asset: { kind: 'video' | 'audio' | 'image'; source: string }) => {
-  const folder = asset.kind === 'video' ? VIRTUAL_PATHS.videos : asset.kind === 'audio' ? VIRTUAL_PATHS.music : VIRTUAL_PATHS.pictures;
-  const filename = decodeURIComponent(asset.source.split('/').pop() ?? asset.source);
-  return `${folder}\\${filename}`;
+const mediaApp = (kind: 'video' | 'audio' | 'image') => kind === 'video'
+  ? 'media-player'
+  : kind === 'audio' ? 'cd-player' : 'paint';
+
+const filenameFromSource = (source: string, fallback: string) => {
+  const encoded = source.split(/[?#]/, 1)[0].split('/').filter(Boolean).at(-1) ?? fallback;
+  try { return decodeURIComponent(encoded); } catch { return encoded; }
 };
 
-const createMediaNodes = () => PROJECT_MEDIA_MANIFEST.flatMap(manifest => manifest.assets.filter(asset => isBundledMediaSource(asset) && isSupportedMediaMimeType(asset.kind, asset.mimeType)).flatMap(asset => {
-  const projectNodeId = `project-${manifest.projectId}`;
-  const mediaNodeId = `media-${asset.id}`;
-  const sourceNode: VfsNode = {
-    ...createFile(mediaNodeId, mediaParent(asset.kind), decodeURIComponent(asset.source.split('/').pop() ?? asset.id), '', asset.mimeType, 'media-player'),
-    size: 0,
+export const createPersonalMediaNodes = (entries = PERSONAL_MEDIA_ENTRIES): VfsNode[] => entries
+  .filter(entry => isBundledMediaSource(entry.asset) && isSupportedMediaMimeType(entry.kind, entry.mimeType))
+  .map(entry => ({
+    ...createFile(entry.id, mediaParent(entry.kind), entry.filename, '', entry.mimeType, mediaApp(entry.kind)),
     media: {
-      mediaId: asset.id,
-      projectId: asset.projectId,
-      kind: asset.kind,
-      source: asset.source,
-      poster: asset.poster,
-      title: asset.title,
-      description: asset.description,
-      durationSeconds: asset.durationSeconds,
-      captionSource: asset.captionSource,
+      mediaId: entry.asset.id,
+      projectId: 0,
+      kind: entry.kind,
+      source: entry.asset.source,
+      poster: entry.asset.poster,
+      title: entry.asset.title,
+      description: entry.asset.description,
+      durationSeconds: entry.asset.durationSeconds,
     },
-  };
-  const shortcut: VfsNode = {
-    ...createFile(`shortcut-${asset.id}`, projectNodeId, `${asset.title}.lnk`, '', 'application/x-ms-shortcut', 'media-player'),
-    kind: 'shortcut',
-    shortcutTargetId: mediaNodeId,
-    shortcutTargetPath: mediaPath(asset),
-    media: sourceNode.media,
-  };
-  return [sourceNode, shortcut];
-}));
+  }));
+
+const projectFolderForManifest = (projectId: number) => {
+  const dataProject = projectsData.find(item => Number(item.id) === projectId);
+  const project = dataProject
+    ? PROJECTS.find(item => item.title.trim().toLowerCase() === dataProject.title.trim().toLowerCase())
+    : PROJECTS.find(item => item.legacyId === projectId || Number(item.id) === projectId);
+  if (project) return { id: `project-${project.id}`, title: project.folderName };
+  return dataProject ? { id: `project-${dataProject.id}`, title: dataProject.title } : undefined;
+};
+
+export const createProjectMediaNodes = (manifests = PROJECT_MEDIA_MANIFEST): VfsNode[] => manifests.flatMap(manifest => {
+  const folder = projectFolderForManifest(manifest.projectId);
+  if (!folder) return [];
+  const project = PROJECTS.find(item => `project-${item.id}` === folder.id);
+  const inlineSources = new Set([
+    project?.files?.demo?.src,
+    ...(project?.files?.screenshots ?? []),
+    project?.files?.audio?.src,
+  ].filter((source): source is string => Boolean(source)));
+  return manifest.assets
+    .filter(asset => !inlineSources.has(asset.source)
+      && isBundledMediaSource(asset)
+      && isSupportedMediaMimeType(asset.kind, asset.mimeType))
+    .map(asset => {
+      const filename = filenameFromSource(asset.source, asset.id);
+      return {
+        ...createFile(`media-${asset.id}`, folder.id, filename, '', asset.mimeType, mediaApp(asset.kind)),
+        media: {
+          mediaId: asset.id,
+          projectId: asset.projectId,
+          kind: asset.kind,
+          source: asset.source,
+          poster: asset.poster,
+          title: asset.title,
+          description: asset.description,
+          durationSeconds: asset.durationSeconds,
+          captionSource: asset.captionSource,
+        },
+      };
+    });
+});
+
+const createMediaNodes = () => [...createPersonalMediaNodes(), ...createProjectMediaNodes()];
 
 const syncMediaNodes = async () => {
   const nodes = createMediaNodes();
-  if (nodes.length) await filesystemDb.nodes.bulkPut(nodes);
+  if (!nodes.length && !PROJECT_MEDIA_MANIFEST.length) return;
+  await filesystemDb.transaction('rw', filesystemDb.nodes, async () => {
+    for (const node of nodes) {
+      const existing = await filesystemDb.nodes.get(node.id);
+      await filesystemDb.nodes.put(existing ? {
+        ...node,
+        name: existing.name,
+        content: existing.content,
+        size: existing.size,
+        createdAt: existing.createdAt,
+        isSystem: existing.isSystem,
+        isReadOnly: existing.isReadOnly,
+      } : node);
+    }
+
+    for (const manifest of PROJECT_MEDIA_MANIFEST) {
+      for (const asset of manifest.assets) {
+        const oldShortcut = await filesystemDb.nodes.get(`shortcut-${asset.id}`);
+        if (oldShortcut?.kind === 'shortcut' && oldShortcut.appId === 'media-player' && oldShortcut.shortcutTargetId === `media-${asset.id}`) {
+          await filesystemDb.nodes.delete(oldShortcut.id);
+        }
+      }
+    }
+  });
 };
 
 export const createWin97Nodes = () => {
@@ -148,6 +212,7 @@ export const createWin97Nodes = () => {
   const startMenuId = VIRTUAL_NODE_IDS.startMenu;
   const videosId = VIRTUAL_NODE_IDS.videos;
   const picturesId = VIRTUAL_NODE_IDS.pictures;
+  const musicId = VIRTUAL_NODE_IDS.music;
   const accessoriesId = 'folder-accessories';
   const gamesId = 'folder-games';
   const nodes: VfsNode[] = [
@@ -155,23 +220,25 @@ export const createWin97Nodes = () => {
     createFolder(desktopId, ROOT_ID, 'Desktop'),
     createFolder(myDocumentsId, ROOT_ID, 'My Documents'),
     createFolder(videosId, ROOT_ID, 'Videos'),
-    createFolder(picturesId, ROOT_ID, 'My Pictures'),
+    createFolder(picturesId, ROOT_ID, 'Pictures'),
+    createFolder(musicId, ROOT_ID, 'Music'),
     createFolder(projectsId, ROOT_ID, 'Projects'),
     createFolder(programFilesId, ROOT_ID, 'Program Files'),
     createFolder(windowsId, ROOT_ID, 'Windows'),
-    createFolder(windowsMediaId, windowsId, 'Media'),
+    { ...createFolder(windowsMediaId, windowsId, 'Media'), isSystem: true },
     { ...createFolder(windowsSystemId, windowsId, 'System'), isSystem: true },
     { ...createFolder(recycledId, ROOT_ID, 'Recycled'), isSystem: true },
     { ...createFolder(startMenuId, windowsId, 'Start Menu'), isSystem: true },
-    createFolder('folder-images', picturesId, 'Screenshots'),
+    { ...createFolder('folder-images', picturesId, 'Screenshots'), isSystem: true, isReadOnly: true },
     createFolder(accessoriesId, programFilesId, 'Accessories'),
     createFolder(gamesId, programFilesId, 'Games'),
     // Desktop Shortcuts
-    createShortcut('desktop-lnk-projects', desktopId, 'Projects.lnk', projectsId, VIRTUAL_PATHS.projects, 'explorer'),
-    createShortcut('desktop-lnk-my-documents', desktopId, 'My Documents.lnk', myDocumentsId, VIRTUAL_PATHS.myDocuments, 'explorer'),
-    createShortcut('desktop-lnk-videos', desktopId, 'Videos.lnk', videosId, VIRTUAL_PATHS.videos, 'explorer'),
-    createShortcut(VIRTUAL_NODE_IDS.desktopPicturesShortcut, desktopId, 'My Pictures.lnk', picturesId, VIRTUAL_PATHS.pictures, 'explorer'),
-    createShortcut('desktop-lnk-music', desktopId, 'My Music.lnk', windowsMediaId, VIRTUAL_PATHS.music, 'cd-player'),
+    createDesktopShortcut('desktop-lnk-projects', desktopId, 'Projects.lnk', projectsId, VIRTUAL_PATHS.projects, 'explorer'),
+    createDesktopShortcut('desktop-lnk-my-documents', desktopId, 'My Documents.lnk', myDocumentsId, VIRTUAL_PATHS.myDocuments, 'explorer'),
+    createDesktopShortcut('desktop-lnk-videos', desktopId, 'Videos.lnk', videosId, VIRTUAL_PATHS.videos, 'explorer'),
+    createDesktopShortcut(VIRTUAL_NODE_IDS.desktopPicturesShortcut, desktopId, 'My Pictures.lnk', picturesId, VIRTUAL_PATHS.pictures, 'explorer'),
+    createDesktopShortcut('desktop-lnk-music', desktopId, 'My Music.lnk', musicId, VIRTUAL_PATHS.music, 'explorer'),
+    createDesktopShortcut(VIRTUAL_NODE_IDS.desktopOutlookShortcut, desktopId, 'Outlook Express.lnk', undefined, undefined, 'mail'),
     { ...createFile('root-io-sys', ROOT_ID, 'IO.SYS', '', 'application/octet-stream', 'msdos'), isHidden: true, isSystem: true, isReadOnly: true },
     { ...createFile('root-msdos-sys', ROOT_ID, 'MSDOS.SYS', '', 'application/octet-stream', 'msdos'), isHidden: true, isSystem: true, isReadOnly: true },
     { ...createFile('root-command-com', ROOT_ID, 'COMMAND.COM', 'Weru 97 command processor', 'application/octet-stream', 'msdos'), isHidden: true, isSystem: true, isReadOnly: true },
@@ -180,6 +247,8 @@ export const createWin97Nodes = () => {
     { ...createFile(VIRTUAL_NODE_IDS.profileJson, ROOT_ID, 'Weru Profile.json', '', 'application/json', 'system-properties'), isSystem: true, isReadOnly: true },
     {
       ...createFile('file-simulation-icons', 'folder-images', 'windows_97_simulation_icons.jpg', '', 'image/jpeg', 'paint'),
+      isSystem: true,
+      isReadOnly: true,
       media: {
         mediaId: 'windows-97-simulation-icons',
         projectId: 0,
@@ -283,6 +352,17 @@ export const createWin97Nodes = () => {
     }
   }
 
+  const seededProjectFolders = new Set(nodes.filter(node => node.kind === 'folder').map(node => node.id));
+  for (const manifest of PROJECT_MEDIA_MANIFEST) {
+    const folder = projectFolderForManifest(manifest.projectId);
+    if (folder && !seededProjectFolders.has(folder.id)) {
+      nodes.push(createFolder(folder.id, projectsId, folder.title));
+      seededProjectFolders.add(folder.id);
+    }
+  }
+
+  nodes.push(...createMediaNodes());
+
   const accessories = [
     ['notepad.exe.lnk', 'notepad'], ['calc.exe.lnk', 'calculator'], ['paint.exe.lnk', 'paint'], ['iexplore.exe.lnk', 'ie4'],
   ] as const;
@@ -292,15 +372,102 @@ export const createWin97Nodes = () => {
   return nodes;
 };
 
+/**
+ * Plan a lossless repair for old media-library folders left inside My Documents.
+ * Only the now-empty duplicate folder records are removed; all descendants are
+ * reparented into the canonical library folders, retaining their ids and data.
+ */
+export const planLegacyMediaLibraryFolderRepair = (existingNodes: VfsNode[]) => {
+  const targets = new Map([
+    ['videos', VIRTUAL_NODE_IDS.videos],
+    ['screenshots', 'folder-images'],
+  ]);
+  const misplaced = existingNodes.filter(node => node.kind === 'folder'
+    && node.parentId === VIRTUAL_NODE_IDS.myDocuments
+    && targets.has(node.name.trim().toLowerCase())
+    && node.id !== targets.get(node.name.trim().toLowerCase()));
+  const targetByFolderId = new Map(misplaced.map(folder => [
+    folder.id,
+    targets.get(folder.name.trim().toLowerCase())!,
+  ]));
+  const movedNodes = existingNodes
+    .filter(node => node.parentId !== null && targetByFolderId.has(node.parentId))
+    .map(node => ({
+      ...node,
+      parentId: targetByFolderId.get(node.parentId!)!,
+      updatedAt: now(),
+    }));
+
+  return { movedNodes, emptiedFolderIds: misplaced.map(folder => folder.id) };
+};
+
+/** Move personal audio that used the old My Music -> Windows\Media alias.
+ * System nodes and project-manifest files stay in place for their own migrations.
+ */
+export const planLegacyMusicLibraryRepair = (
+  existingNodes: VfsNode[],
+  projectMediaIds = new Set(PROJECT_MEDIA_MANIFEST.flatMap(manifest => manifest.assets.map(asset => `media-${asset.id}`))),
+) => {
+  const childrenByParent = new Map<string, VfsNode[]>();
+  for (const node of existingNodes) {
+    if (!node.parentId) continue;
+    const children = childrenByParent.get(node.parentId) ?? [];
+    children.push(node);
+    childrenByParent.set(node.parentId, children);
+  }
+
+  const descendantsOfFolder = (root: VfsNode) => {
+    const descendants: VfsNode[] = [];
+    const pending = [...(childrenByParent.get(root.id) ?? [])];
+    while (pending.length) {
+      const next = pending.pop()!;
+      descendants.push(next);
+      pending.push(...(childrenByParent.get(next.id) ?? []));
+    }
+    return descendants;
+  };
+
+  const rootsToMove = existingNodes.filter(node => {
+    if (node.parentId !== VIRTUAL_NODE_IDS.windowsMedia || node.isSystem || node.kind === 'shortcut' || projectMediaIds.has(node.id)) return false;
+    if (node.kind === 'folder') {
+      return descendantsOfFolder(node).every(descendant => !descendant.isSystem && !projectMediaIds.has(descendant.id));
+    }
+    return node.kind === 'file' && (node.mimeType.toLowerCase().startsWith('audio/') || /\.(mp3|wav|ogg|oga|m4a|mid|midi|webm)$/i.test(node.name));
+  });
+
+  const movedIds = new Set(rootsToMove.map(node => node.id));
+  for (const root of rootsToMove) {
+    for (const descendant of descendantsOfFolder(root)) movedIds.add(descendant.id);
+  }
+  const movedNodes = existingNodes
+    .filter(node => movedIds.has(node.id))
+    .map(node => ({ ...node, ...(rootsToMove.some(root => root.id === node.id) ? { parentId: VIRTUAL_NODE_IDS.music } : {}), updatedAt: now() }));
+
+  return { movedNodes, movedRootIds: rootsToMove.map(node => node.id) };
+};
+
 async function migrateWin97Layout() {
   const nodes = createWin97Nodes();
+  const protectedReferenceNodes = nodes.filter(node => node.id === 'folder-images' || node.id === 'file-simulation-icons');
   await filesystemDb.transaction('rw', filesystemDb.nodes, filesystemDb.meta, async () => {
+    const existingNodes = await filesystemDb.nodes.toArray();
+    const mediaFolderRepair = planLegacyMediaLibraryFolderRepair(existingNodes);
+    const musicFolderRepair = planLegacyMusicLibraryRepair(existingNodes);
+    for (const node of mediaFolderRepair.movedNodes) await filesystemDb.nodes.put(node);
+    for (const node of musicFolderRepair.movedNodes) await filesystemDb.nodes.put(node);
+    for (const folderId of mediaFolderRepair.emptiedFolderIds) await filesystemDb.nodes.delete(folderId);
+
     for (const node of nodes) {
       const existing = await filesystemDb.nodes.get(node.id);
       if (!existing || node.isSystem || node.kind === 'folder') await filesystemDb.nodes.put(node);
     }
+    // These app-owned assets must remain discoverable even in a profile whose
+    // original seed predates the Pictures library. Reconcile only these stable
+    // system nodes; never reset or delete user-created folder contents.
+    for (const node of protectedReferenceNodes) await filesystemDb.nodes.put(node);
     await filesystemDb.meta.put({ key: 'layout-version', value: String(VIRTUAL_LAYOUT_VERSION) });
   });
+  await syncMediaNodes();
 };
 
 export const seedFilesystem = async () => {

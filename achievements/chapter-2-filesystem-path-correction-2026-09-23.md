@@ -24,9 +24,32 @@ The user's screenshot showed the generic “File Explorer” and “My Documents
 - After the newly reported screenshot, a normal reload of that same localhost tab retained the corrected layout. Its accessibility tree again showed File Explorer at `C:\` and My Documents at `C:\My Documents` with four text files; no browser storage was cleared. The attached image shows the pre-correction state, not the current rendered state.
 - `npx tsc --noEmit`: passed.
 - `npm run lint`: passed.
-- `npm test -- --run`: 16 test files, 69 tests passed.
+- `npm test -- --run`: 16 test files, 69 tests passed at the time of this original correction.
 - `npm run build`: passed. Existing stale Browserslist data notice remains.
 
 ## Remaining work
 
 This fixes the reported filesystem/window confusion only. It does not close the broader Chapter 2 tasks for one-by-one Stitch parity, boot screenshot comparison, remaining app visual QA, or the full per-app interaction matrix.
+
+## Follow-up correction — persisted Explorer and legacy library folders (2026-09-23)
+
+The later screenshot contradicted the earlier statement that the issue was fully resolved. Source review identified two remaining migration gaps:
+
+- Persisted OS state was still schema version 16. The singleton window id `explorer` could retain `locationId: folder-my-documents`; reopening it only focused the saved instance.
+- The filesystem migration corrected canonical folder IDs but did not move contents out of additional legacy `Videos`/`Screenshots` folder records under My Documents.
+
+Fixes now in the worktree:
+
+- Bumped the persisted OS state schema to 17 and migrate the singleton File Explorer to the drive root while preserving the separate My Documents window.
+- Reopening the singleton Explorer with an explicit location now refreshes its saved location, and the keyed Explorer content remounts when that externally requested location changes.
+- Bumped the filesystem layout version to 9. Legacy duplicate library folders are merged into the canonical Videos/Screenshots locations; all descendants retain their IDs and data, and only emptied duplicate folder records are deleted.
+- Added regression tests for the saved-window migration, reopen behavior, and nested filesystem-content preservation.
+
+Follow-up verification:
+
+- Chrome browser-extension accessibility tree at `http://localhost:3000/` showed File Explorer at `C:\`, My Documents at `C:\My Documents` with four portfolio documents, My Pictures at `C:\My Pictures` with Screenshots, and Videos at `C:\Videos`.
+- `npx tsc --noEmit`: passed; `npm run lint`: passed.
+- `npm test -- --run`: 16 test files, 75 tests passed.
+- `npm run build`: passed. The existing stale Browserslist-data warning remains.
+- No browser storage was cleared. Browser verification used a single localhost tab through the extension.
+- The active browser profile already had no duplicate Videos/Screenshots folders inside My Documents, so the IndexedDB branch that merges such duplicates was not directly exercised with affected data. Its pure migration planner is covered by nested-content preservation tests; keep that migration acceptance partial until an affected-profile integration fixture or naturally affected profile verifies it.

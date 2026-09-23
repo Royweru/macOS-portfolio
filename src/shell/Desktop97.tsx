@@ -7,7 +7,7 @@ import { useOsStore } from '../features/os/os-store';
 import { createFolderNode, createTextFileNode } from '../features/filesystem/filesystem-service';
 import { VIRTUAL_NODE_IDS } from '../features/filesystem/virtual-paths';
 import DesktopIconArt97 from './DesktopIconArt97';
-import { DESKTOP97_ICON_ROW_PITCH, DESKTOP97_ICON_TOP, DESKTOP97_LEGACY_ICON_ROW_PITCH, getDesktopShortcutPosition97 } from './desktop-layout97';
+import { DESKTOP97_ICON_ROW_PITCH, DESKTOP97_ICON_TOP, DESKTOP97_LEGACY_ICON_ROW_PITCH, getDesktopPropertiesTarget97, getDesktopShortcutPosition97 } from './desktop-layout97';
 import { getStageScale97 } from '../wm/geometry97';
 
 const STITCH_SHORTCUT_ORDER = [
@@ -20,6 +20,7 @@ const STITCH_SHORTCUT_ORDER = [
   'shortcut-internet',
   'shortcut-games',
   'shortcut-recycle-bin',
+  'shortcut-outlook-express',
 ] as const;
 interface Desktop97Props {
   onOpenWindow: (id: WindowId) => void;
@@ -59,6 +60,10 @@ export default function Desktop97({ onOpenWindow, onOpenTarget }: Desktop97Props
   const openShortcut = (shortcutId: string) => {
     const shortcut = shortcuts.find((item) => item.id === shortcutId);
     if (!shortcut) return;
+    if (shortcut.id === 'shortcut-projects') {
+      onOpenTarget({ kind: 'application', appId: 'system-warning' });
+      return;
+    }
     if (shortcut.appId === 'recycle-bin') onOpenTarget({ kind: 'recycle-bin' });
     else if (shortcut.nodeId) onOpenTarget({ kind: 'file', nodeId: shortcut.nodeId });
     else if (shortcut.appId) onOpenTarget({ kind: 'application', appId: shortcut.appId });
@@ -104,7 +109,7 @@ export default function Desktop97({ onOpenWindow, onOpenTarget }: Desktop97Props
         {menu.shortcutId ? <>
           <button type="button" onClick={() => { openShortcut(menu.shortcutId!); setMenu(null); }}>Open</button>
           <button type="button" onClick={() => setMenu(null)}>Rename</button>
-          <button type="button" onClick={() => setMenu(null)}>Properties</button>
+          <button type="button" disabled={!getDesktopPropertiesTarget97(menu.shortcutId)} onClick={() => { const target = getDesktopPropertiesTarget97(menu.shortcutId); if (target) onOpenTarget(target); setMenu(null); }}>Properties</button>
         </> : <>
           <button type="button" onClick={() => setMenu(null)}>Arrange Icons <span className="desktop97-context-arrow">►</span></button>
           <button type="button" onClick={() => setMenu(null)}>Line up Icons</button>
@@ -116,7 +121,7 @@ export default function Desktop97({ onOpenWindow, onOpenTarget }: Desktop97Props
           <button type="button" onClick={() => { void createFolderNode(VIRTUAL_NODE_IDS.myDocuments, 'New Folder'); setMenu(null); }}>New Folder <span className="desktop97-context-arrow">►</span></button>
           <button type="button" onClick={() => { void createTextFileNode(VIRTUAL_NODE_IDS.myDocuments, 'New Text Document.txt'); setMenu(null); }}>New Text Document</button>
           <button type="button" onClick={() => { onOpenWindow('msdos' as WindowId); setMenu(null); }}>MS-DOS Prompt Here</button>
-          <button type="button" onClick={() => setMenu(null)}>Properties</button>
+          <button type="button" onClick={() => { const target = getDesktopPropertiesTarget97(); if (target) onOpenTarget(target); setMenu(null); }}>Properties</button>
         </>}
       </div>}
     </main>

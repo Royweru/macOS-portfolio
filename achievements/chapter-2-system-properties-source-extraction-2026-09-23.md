@@ -31,3 +31,11 @@
 - No live browser screenshot was captured after this source-shaped update.
 - Exact pixel comparison at the supplied source viewport is still required.
 - System Dialogs screen parity remains partial: the four source dialog regions are not reproduced as simultaneous overlays, and independent source ID `799ddaad07824567a8cd7dc487e75048` is still missing.
+
+## Follow-up — live extraction and source-backed launch (2026-09-23)
+
+- Compared the System Properties window in the retained HTML/Stitch screenshot against the active React surface in the existing localhost tab. The app reproduces the four tabs, CRT/tower art in its beveled frame, specification hierarchy, 21/18-cell green meters, and OK/Cancel actions; Weru branding and portfolio identity remain intentionally adapted.
+- Changed the app window to the source's 460×420 geometry and added a viewport-centered placement with the source's slight upward bias. This uses live viewport bounds and still clamps above the enlarged taskbar.
+- Fixed the source-backed My Computer > Properties context action, which previously closed the menu without opening anything. It now opens System Properties. The desktop-background Properties action now opens Control Panel; unsupported per-shortcut Properties is visibly disabled rather than a no-op.
+- Live browser verification: opening System Properties from Start → Programs and then through My Computer > Properties both exposed the four-tab dialog. The active app viewport was 744×638 CSS px, not the source's 1280×1024; this proves behavior and content presence only, not pixel parity.
+- Added geometry and Properties-route regression coverage. Full validation will be recorded after rerunning the suite/build; the matched-viewport comparison and remaining dialog compositions stay open.

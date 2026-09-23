@@ -66,5 +66,14 @@ export default function DesktopIconArt97({ iconId }: { iconId: string }) {
     <path d="M13 16l4-3v2h3l-2 4h-2v-2h-3zm0 5l3 3h-2l1 2-3-1 1-3z" fill="#2e8b2e" />
   </svg>;
 
+  if (iconId === 'shortcut-outlook-express') return <svg {...common}>
+    <path d="M4 7h25v19H4z" fill="#101010" />
+    <path d="M3 6h24v18H3z" fill="#d4d0c8" stroke="#404040" />
+    <path d="M5 8h20v14H5z" fill="#fff" />
+    <path d="M5 9l10 8 10-8" fill="none" stroke="#000080" strokeWidth="2" />
+    <path d="M5 21l7-6m13 6l-7-6" fill="none" stroke="#808080" strokeWidth="1.5" />
+    <path d="M4 7h22" stroke="#fff" strokeWidth="1" />
+  </svg>;
+
   return null;
 }

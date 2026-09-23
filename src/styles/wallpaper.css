@@ -26,15 +26,6 @@
   .wallpaper-bliss { image-rendering: pixelated; }
 }
 
-.wallpaper-bliss::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, .035) 2px 3px);
-  mix-blend-mode: multiply;
-}
-
 /* Compatibility hooks for the current shell while it is replaced by Shell97. */
 .wallpaper-stage { background: var(--w95-desktop-bg); }
 .mist-layer { display: none; }

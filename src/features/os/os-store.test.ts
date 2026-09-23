@@ -50,7 +50,9 @@ describe('Weru 97 persisted window repair', () => {
     expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-my-computer')).toMatchObject({ x: 12, y: 12 });
     expect(migrated.shortcuts.find(shortcut => shortcut.id === 'custom-shortcut')).toMatchObject({ x: 700, y: 500 });
     expect(migrated.shortcuts.some(shortcut => shortcut.id === 'shortcut-msdos')).toBe(true);
-    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-my-pictures')).toMatchObject({ icon: 'paint', nodeId: 'folder-pictures', targetPath: 'C:\\My Pictures', x: 12, y: 452 });
+    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-my-pictures')).toMatchObject({ icon: 'paint', nodeId: 'folder-pictures', targetPath: 'C:\\Pictures', x: 12, y: 452 });
+    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-music')).toMatchObject({ nodeId: 'folder-music', targetPath: 'C:\\Music' });
+    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-outlook-express')).toMatchObject({ label: 'Outlook Express', icon: 'mail', appId: 'mail' });
   });
 
   it('migrates saved media desktop shortcuts to their standalone library folders', () => {
@@ -62,8 +64,63 @@ describe('Weru 97 persisted window repair', () => {
     }, 15) as unknown as { shortcuts: Array<{ id: string; targetPath?: string; nodeId?: string; appId?: string }> };
 
     expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-videos')).toMatchObject({ targetPath: 'C:\\Videos', nodeId: 'folder-videos' });
-    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-my-pictures')).toMatchObject({ targetPath: 'C:\\My Pictures', nodeId: 'folder-pictures' });
+    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-my-pictures')).toMatchObject({ targetPath: 'C:\\Pictures', nodeId: 'folder-pictures' });
     expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-my-pictures')?.appId).toBeUndefined();
+  });
+
+  it('migrates the old Windows Media music shortcut to the standalone Music library', () => {
+    const migrated = migrateOsState({
+      shortcuts: [
+        { id: 'shortcut-music', label: 'My Music', icon: 'music', targetPath: 'C:\\Windows\\Media', nodeId: 'folder-windows-media', x: 12, y: 364, isVisible: true },
+        { id: 'shortcut-my-pictures', label: 'My Pictures', icon: 'paint', targetPath: 'C:\\My Pictures', nodeId: 'folder-pictures', x: 12, y: 452, isVisible: true },
+      ],
+    }, 18) as unknown as { shortcuts: Array<{ id: string; targetPath?: string; nodeId?: string }> };
+
+    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-music')).toMatchObject({ targetPath: 'C:\\Music', nodeId: 'folder-music' });
+    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-my-pictures')).toMatchObject({ targetPath: 'C:\\Pictures', nodeId: 'folder-pictures' });
+    expect(migrated.shortcuts.some(shortcut => shortcut.id === 'shortcut-outlook-express')).toBe(true);
+  });
+
+  it('moves the generated Outlook Express collision into the responsive desktop flow without resetting custom positions', () => {
+    const migrated = migrateOsState({
+      shortcuts: [
+        { id: 'shortcut-games', label: 'Games', icon: 'minesweeper', appId: 'minesweeper', x: 12, y: 628, isVisible: true },
+        { id: 'shortcut-outlook-express', label: 'Outlook Express', icon: 'mail', appId: 'mail', x: 104, y: 12, isVisible: true },
+        { id: 'shortcut-my-computer', label: 'My Computer', icon: 'computer', x: 40, y: 48, isVisible: true },
+      ],
+    }, 19) as unknown as { shortcuts: Array<{ id: string; x: number; y: number }> };
+
+    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-outlook-express')).toMatchObject({ x: 12, y: 804 });
+    expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-my-computer')).toMatchObject({ x: 40, y: 48 });
+  });
+
+  it('repairs a persisted generic File Explorer window back to the drive root', () => {
+    const migrated = migrateOsState({
+      windows: {
+        explorer: {
+          id: 'explorer', appId: 'explorer', title: 'File Explorer', locationId: 'folder-my-documents',
+          x: 80, y: 48, width: 640, height: 440,
+        },
+        'explorer-my-documents': {
+          id: 'explorer-my-documents', appId: 'explorer', title: 'My Documents', locationId: 'folder-my-documents',
+          x: 240, y: 60, width: 560, height: 410,
+        },
+      },
+    }, 16) as unknown as { windows: Record<string, { locationId?: string }> };
+
+    expect(migrated.windows.explorer?.locationId).toBe('root');
+    expect(migrated.windows['explorer-my-documents']?.locationId).toBe('folder-my-documents');
+  });
+
+  it('refreshes the singleton Explorer path when reopened with an explicit location', () => {
+    const id = 'explorer';
+    useOsStore.getState().closeWindow(id);
+    useOsStore.getState().openWindow('explorer', { id, title: 'File Explorer', locationId: 'folder-my-documents' });
+
+    useOsStore.getState().openWindow('explorer', { id, title: 'File Explorer', locationId: 'root' });
+
+    expect(useOsStore.getState().windows[id]).toMatchObject({ locationId: 'root', title: 'File Explorer' });
+    useOsStore.getState().closeWindow(id);
   });
 
   it('migrates built-in shortcuts to the Stitch desktop while preserving custom shortcuts and visibility', () => {

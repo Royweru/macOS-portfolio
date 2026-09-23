@@ -5,6 +5,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { DesktopShortcut, OpenTarget, OsCommand, OsPhase, OsSettings, WindowInstance, WindowMode, WindowRect } from './os-types';
 import { getBrowserProfileId } from './profile-storage';
 import { clampWindowRect97, getDesktopBounds97, WIN97_DESKTOP_WIDTH, WIN97_WORK_AREA_HEIGHT } from '../../wm/geometry97';
+import { VIRTUAL_NODE_IDS } from '../filesystem/virtual-paths';
 
 const defaultSettings: OsSettings = {
   themeId: 'classic',
@@ -21,11 +22,14 @@ const defaultShortcuts: DesktopShortcut[] = [
   { id: 'shortcut-my-documents', label: 'My Documents', icon: 'folder', targetPath: 'C:\\My Documents', nodeId: 'folder-my-documents', x: 12, y: 100, isVisible: true },
   { id: 'shortcut-projects', label: 'Projects', icon: 'folder', targetPath: 'C:\\Projects', nodeId: 'folder-projects', x: 12, y: 188, isVisible: true },
   { id: 'shortcut-videos', label: 'Videos', icon: 'video', targetPath: 'C:\\Videos', nodeId: 'folder-videos', x: 12, y: 276, isVisible: true },
-  { id: 'shortcut-music', label: 'My Music', icon: 'music', targetPath: 'C:\\Windows\\Media', nodeId: 'folder-windows-media', x: 12, y: 364, isVisible: true },
-  { id: 'shortcut-my-pictures', label: 'My Pictures', icon: 'paint', targetPath: 'C:\\My Pictures', nodeId: 'folder-pictures', x: 12, y: 452, isVisible: true },
+  { id: 'shortcut-music', label: 'My Music', icon: 'music', targetPath: 'C:\\Music', nodeId: 'folder-music', x: 12, y: 364, isVisible: true },
+  { id: 'shortcut-my-pictures', label: 'My Pictures', icon: 'paint', targetPath: 'C:\\Pictures', nodeId: 'folder-pictures', x: 12, y: 452, isVisible: true },
   { id: 'shortcut-internet', label: 'Internet', icon: 'ie4', appId: 'ie4', x: 12, y: 540, isVisible: true },
   { id: 'shortcut-games', label: 'Games', icon: 'minesweeper', appId: 'minesweeper', x: 12, y: 628, isVisible: true },
   { id: 'shortcut-recycle-bin', label: 'Recycle Bin', icon: 'recycle', appId: 'recycle-bin', x: 12, y: 716, isVisible: true },
+  // Keep the persisted default on the same canonical first-column flow as the
+  // other shell icons. Desktop97 reflows built-ins from this marker per viewport.
+  { id: 'shortcut-outlook-express', label: 'Outlook Express', icon: 'mail', appId: 'mail', x: 12, y: 804, isVisible: true },
   { id: 'shortcut-msdos', label: 'MS-DOS Prompt', icon: 'msdos', appId: 'msdos', x: 150, y: 184, isVisible: false },
 ];
 
@@ -106,6 +110,7 @@ export function migrateOsState(persistedState: unknown, version: number, bounds 
   const windows = Object.fromEntries(Object.entries(state.windows ?? {}).map(([id, window]) => [id, {
     ...window,
     ...migrateRect(window as WindowRect),
+    ...(id === 'explorer' && window.appId === 'explorer' ? { locationId: VIRTUAL_NODE_IDS.root } : {}),
     ...(window.restoreRect ? { restoreRect: migrateRect(window.restoreRect) } : {}),
   }]));
   const savedShortcuts = state.shortcuts ?? [];
@@ -125,11 +130,24 @@ export function migrateOsState(persistedState: unknown, version: number, bounds 
     if (!canonical || (shortcut.id !== 'shortcut-videos' && shortcut.id !== 'shortcut-my-pictures')) return shortcut;
     return { ...shortcut, label: canonical.label, icon: canonical.icon, targetPath: canonical.targetPath, nodeId: canonical.nodeId, appId: canonical.appId };
   }) : repositioned;
-  const migratedIds = new Set(migratedShortcuts.map(shortcut => shortcut.id));
-  const shortcutById = new Map(migratedShortcuts.map(shortcut => [shortcut.id, shortcut]));
+  const canonicalMediaShortcuts = version < 19 ? migratedShortcuts.map(shortcut => {
+    const canonical = defaultById.get(shortcut.id);
+    if (!canonical || (shortcut.id !== 'shortcut-music' && shortcut.id !== 'shortcut-my-pictures')) return shortcut;
+    return { ...shortcut, label: canonical.label, icon: canonical.icon, targetPath: canonical.targetPath, nodeId: canonical.nodeId, appId: canonical.appId };
+  }) : migratedShortcuts;
+  // Version 19 introduced Outlook Express at (104, 12), which collides with
+  // Games after the viewport-aware column flow wraps. Repair only that known
+  // generated coordinate; retain any other user-positioned Outlook shortcut.
+  const nonCollidingDesktopShortcuts = version < 20 ? canonicalMediaShortcuts.map(shortcut => (
+    shortcut.id === 'shortcut-outlook-express' && shortcut.x === 104 && shortcut.y === 12
+      ? { ...shortcut, x: 12, y: 804 }
+      : shortcut
+  )) : canonicalMediaShortcuts;
+  const migratedIds = new Set(nonCollidingDesktopShortcuts.map(shortcut => shortcut.id));
+  const shortcutById = new Map(nonCollidingDesktopShortcuts.map(shortcut => [shortcut.id, shortcut]));
   const shortcuts = [
     ...defaultShortcuts.map(shortcut => shortcutById.get(shortcut.id) ?? shortcut),
-    ...migratedShortcuts.filter(shortcut => !defaultById.has(shortcut.id)),
+    ...nonCollidingDesktopShortcuts.filter(shortcut => !defaultById.has(shortcut.id)),
     ...defaultShortcuts.filter(shortcut => !migratedIds.has(shortcut.id) && !savedIds.has(shortcut.id)),
   ];
   return { ...state, windows, shortcuts } as OsStore;
@@ -174,7 +192,14 @@ export const useOsStore = create<OsStore>()(
             ? undefined
             : Object.values(state.windows).find((window) => window.appId === appId && (!options.allowMultiple || options.projectId === undefined || window.projectId === options.projectId));
         if (existing) {
-          set(focusState(state, existing.id));
+          const shouldRefreshExplorerLocation = appId === 'explorer'
+            && existing.id === 'explorer'
+            && options.locationId !== undefined
+            && existing.locationId !== options.locationId;
+          const nextState = shouldRefreshExplorerLocation
+            ? { ...state, windows: { ...state.windows, [existing.id]: { ...existing, locationId: options.locationId, title: options.title } } }
+            : state;
+          set(focusState(nextState, existing.id));
           return existing.id;
         }
         const id = options.id ?? createWindowId(appId);
@@ -250,7 +275,7 @@ export const useOsStore = create<OsStore>()(
     }),
     {
       name: `weru97-state-${getBrowserProfileId()}`,
-      version: 16,
+      version: 20,
       migrate: migrateOsState,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ windows: state.windows, zOrder: state.zOrder, nextZIndex: state.nextZIndex, shortcuts: state.shortcuts, settings: state.settings }),

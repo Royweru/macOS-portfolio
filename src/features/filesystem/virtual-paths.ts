@@ -14,9 +14,9 @@ export const VIRTUAL_PATHS = {
   desktop: 'C:\\Desktop',
   documents: 'C:\\My Documents',
   downloads: 'C:\\My Documents\\Downloads',
-  pictures: 'C:\\My Pictures',
+  pictures: 'C:\\Pictures',
   videos: 'C:\\Videos',
-  music: 'C:\\Windows\\Media',
+  music: 'C:\\Music',
   users: 'C:\\Users',
   profile: 'C:\\My Documents',
   appData: 'C:\\Windows\\System',
@@ -53,7 +53,7 @@ export const VIRTUAL_NODE_IDS = {
   downloads: 'folder-downloads',
   pictures: 'folder-pictures',
   videos: 'folder-videos',
-  music: 'folder-windows-media',
+  music: 'folder-music',
   appData: 'folder-windows-system',
   localAppData: 'folder-windows-system',
   weruAppData: 'folder-windows-system',
@@ -64,10 +64,11 @@ export const VIRTUAL_NODE_IDS = {
   desktopProjectsShortcut: 'desktop-shortcut-projects',
   desktopThisPcShortcut: 'desktop-shortcut-this-pc',
   desktopContactShortcut: 'desktop-shortcut-contact',
+  desktopOutlookShortcut: 'desktop-shortcut-contact',
   desktopPicturesShortcut: 'desktop-lnk-my-pictures',
 } as const;
 
-export const VIRTUAL_LAYOUT_VERSION = 8;
+export const VIRTUAL_LAYOUT_VERSION = 11;
 
 export const normalizeVirtualPath = (input: string) => {
   const raw = input.trim().replaceAll('/', '\\');
@@ -83,5 +84,6 @@ export const normalizeVirtualPath = (input: string) => {
   }
   if (!normalized.length) return VIRTUAL_PATHS.root;
   if (normalized[0].toLowerCase() === 'c:') normalized[0] = 'C:';
+  if (normalized[0] === 'C:' && normalized[1]?.toLowerCase() === 'my pictures') normalized[1] = 'Pictures';
   return normalized.join('\\');
 };

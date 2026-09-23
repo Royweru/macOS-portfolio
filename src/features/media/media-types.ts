@@ -18,14 +18,14 @@ export interface ProjectMediaManifest {
   assets: MediaAsset[];
 }
 
-const ALLOWED_MEDIA_PREFIXES = {
-  video: '/media/videos/',
-  audio: '/media/audio/',
-  image: '/media/images/',
+const ALLOWED_MEDIA_PREFIXES: Record<MediaKind, readonly string[]> = {
+  video: ['/media/videos/'],
+  audio: ['/media/music/', '/media/audio/'],
+  image: ['/media/pictures/', '/media/images/'],
 } as const;
 
 export const isBundledMediaSource = (asset: Pick<MediaAsset, 'kind' | 'source'>) =>
-  asset.source.startsWith(ALLOWED_MEDIA_PREFIXES[asset.kind]);
+  ALLOWED_MEDIA_PREFIXES[asset.kind].some(prefix => asset.source.startsWith(prefix));
 
 export const isSupportedMediaMimeType = (kind: MediaKind, mimeType: string) => {
   const normalized = mimeType.toLowerCase();

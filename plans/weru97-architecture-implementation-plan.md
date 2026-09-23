@@ -1,5 +1,7 @@
 # Weru 97 — Core Architecture & Filesystem Implementation Plan
 
+> Current path authority: [`weru97-personal-media-and-outlook-architecture-2026-09-23.md`](weru97-personal-media-and-outlook-architecture-2026-09-23.md) supersedes this plan's original `C:\My Pictures` and `C:\Windows\Media` personal-library targets. The canonical personal libraries are now `C:\Videos`, `C:\Pictures`, and `C:\Music`; `C:\Windows\Media` is system media only.
+
 ## Problem Statement & Architectural Context
 Weru 97 is a portfolio operating system emulating Windows 95 OSR 2.5 ("Windows 97"). An audit of the data model and filesystem seeding revealed severe structural issues:
 
@@ -97,15 +99,17 @@ C:\
 │   ├── Projects.lnk             [SHORTCUT -> points to C:\Projects]
 │   ├── My Documents.lnk         [SHORTCUT -> points to C:\My Documents]
 │   ├── Videos.lnk               [SHORTCUT -> points to C:\Videos]
-│   ├── My Pictures.lnk          [SHORTCUT -> points to C:\My Pictures]
-│   └── My Music.lnk             [SHORTCUT -> points to C:\Windows\Media]
+│   ├── My Pictures.lnk          [SHORTCUT -> points to C:\Pictures]
+│   ├── My Music.lnk             [SHORTCUT -> points to C:\Music]
+│   └── Outlook Express.lnk      [SHORTCUT -> opens Contact97 compose]
 ├── My Documents\                [PORTFOLIO TEXT FILES ONLY]
-├── My Pictures\                 [REAL VFS FOLDER - 'folder-pictures']
+├── Pictures\                    [REAL VFS FOLDER - 'folder-pictures']
 │   └── Screenshots\             [preserves existing screenshot contents]
 ├── Videos\                      [REAL VFS FOLDER - 'folder-videos']
+├── Music\                       [REAL VFS FOLDER - 'folder-music']
 ├── Projects\                    [REAL VFS FOLDER - 'folder-projects']
 ├── Program Files\               [REAL VFS FOLDER]
-└── Windows\                     [REAL VFS FOLDER]
+└── Windows\                     [REAL VFS FOLDER; Media remains system-owned]
 ```
 Shortcuts (`.lnk`) contain `shortcutTargetId` and `shortcutTargetPath`. Double-clicking them in Explorer or on the Desktop dereferences the pointer via `resolveShortcut()` and opens the target folder.
 
@@ -121,11 +125,11 @@ Shortcuts (`.lnk`) contain `shortcutTargetId` and `shortcutTargetPath`. Double-c
 ### Filesystem Layer
 #### [MODIFY] [virtual-paths.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/features/filesystem/virtual-paths.ts)
 * Decouple `desktop` from `myDocuments` (`desktop: 'C:\\Desktop'`, `VIRTUAL_NODE_IDS.desktop: 'folder-desktop'`).
-* Bump `VIRTUAL_LAYOUT_VERSION` to `8` after the library-location correction. The migration reparents existing `Videos` and `Screenshots` folder nodes and preserves their children; it does not clear IndexedDB.
+* Bump `VIRTUAL_LAYOUT_VERSION` for each safe migration that changes seeded folder topology or protected reference assets. Current version is `11`; migrations preserve user data and do not clear IndexedDB.
 
 #### [MODIFY] [filesystem-service.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/features/filesystem/filesystem-service.ts)
 * In `createWin97Nodes()`, seed `C:\Desktop` with genuine `.lnk` shortcuts.
-* Keep `Videos` at `C:\Videos` and `My Pictures\Screenshots` outside `C:\My Documents` so their virtual paths agree with the desktop shell shortcuts.
+* Keep personal media at `C:\Videos`, `C:\Pictures`, and `C:\Music`; keep `C:\Pictures\Screenshots` outside `C:\My Documents` and keep system audio in `C:\Windows\Media`.
 * In `createWin97Nodes()`, dynamically seed project files only when their corresponding optional fields are provided.
 * Attach `media` payload to `demo.avi` so Media Player 6.4 receives playback metadata.
 
@@ -160,3 +164,12 @@ Shortcuts (`.lnk`) contain `shortcutTargetId` and `shortcutTargetPath`. Double-c
 4. Double-click `README.txt` ➔ Verify opening in Notepad.
 5. Double-click `live-site.url` ➔ Verify opening in IE4.
 6. Open `C:\Desktop` in Explorer ➔ Verify shortcuts navigate to target folders.
+
+---
+
+## Chapter 2 implementation addendum — System dialogs (2026-09-23)
+
+- `ShutDown97` now translates only the Shutdown interior from the preserved System Dialogs Stitch HTML; it does not duplicate that source screen's desktop or window chrome.
+- The implementation preserves the pixel power icon, the three radio choices and their underlined `S`/`R` accelerators, then places Yes/Cancel/Help in the source-sized 320px-wide dialog. Product naming remains Weru 97.
+- Live verification in the existing Chrome extension tab confirmed the dialog is visible, Help expands its explanation, and Cancel closes the window. A component render test checks the source-derived markup. The Restart and simulated power-off Yes paths were intentionally not triggered during this check.
+- The separate System Warning composition is also implemented as a real window and connected to the Projects desktop shortcut. Its Cancel action leaves the shell unchanged; Yes continues to Explorer at `C:\Projects`. Remaining work stays explicit: matched-viewport dialog comparison, Shutdown Yes-path verification, and Recycle Bin's source alert comparison. See `plans/weru97-chapter-2-task-list.md`, `achievements/chapter-2-shutdown-dialog-2026-09-23.md`, and `achievements/chapter-2-system-warning-2026-09-23.md`.

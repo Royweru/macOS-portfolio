@@ -117,6 +117,8 @@ const PIXEL_ASSETS: Record<string, string> = {
   music: WIN97_ASSETS.icons.music,
   video: WIN97_ASSETS.icons.video,
   videos: WIN97_ASSETS.icons.video,
+  mail: WIN97_ASSETS.icons.mail,
+  'outlook-express': WIN97_ASSETS.icons.mail,
   game: WIN97_ASSETS.icons.minesweeper,
   games: WIN97_ASSETS.icons.minesweeper,
 };

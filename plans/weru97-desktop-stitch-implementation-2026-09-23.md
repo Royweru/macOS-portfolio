@@ -1,5 +1,7 @@
 # Weru 97 Desktop Stitch Implementation — 2026-09-23
 
+> Path-history note: the browser evidence below records the pre-root-media path where the Pictures folder was named `My Pictures`. The current canonical paths are `C:\Videos`, `C:\Pictures`, and `C:\Music`; see [`weru97-personal-media-and-outlook-architecture-2026-09-23.md`](weru97-personal-media-and-outlook-architecture-2026-09-23.md) for the superseding topology and latest verification.
+
 ## Goal
 
 Use Stitch screen `e05eddbf62974f6484f6b284b8b879ae` (`windows_97_os_desktop.html`) as the visual source of truth for the desktop shell. The desktop must not be replaced with a generic Bliss approximation. Keep the user's product decisions: full browser width/height, no centered 1024×768 stage, Weru 97 naming, and a taller taskbar with larger icons.
@@ -42,9 +44,25 @@ The full-width and size requirements intentionally differ from Stitch's original
 - Re-run the full interaction/responsive matrix and all validation gates after remaining implementation changes.
 - Update this plan, the active Chapter 2 checklist, the screen manifest, and achievements after each separately verified slice.
 
+The 2026-09-23 browser-extension smoke check captured the app at 1422×644 and confirmed the full-width shell, but the existing browser profile had four persisted windows. Direct navigation to the local Stitch HTML was blocked by the extension's `file://` policy; no workaround was attempted. Therefore the matched-source screenshot and clean-profile comparison are still required.
+
+## 2026-09-23 — Desktop shortcut label and taskbar crowding polish
+
+The user reported the email Explorer/window visually colliding with the desktop email icon and taskbar buttons crowding the clock. The first audit misdiagnosed the desktop collision as caption-only: the label cell was widened from 72px to 88px, but a later live DOM measurement proved that Games and Outlook Express also occupied the same saved cell. The root cause was an Outlook Express default coordinate (`104,12`) that bypassed the responsive layout. OS-state version 20 now migrates only that generated coordinate to the canonical responsive-flow marker. Browser verification at 1422×644 measured Games at `(108,12)` and Outlook Express at `(108,172)`, disjoint with 8px vertical clearance. The original 88px caption-cell change remains useful to keep “Outlook Express” on one line.
+
+The open-window task buttons now have a 48px minimum and 220px maximum in a flexing, horizontally scrollable region. Quick-launch buttons and the notification tray do not shrink; this reserves the clock area rather than letting task buttons intrude into it. On the live current viewport, all four restored window buttons and the clock remain visible. Dense-window and narrow-screen checks remain part of the larger responsive matrix; this targeted check does not close those tasks or the desktop's matched-viewport Stitch comparison.
+
+After the CSS changes, TypeScript, ESLint, all 19 test files / 88 tests, and `next build` passed. The existing Chrome extension tab was reused; the development server was restarted after build and remains at `http://localhost:3000/`.
+
 ## Current status
 
 Desktop source extraction is implemented, but exact visual parity is still partial. A same-tab capture showed that the source and application viewports were different sizes; a prior claim of a matched current-viewport comparison was incorrect and is superseded by the 2026-09-23 audit addendum. The visual status in `src/data/stitch-screen-manifest.ts` must remain partial until matched-viewport and clean-profile screenshots exist. The desktop is explicitly part of the parity goal, alongside boot, windows, tabs, dialogs, and application screens.
+
+## 2026-09-23 — CRT overlay fidelity correction
+
+Compared the raw desktop source's final `.crt-overlay` rule with the active shell. The source overlay is a four-pixel repeating vertical gradient (transparent for the first two pixels, ramping to 4% black, then holding at 4%), positioned over the complete desktop and taskbar while allowing pointer events through. The shell previously had two separate, weaker pseudo-element overlays on the wallpaper and shell, so their combined appearance could not be reliably compared with the source.
+
+The active shell now renders one dedicated, viewport-sized CRT layer after the taskbar/content. It uses the source gradient and sits above ordinary desktop windows and shell chrome but below first-visit welcome, screensaver, and BSOD overlays. The conflicting wallpaper/shell pseudo-overlays were removed. An SSR structural regression confirms placement and accessibility hiding; TypeScript, lint, all 17 test files / 76 tests, and production build pass. This verifies the implementation contract, not its final visual appearance: no matched-viewport browser screenshot was captured in this slice, so desktop visual parity remains partial.
 
 ## 2026-09-23 — Desktop source-flow and initial-window correction
 

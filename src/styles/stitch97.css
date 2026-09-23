@@ -3,7 +3,6 @@
 .shell97 * { -webkit-font-smoothing: none; font-smooth: never; }
 .shell97 { background-position: center; background-repeat: no-repeat; background-size: cover; image-rendering: auto; }
 .shell97.wallpaper-bliss { background: transparent; }
-.shell97::after { content: ''; position: absolute; inset: 0; z-index: 550; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.035) 2px 3px); }
 .shell97 button, .shell97 a, .shell97 input, .shell97 select, .shell97 textarea { cursor: var(--w95-cursor-default); }
 .shell97 button:hover, .shell97 a:hover, .shell97 .desktop97-icon:hover { cursor: var(--w95-cursor-hand); }
 .shell97 img { image-rendering: pixelated; }
@@ -142,14 +141,17 @@
 .win97-best-viewed { display: inline-block; margin-top: 8px; padding: 2px 5px; border: 1px solid #808080; background: #c0c0c0; font: 10px var(--w95-font-ui); }
 .win97-browser-page-footer { display: flex; justify-content: space-between; margin: 16px -14px -14px; padding: 3px 5px; border-top: 1px solid #fff; background: #c0c0c0; font: 10px var(--w95-font-ui); }
 .win97-counter { font-family: 'Courier New', monospace; color: #000080; }
-.win97-contact { min-width: 0; padding-bottom: 8px; }
-.win97-contact form { display: flex; min-height: 0; flex-direction: column; gap: 8px; padding: 10px; }
+.win97-contact { min-width: 0; padding-bottom: 8px; background: #c0c0c0; }
+.win97-contact form { display: flex; min-height: 0; flex-direction: column; gap: 5px; padding: 7px; }
 .win97-contact-header { display: grid; gap: 2px; padding: 6px; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0; }
 .win97-contact-header b { color: #000080; font-size: 13px; }
 .win97-contact-header span { color: #404040; font-size: 10px; }
+.win97-mail-toolbar { display: flex; gap: 4px; padding: 3px; border: 1px solid #808080; border-color: #fff #808080 #808080 #fff; background: #c0c0c0; }
 .win97-contact label { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; gap: 6px; font-size: 10px; }
 .win97-contact input, .win97-contact textarea { min-width: 0; padding: 3px 4px; border: 2px solid; border-color: #404040 #fff #fff #404040; background: #fff; color: #000; font: 11px var(--w95-font-ui); }
-.win97-contact textarea { min-height: 120px; resize: vertical; }
+.win97-contact input[readonly] { background: #e4e4e4; color: #404040; }
+.win97-contact .win97-mail-body-label { min-height: 120px; flex: 1; align-items: stretch; }
+.win97-contact textarea { min-height: 120px; height: 100%; resize: vertical; }
 .win97-contact .win97-dialog-actions { align-items: center; }
 .win97-contact-status { min-width: 0; flex: 1; color: #404040; font: 10px var(--w95-font-mono); }
 .win97-paint, .win97-calculator, .win97-minesweeper, .win97-browser { background: #c0c0c0; }
@@ -228,7 +230,7 @@
 .win97-cd-playlist { display: flex; align-items: center; gap: 6px; padding: 4px; color: #fff; font: 10px var(--w95-font-ui); }
 .win97-cd-playlist select { min-width: 0; flex: 1; height: 22px; }
 .win97-cd-deck .win97-cd-playlist { display: grid; gap: 0; padding: 0; border: 2px solid; border-color: #404040 #fff #fff #404040; background: #fff; }
-.win97-cd-playlist button { display: flex; justify-content: space-between; gap: 6px; padding: 3px 5px; border: 0; background: #fff; text-align: left; font: 10px var(--w95-font-mono); }.win97-cd-playlist button.selected, .win97-cd-playlist button:hover { color: #fff; background: #000080; }
+.win97-cd-playlist button { display: flex; justify-content: space-between; gap: 6px; padding: 3px 5px; border: 0; background: #fff; text-align: left; font: 10px var(--w95-font-mono); }.win97-cd-playlist button.selected, .win97-cd-playlist button:hover { color: #fff; background: #000080; }.win97-cd-playlist button:disabled { color: #808080; background: #f0f0f0; cursor: var(--w95-cursor-default); }
 .win97-cd-mix { display: grid; grid-template-columns: 1fr 1fr 22px; gap: 5px; align-items: center; padding-top: 5px; font-size: 9px; }.win97-cd-mix label { display: flex; align-items: center; gap: 3px; }.win97-cd-mix input { min-width: 0; width: 100%; }
 .win97-cd-toggles { display: flex; align-items: center; gap: 3px; padding-top: 5px; }.win97-cd-toggles small { margin-left: auto; font-size: 8px; }
 .win97-cd-deck .win97-cd-controls { flex-wrap: nowrap; gap: 3px; padding: 3px; }
@@ -274,18 +276,28 @@
 .win97-media-playlist-items { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 1px; padding: 2px; background: #fff; }
 .win97-media-playlist-items button { display: flex; min-height: 36px; flex-direction: column; gap: 2px; padding: 3px 4px; border: 1px dotted transparent; background: #fff; color: #000; text-align: left; font: 10px var(--w95-font-ui); }
 .win97-media-playlist-items button.selected { border-color: #fff; color: #fff; background: #000080; }
+.win97-media-playlist-items button:disabled { color: #808080; background: #f0f0f0; cursor: var(--w95-cursor-default); }
 .win97-media-playlist-items button span { display: flex; justify-content: space-between; color: #404040; font: 9px var(--w95-font-mono); }.win97-media-playlist-items button.selected span { color: #fff; }
 .win97-media-playlist-stitch footer { display: flex; justify-content: space-between; padding: 3px; border-top: 1px solid #808080; background: #c0c0c0; }
 .win97-media-transport { display: flex; min-height: 38px; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px; border-top: 1px solid #fff; background: #c0c0c0; }
 .win97-media-transport-buttons { display: flex; align-items: center; gap: 3px; }.win97-media-transport-buttons i { width: 1px; height: 20px; margin: 0 2px; border-left: 1px solid #808080; border-right: 1px solid #fff; }
 .win97-media-time-readout { min-width: 130px; padding: 4px 8px; border: 2px solid; border-color: #404040 #fff #fff #404040; color: #7ec850; background: #00003c; font: bold 12px var(--w95-font-mono); letter-spacing: 1px; text-align: center; }
-.win97-media-volume { display: flex; align-items: center; gap: 5px; }.win97-media-volume input { width: 58px; }.win97-media-volume .win95-button { min-width: 40px; padding: 2px 4px; }
+.win97-media-volume { display: flex; align-items: center; gap: 5px; }.win97-media-volume input { width: 58px; }.win97-media-volume .win95-button { min-width: 40px; padding: 2px 4px; }.win97-media-mute { min-width: 20px; padding: 0; border: 0; background: transparent; font-size: 12px; }
 .win97-media-status-stitch { display: flex; min-height: 20px; align-items: center; gap: 3px; padding: 2px 3px; border-top: 1px solid #808080; background: #c0c0c0; font: 9px var(--w95-font-ui); }
 .win97-media-status-stitch > span, .win97-media-status-stitch > b { min-height: 17px; padding: 2px 5px; border: 2px solid; border-color: #808080 #fff #fff #808080; font-weight: normal; }.win97-media-status-stitch > span { display: flex; min-width: 0; flex: 1; align-items: center; gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.win97-media-status-stitch i { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: #7ec850; }.win97-media-status-stitch > b { min-width: 72px; text-align: center; }
 .win97-media-compact, .win97-media-codec { position: absolute; z-index: 30; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0; box-shadow: 2px 2px #000; }
 .win97-media-compact { top: 54px; right: 12px; width: 256px; }.win97-media-compact > header, .win97-media-codec > header { display: flex; align-items: center; justify-content: space-between; min-height: 18px; padding: 2px 4px; color: #fff; background: linear-gradient(90deg, #808080, #b5b5b5); font: bold 9px var(--w95-font-ui); letter-spacing: .6px; }.win97-media-compact header button, .win97-media-codec header button { width: 15px; height: 13px; padding: 0; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0; color: #000; font: bold 9px Arial; }
 .win97-media-compact-body { display: grid; gap: 5px; padding: 6px; }.win97-media-compact-screen { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; padding: 4px; border: 2px solid; border-color: #404040 #fff #fff #404040; background: #00003c; color: #7ec850; font: 9px var(--w95-font-mono); }.win97-media-compact-screen span:nth-child(2) { text-align: center; color: #53aefd; }.win97-media-compact-screen b { color: #fff; text-align: right; }.win97-media-compact-screen strong { grid-column: 1 / -1; overflow: hidden; padding: 3px; color: #7ec850; background: #000080; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }.win97-media-compact-screen > div { display: flex; height: 28px; grid-column: 1 / -1; align-items: end; justify-content: space-around; gap: 2px; padding: 2px 3px; }.win97-media-compact-screen > div i { width: 6px; min-height: 3px; background: #7ec850; }.win97-media-compact-screen > div i:nth-child(3n) { background: #ffff00; }.win97-media-compact-screen > div i:nth-child(5n) { background: #d40000; }.win97-media-compact-controls { display: flex; gap: 3px; }.win97-media-compact-controls .win95-button { min-width: 0; flex: 1; padding: 2px 1px; font: 10px var(--w95-font-mono); }
 .win97-media-codec { right: 96px; bottom: 46px; width: 288px; }.win97-media-codec > header { background: linear-gradient(90deg, #000080, #00629e); }.win97-media-codec-body { display: flex; gap: 10px; padding: 10px; color: #000; font: 10px var(--w95-font-ui); }.win97-media-codec-body > strong { color: #ffff00; font-size: 25px; text-shadow: 1px 1px #000; }.win97-media-codec-body p { margin: 0; line-height: 1.25; }.win97-media-codec-body label { display: flex; align-items: center; gap: 4px; margin-top: 7px; }.win97-media-codec > footer { display: flex; justify-content: flex-end; padding: 0 10px 8px; }
+.win97-media-library-dialog { position: absolute; z-index: 40; top: 50%; left: 50%; display: flex; width: min(320px, calc(100% - 24px)); max-height: calc(100% - 32px); flex-direction: column; transform: translate(-50%, -50%); border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0; box-shadow: 2px 2px #000; }
+.win97-media-library-dialog > header { display: flex; min-height: 22px; align-items: center; justify-content: space-between; padding: 2px 4px; color: #fff; background: #000080; font: bold 10px var(--w95-font-ui); }
+.win97-media-library-dialog > header button { width: 17px; height: 16px; padding: 0; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0; font: bold 12px Arial; }
+.win97-media-library-list { display: flex; min-height: 48px; flex-direction: column; gap: 2px; overflow: auto; padding: 6px; border: 2px solid; border-color: #404040 #fff #fff #404040; background: #fff; font: 10px var(--w95-font-ui); }
+.win97-media-library-list > button { display: flex; flex-direction: column; gap: 3px; padding: 4px; border: 1px solid transparent; background: #fff; text-align: left; font: 10px var(--w95-font-ui); }
+.win97-media-library-list > button:hover, .win97-media-library-list > button:focus-visible { border-color: #000080; color: #fff; background: #000080; }
+.win97-media-library-list > button small { font: 9px var(--w95-font-mono); }
+.win97-media-library-list > p { margin: 4px; line-height: 1.4; }
+.win97-media-library-dialog > footer { display: flex; justify-content: flex-end; padding: 5px; }
 @keyframes win97-media-spin { to { transform: rotate(360deg); } }
 
 .win97-explorer-toolbar { min-height: 31px; gap: 2px; padding: 3px; overflow-x: auto; white-space: nowrap; }
@@ -319,6 +331,15 @@
   .win97-media-main-stitch { flex-direction: column; }
   .win97-media-playlist-stitch { width: auto; min-width: 0; }
 }
+@media (max-width: 540px) {
+  .taskbar97 { gap: 4px; padding-right: 4px; padding-left: 4px; }
+  .taskbar97-quick-button:not(:first-child), .taskbar97-status { display: none; }
+  .taskbar97-window { flex-basis: 130px; padding-right: 5px; padding-left: 5px; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+.win97-cd-presets { position: relative; }
+.win97-cd-preset-menu { position: absolute; z-index: 12; left: 0; bottom: calc(100% + 2px); display: grid; min-width: 96px; padding: 2px; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0; box-shadow: 2px 2px #000; }
+.win97-cd-preset-menu button { padding: 4px 8px; border: 0; background: transparent; color: #000; text-align: left; font: 10px var(--w95-font-ui); }
+.win97-cd-preset-menu button:hover, .win97-cd-preset-menu button:focus-visible { color: #fff; background: #000080; }

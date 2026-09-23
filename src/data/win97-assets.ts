@@ -16,6 +16,7 @@ export const WIN97_ASSETS = {
     url: '/assets/win97/icons/url.svg',
     music: '/assets/win97/icons/music.svg',
     video: '/assets/win97/icons/video.svg',
+    mail: '/assets/win97/icons/mail.svg',
     system: '/assets/win97/icons/system.svg',
   },
   cursors: {

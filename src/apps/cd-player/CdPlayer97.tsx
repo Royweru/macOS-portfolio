@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { RefObject, SyntheticEvent } from 'react';
 import Button95 from '../../components/win95/Button95';
 import type { MediaAsset } from '../../features/media/media-types';
+import { adjacentMediaAsset, buildPlayableMediaList, formatMediaDuration, mediaAssetFilename, mediaAssetKey } from '../../features/media/media-playlist';
 import { useReducedMotion97 } from '../../hooks/useReducedMotion97';
 import { useOsStore } from '../../features/os/os-store';
+import { applyCdAudioSettings97, createCdAudioEffectsGraph97, disconnectCdAudioEffects97, type CdAudioEffectsGraph97 } from './audio-effects97';
 
 const TRACKS = [
   { name: '01_portfolio-theme.wav', length: '03:42', title: 'Portfolio Theme (Original Mix)' },
@@ -12,15 +15,21 @@ const TRACKS = [
   { name: '03_startup-mix.wav', length: '02:50', title: 'Startup Mix' },
 ];
 
-const formatTime = (value: number) => `${String(Math.floor(value / 60)).padStart(2, '0')}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
+interface CdPlayer97Props {
+  asset?: MediaAsset;
+  availableAssets?: MediaAsset[];
+}
 
-export default function CdPlayer97({ asset }: { asset?: MediaAsset }) {
+export default function CdPlayer97({ asset, availableAssets = [] }: CdPlayer97Props) {
   const audio = useRef<HTMLAudioElement>(null);
+  const playlist = useMemo(() => buildPlayableMediaList(availableAssets, asset).filter(item => item.kind === 'audio'), [availableAssets, asset]);
+  const initialTrack = asset?.kind === 'audio' ? asset : playlist[0];
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [bars, setBars] = useState([20, 36, 18, 48, 27, 42, 22]);
-  const [trackIndex, setTrackIndex] = useState(0);
-  const [status, setStatus] = useState(asset ? 'Ready' : 'No Disc');
+  const [selectedKey, setSelectedKey] = useState<string | null>(() => initialTrack ? mediaAssetKey(initialTrack) : null);
+  const [duration, setDuration] = useState(initialTrack?.durationSeconds ?? 0);
+  const [status, setStatus] = useState(initialTrack ? 'Ready' : 'No Disc');
   const [volume, setVolume] = useState(0.85);
   const [balance, setBalance] = useState(0);
   const [timeMode, setTimeMode] = useState<'elapsed' | 'remain' | 'disc'>('elapsed');
@@ -28,57 +37,185 @@ export default function CdPlayer97({ asset }: { asset?: MediaAsset }) {
   const [repeat, setRepeat] = useState(true);
   const [intro, setIntro] = useState(false);
   const [eqActive, setEqActive] = useState(true);
+  const [preampDb, setPreampDb] = useState(0);
+  const [bassDb, setBassDb] = useState(3);
+  const [trebleDb, setTrebleDb] = useState(4);
+  const [presetsOpen, setPresetsOpen] = useState(false);
+  const audioContext = useRef<AudioContext | null>(null);
+  const effectsGraph = useRef<CdAudioEffectsGraph97 | null>(null);
+  const effectsElement = useRef<HTMLAudioElement | null>(null);
   const appReducedMotion = useOsStore(state => state.settings.reducedMotion);
   const reducedMotion = useReducedMotion97(appReducedMotion);
-  const selectedTrack = TRACKS[trackIndex];
+  const trackIndex = playlist.findIndex(item => mediaAssetKey(item) === selectedKey);
+  const selectedAsset = playlist.find(item => mediaAssetKey(item) === selectedKey);
+  const totalDuration = playlist.reduce((sum, item) => sum + (item.durationSeconds ?? 0), 0);
+  const displayedTime = timeMode === 'elapsed' ? elapsed : timeMode === 'remain' ? Math.max(0, duration - elapsed) : Math.max(0, totalDuration - elapsed);
+  const introAdvanced = useRef(false);
 
   useEffect(() => {
-    const element = audio.current;
-    if (!element) return;
-    const tick = () => setElapsed(element.currentTime);
-    const ended = () => { setPlaying(false); setStatus('Playback complete'); };
-    const failed = () => { setPlaying(false); setStatus('Media unavailable'); };
-    element.addEventListener('timeupdate', tick);
-    element.addEventListener('ended', ended);
-    element.addEventListener('error', failed);
-    if (reducedMotion) return () => { element.removeEventListener('timeupdate', tick); element.removeEventListener('ended', ended); element.removeEventListener('error', failed); };
+    if (audio.current) audio.current.volume = volume;
+  }, [volume, selectedKey]);
+
+  useEffect(() => {
+    if (!effectsGraph.current) return;
+    applyCdAudioSettings97(effectsGraph.current, { balance, preampDb, bassDb, trebleDb, enabled: eqActive });
+  }, [balance, preampDb, bassDb, trebleDb, eqActive]);
+
+  useEffect(() => () => {
+    if (effectsGraph.current) disconnectCdAudioEffects97(effectsGraph.current);
+    if (audioContext.current && audioContext.current.state !== 'closed') void audioContext.current.close();
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) return undefined;
     const timer = window.setInterval(() => setBars(current => current.map(() => playing ? 12 + Math.floor(Math.random() * 52) : 8)), 120);
-    return () => { element.removeEventListener('timeupdate', tick); element.removeEventListener('ended', ended); element.removeEventListener('error', failed); window.clearInterval(timer); };
-  }, [playing, asset, reducedMotion]);
+    return () => window.clearInterval(timer);
+  }, [playing, reducedMotion]);
 
   const stop = () => {
-    if (audio.current) { audio.current.pause(); audio.current.currentTime = 0; }
-    setElapsed(0); setPlaying(false); setStatus(asset ? 'Stopped' : 'No Disc');
+    if (audio.current) { audio.current.pause(); try { audio.current.currentTime = 0; } catch { /* Metadata may not be ready. */ } }
+    setElapsed(0); setPlaying(false); setStatus(selectedAsset ? 'Stopped' : 'No Disc');
   };
+
+  const releaseAudioEffects = () => {
+    if (effectsGraph.current) disconnectCdAudioEffects97(effectsGraph.current);
+    effectsGraph.current = null;
+    effectsElement.current = null;
+  };
+
+  const prepareAudioEffects = (element: HTMLAudioElement) => {
+    const sourceUrl = element.currentSrc || element.src;
+    if (!sourceUrl || new URL(sourceUrl, window.location.href).origin !== window.location.origin) return;
+    const AudioContextConstructor = window.AudioContext;
+    if (!AudioContextConstructor) return;
+    const context = audioContext.current ?? new AudioContextConstructor();
+    audioContext.current = context;
+    if (effectsElement.current !== element || !effectsGraph.current) {
+      releaseAudioEffects();
+      try {
+        effectsGraph.current = createCdAudioEffectsGraph97(context, context.createMediaElementSource(element));
+        effectsElement.current = element;
+      } catch {
+        // Keep native playback working if this browser cannot connect the element to Web Audio.
+        return;
+      }
+    }
+    applyCdAudioSettings97(effectsGraph.current, { balance, preampDb, bassDb, trebleDb, enabled: eqActive });
+    if (context.state === 'suspended') void context.resume().catch(() => undefined);
+  };
+
+  const selectTrack = (nextAsset: MediaAsset | null) => {
+    if (audio.current) { audio.current.pause(); try { audio.current.currentTime = 0; } catch { /* The new source starts from the beginning. */ } }
+    if (!nextAsset || mediaAssetKey(nextAsset) !== selectedKey) releaseAudioEffects();
+    introAdvanced.current = false;
+    setSelectedKey(nextAsset ? mediaAssetKey(nextAsset) : null);
+    setElapsed(0);
+    setDuration(nextAsset?.durationSeconds ?? 0);
+    setPlaying(false);
+    setStatus(nextAsset ? 'Ready' : 'No Disc');
+  };
+
   const toggle = () => {
     const element = audio.current;
-    if (!element) { setStatus('No Disc'); return; }
+    if (!selectedAsset || !element) { setStatus('No Disc'); return; }
     if (element.paused) {
+      prepareAudioEffects(element);
       void element.play().then(() => { setPlaying(true); setStatus('Playing'); }).catch(() => { setPlaying(false); setStatus('Media unavailable'); });
     } else { element.pause(); setPlaying(false); setStatus('Paused'); }
   };
-  const cycleTrack = (direction: number) => { setTrackIndex(index => (index + direction + TRACKS.length) % TRACKS.length); stop(); };
-  const displayedTime = timeMode === 'elapsed' ? elapsed : timeMode === 'remain' ? Math.max(0, 222 - elapsed) : Math.max(0, 467 - elapsed);
+
+  const cycleTrack = (direction: -1 | 1) => {
+    let next = adjacentMediaAsset(playlist, selectedKey, direction);
+    if (shuffle && playlist.length > 1) {
+      const alternatives = playlist.filter(item => mediaAssetKey(item) !== selectedKey);
+      next = alternatives[Math.floor(Math.random() * alternatives.length)];
+    }
+    if (next) selectTrack(next);
+    else setStatus(playlist.length ? 'Only one track in playlist' : 'No Disc');
+  };
+
+  const seekBy = (offset: number) => {
+    const element = audio.current;
+    if (!element || !selectedAsset) return;
+    const nextTime = Math.max(0, Math.min(element.duration || duration, element.currentTime + offset));
+    try { element.currentTime = nextTime; setElapsed(nextTime); } catch { setStatus('Waiting for track metadata'); }
+  };
+
+  const onTimeUpdate = (event: SyntheticEvent<HTMLAudioElement>) => {
+    const time = event.currentTarget.currentTime;
+    setElapsed(time);
+    if (intro && !introAdvanced.current && time >= 10 && playlist.length > 1) {
+      introAdvanced.current = true;
+      cycleTrack(1);
+    }
+  };
+
+  const onMetadata = (event: SyntheticEvent<HTMLAudioElement>) => {
+    const nextDuration = Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0;
+    setDuration(nextDuration);
+  };
+
+  const onEnded = () => {
+    if (shuffle && playlist.length > 1) cycleTrack(1);
+    else { setPlaying(false); setStatus('Playback complete'); }
+  };
+
+  const resetEqualizer = () => {
+    setPreampDb(0);
+    setBassDb(0);
+    setTrebleDb(0);
+    setEqActive(true);
+  };
+
+  const applyPreset = (preset: 'Flat' | 'Rock' | 'Jazz' | 'Classical' | 'Pop') => {
+    const settings: Record<typeof preset, [number, number, number]> = {
+      Flat: [0, 0, 0], Rock: [1, 5, 3], Jazz: [0, 3, 4], Classical: [1, 2, 3], Pop: [2, 3, 2],
+    };
+    const [nextPreamp, nextBass, nextTreble] = settings[preset];
+    setPreampDb(nextPreamp);
+    setBassDb(nextBass);
+    setTrebleDb(nextTreble);
+    setEqActive(true);
+    setPresetsOpen(false);
+  };
 
   return <div className="win97-app win97-cd-player">
     <div className="win95-menubar"><button type="button">Disc</button><button type="button">View</button><button type="button">Options</button><button type="button">Help</button></div>
     <div className="win97-cd-layout">
       <section className="win97-cd-deck" aria-label="CD Player">
-        <div className="win97-cd-lcd"><span>● {playing ? 'PLAYING DISC (D:)' : asset ? `${status.toUpperCase()} (D:)` : 'NO DISC (D:)'}</span><strong>[{String(trackIndex + 1).padStart(2, '0')}] {formatTime(displayedTime)}</strong><small>MODE: TRACK TIME <b>STEREO 44.1K</b></small></div>
+        <div className="win97-cd-lcd"><span>● {playing ? 'PLAYING DISC (D:)' : selectedAsset ? `${status.toUpperCase()} (D:)` : 'NO DISC (D:)'}</span><strong>[{String(Math.max(0, trackIndex + 1)).padStart(2, '0')}] {formatMediaDuration(displayedTime)}</strong><small>MODE: {timeMode === 'elapsed' ? 'TRACK TIME' : timeMode === 'remain' ? 'TRACK REMAIN' : 'DISC REMAIN'} <b>STEREO 44.1K</b></small></div>
         <div className="win97-cd-modes">
           <label><input type="radio" checked={timeMode === 'elapsed'} onChange={() => setTimeMode('elapsed')} /> Track Elapsed</label>
           <label><input type="radio" checked={timeMode === 'remain'} onChange={() => setTimeMode('remain')} /> Track Remain</label>
           <label><input type="radio" checked={timeMode === 'disc'} onChange={() => setTimeMode('disc')} /> Disc Remain</label>
         </div>
-        <div className="win97-toolbar win97-cd-controls"><Button95 size="sm" aria-label="Previous track" onClick={() => cycleTrack(-1)}>|◀</Button95><Button95 size="sm" aria-label="Fast reverse">◀◀</Button95><Button95 size="sm" aria-label="Play" onClick={toggle}>▶</Button95><Button95 size="sm" aria-label="Pause" onClick={() => { audio.current?.pause(); setPlaying(false); }}>❚❚</Button95><Button95 size="sm" aria-label="Stop" onClick={stop}>■</Button95><Button95 size="sm" aria-label="Fast forward">▶▶</Button95><Button95 size="sm" aria-label="Next track" onClick={() => cycleTrack(1)}>▶|</Button95><Button95 size="sm" aria-label="Eject">⏏</Button95></div>
-        <div className="win97-cd-fields"><label>Artist <select defaultValue="My Music <D:\\AUDIO_CD>"><option>My Music &lt;D:\\AUDIO_CD&gt;</option></select></label><label>Title <select value={selectedTrack.title} onChange={event => setTrackIndex(Math.max(0, TRACKS.findIndex(item => item.title === event.target.value)))}>{TRACKS.map(item => <option key={item.title}>{item.title}</option>)}</select></label><label>Track <select value={selectedTrack.name} onChange={event => setTrackIndex(TRACKS.findIndex(item => item.name === event.target.value))}>{TRACKS.map((item, index) => <option key={item.name}>{`[${index + 1}] ${item.name} (${item.length})`}</option>)}</select></label></div>
-        {!asset && <div className="sunken win97-empty-media">Insert an audio asset from C:\Windows\Media to play it.</div>}
-        {asset && <audio ref={audio} preload="metadata" src={asset.source} />}
-        <div className="win97-cd-playlist" aria-label="Track list">{TRACKS.map((item, index) => <button type="button" key={item.name} className={index === trackIndex ? 'selected' : ''} onClick={() => { setTrackIndex(index); stop(); }}>{`[${String(index + 1).padStart(2, '0')}] ${item.name}`}<span>{item.length}</span></button>)}</div>
-        <div className="win97-cd-mix"><label>Volume <input type="range" min="0" max="1" step=".05" value={volume} onChange={event => { const value = Number(event.target.value); setVolume(value); if (audio.current) audio.current.volume = value; }} /></label><label>Balance <input type="range" min="-1" max="1" step=".1" value={balance} onChange={event => setBalance(Number(event.target.value))} /></label><span>{balance === 0 ? 'C' : balance < 0 ? 'L' : 'R'}</span></div>
-        <div className="win97-cd-toggles"><Button95 size="sm" pressed={shuffle} onClick={() => setShuffle(value => !value)}>Rand</Button95><Button95 size="sm" pressed={repeat} onClick={() => setRepeat(value => !value)}>Cont</Button95><Button95 size="sm" pressed={intro} onClick={() => setIntro(value => !value)}>Intro</Button95><small>Total Play: 07:47 m:s · Track: {selectedTrack.length} m:s · CD-ROM (D:) {asset ? 'Ready' : 'No Disc'}</small></div>
+        <div className="win97-toolbar win97-cd-controls"><Button95 size="sm" aria-label="Previous track" disabled={playlist.length < 2} onClick={() => cycleTrack(-1)}>|◀</Button95><Button95 size="sm" aria-label="Fast reverse" disabled={!selectedAsset} onClick={() => seekBy(-10)}>◀◀</Button95><Button95 size="sm" aria-label="Play" disabled={!selectedAsset} pressed={playing} onClick={toggle}>▶</Button95><Button95 size="sm" aria-label="Pause" disabled={!selectedAsset} onClick={() => { audio.current?.pause(); setPlaying(false); setStatus('Paused'); }}>❚❚</Button95><Button95 size="sm" aria-label="Stop" disabled={!selectedAsset} onClick={stop}>■</Button95><Button95 size="sm" aria-label="Fast forward" disabled={!selectedAsset} onClick={() => seekBy(10)}>▶▶</Button95><Button95 size="sm" aria-label="Next track" disabled={playlist.length < 2} onClick={() => cycleTrack(1)}>▶|</Button95><Button95 size="sm" aria-label="Eject" disabled={!selectedAsset} onClick={() => selectTrack(null)}>⏏</Button95></div>
+        <div className="win97-cd-fields"><label>Artist <select defaultValue="Music Library <C:\Music>"><option>Music Library &lt;C:\Music&gt;</option></select></label><label>Title <select value={selectedKey ?? ''} onChange={event => selectTrack(playlist.find(item => mediaAssetKey(item) === event.target.value) ?? null)} disabled={!playlist.length}><option value="">No Disc</option>{playlist.map(item => <option key={mediaAssetKey(item)} value={mediaAssetKey(item)}>{item.title}</option>)}</select></label><label>Track <select value={selectedKey ?? ''} onChange={event => selectTrack(playlist.find(item => mediaAssetKey(item) === event.target.value) ?? null)} disabled={!playlist.length}><option value="">No Disc</option>{playlist.map((item, index) => <option key={mediaAssetKey(item)} value={mediaAssetKey(item)}>{`[${index + 1}] ${mediaAssetFilename(item)} (${formatMediaDuration(item.durationSeconds)})`}</option>)}</select></label></div>
+        {!selectedAsset && <div className="sunken win97-empty-media">No playable tracks loaded. Add audio to C:\Music or open a track from Explorer.</div>}
+        {selectedAsset && <audio key={selectedKey ?? undefined} ref={audio as RefObject<HTMLAudioElement>} preload="metadata" src={selectedAsset.source} loop={repeat && !shuffle} onTimeUpdate={onTimeUpdate} onLoadedMetadata={onMetadata} onEnded={onEnded} onError={() => { setPlaying(false); setStatus('Media unavailable'); }} />}
+        <div className="win97-cd-playlist" aria-label="Track list">{playlist.length > 0 ? playlist.map((item, index) => <button type="button" key={mediaAssetKey(item)} className={mediaAssetKey(item) === selectedKey ? 'selected' : ''} onClick={() => selectTrack(item)}>{`[${String(index + 1).padStart(2, '0')}] ${mediaAssetFilename(item)}`}<span>{formatMediaDuration(item.durationSeconds)}</span></button>) : TRACKS.map((item, index) => <button type="button" key={item.name} disabled title="Reference-layout sample only. Add a real track to C:\Music to enable playback.">{`[${String(index + 1).padStart(2, '0')}] ${item.name}`}<span>{item.length}</span></button>)}</div>
+        <div className="win97-cd-mix"><label>Volume <input aria-label="CD volume" type="range" min="0" max="1" step=".05" value={volume} onChange={event => setVolume(Number(event.target.value))} /></label><label>Balance <input aria-label="CD balance" type="range" min="-1" max="1" step=".1" value={balance} onChange={event => setBalance(Number(event.target.value))} /></label><span>{balance === 0 ? 'C' : balance < 0 ? 'L' : 'R'}</span></div>
+        <div className="win97-cd-toggles"><Button95 size="sm" pressed={shuffle} onClick={() => setShuffle(value => !value)}>Rand</Button95><Button95 size="sm" pressed={repeat} onClick={() => setRepeat(value => !value)}>Cont</Button95><Button95 size="sm" pressed={intro} onClick={() => { introAdvanced.current = false; setIntro(value => !value); }}>Intro</Button95><small>Total Play: {formatMediaDuration(totalDuration)} · Track: {formatMediaDuration(duration)} · CD-ROM (D:) {selectedAsset ? 'Ready' : 'No Disc'}</small></div>
       </section>
-      <aside className="win97-cd-eq-window" aria-label="Graphic Equalizer"><header>▥ Now Playing - Graphic Equalizer</header><div className="win97-cd-eq-meta">PCM WAV AUDIO <span>16-Bit Stereo · 44,100 Hz</span></div><div className="win97-cd-eq-bars">{bars.map((height, index) => <div key={index}><span style={{ height: eqActive ? `${height}%` : '8%' }} /><small>{['60Hz', '150', '400', '1kHz', '3kHz', '6kHz', '14k'][index]}</small></div>)}</div><div className="win97-cd-eq-sliders"><label>PREAMP<input type="range" min="-12" max="12" defaultValue="0" /></label><label>BASS<input type="range" min="-12" max="12" defaultValue="3" /></label><label>TREBLE<input type="range" min="-12" max="12" defaultValue="4" /></label></div><div className="win97-cd-eq-actions"><Button95 size="sm">Presets</Button95><Button95 size="sm">Reset</Button95><label><input type="checkbox" checked={eqActive} onChange={event => setEqActive(event.target.checked)} /> EQ Active</label></div><footer>DSP Processor: Yamaha OPL3-SAx · DIRECTSOUND</footer></aside>
+      <aside className="win97-cd-eq-window" aria-label="Graphic Equalizer">
+        <header>▥ Now Playing - Graphic Equalizer</header>
+        <div className="win97-cd-eq-meta">PCM WAV AUDIO <span>16-Bit Stereo · 44,100 Hz</span></div>
+        <div className="win97-cd-eq-bars">{bars.map((height, index) => <div key={index}><span style={{ height: eqActive ? `${height}%` : '8%' }} /><small>{['60Hz', '150', '400', '1kHz', '3kHz', '6kHz', '14k'][index]}</small></div>)}</div>
+        <div className="win97-cd-eq-sliders">
+          <label>PREAMP<input aria-label="Equalizer preamp" type="range" min="-12" max="12" value={preampDb} onChange={event => setPreampDb(Number(event.target.value))} /></label>
+          <label>BASS<input aria-label="Equalizer bass" type="range" min="-12" max="12" value={bassDb} onChange={event => setBassDb(Number(event.target.value))} /></label>
+          <label>TREBLE<input aria-label="Equalizer treble" type="range" min="-12" max="12" value={trebleDb} onChange={event => setTrebleDb(Number(event.target.value))} /></label>
+        </div>
+        <div className="win97-cd-eq-actions">
+          <div className="win97-cd-presets">
+            <Button95 size="sm" aria-haspopup="menu" aria-expanded={presetsOpen} onClick={() => setPresetsOpen(value => !value)}>Presets</Button95>
+            {presetsOpen && <div className="win97-cd-preset-menu" role="menu" aria-label="Equalizer presets">{(['Flat', 'Rock', 'Jazz', 'Classical', 'Pop'] as const).map(preset => <button type="button" role="menuitem" key={preset} onClick={() => applyPreset(preset)}>{preset}</button>)}</div>}
+          </div>
+          <Button95 size="sm" onClick={resetEqualizer}>Reset</Button95>
+          <label><input type="checkbox" checked={eqActive} onChange={event => setEqActive(event.target.checked)} /> EQ Active</label>
+        </div>
+        <footer>DSP Processor: Yamaha OPL3-SAx · DIRECTSOUND</footer>
+      </aside>
     </div>
   </div>;
 }

@@ -153,65 +153,56 @@ export const PROJECTS: ProjectDefinition[] = [
   project({
     legacyId: 1,
     title: 'MoniePal',
-    description: ' Visa premium POSERP system Used in high end regions Designed to be used in very scalable operations and businesses and even small businesses It is basically POS system that is so smooth and is meant to replace the old clunky systems operations the user experience the user design have been really put in mind when developing this great project',
-    tag: 'AI',
+    description: 'MoniePal is built around two facts of Kenyan retail: the internet drops, and customers pay with M-Pesa. Every till keeps trading when the connection is gone, writing each sale as an event to a local SQLite database. When the network returns, the tills sync to the cloud on their own. Owners see every branch, till and report from one dashboard, from a laptop or a phone.',
+    tag:"AI",
     color: '#1a1a2e',
     accent: '#7c3aed',
-    icon: '🤖',
-    github: 'https://github.com/weruroy/m_afya',
+    readme:"/text/moniepal_readme.txt",
     live: null,
-    tech: ['Python', 'LangGraph', 'FastAPI', 'Chroma', 'Twilio'],
+    tech: ['Python', 'React18', 'FastAPI', 'Docker', 'Celery'],
+    files:{
+      demo:{
+        src:'/videos/showing_moniepal.mp4'
+      }
+    }
   }),
   project({
     legacyId: 2,
     title: 'AfyaTrack',
-    description: 'A multi-agent orchestration platform built with LangGraph and FastAPI. Supports parallel tool calling, memory persistence, and real-time streaming.',
+    description: 'A WhatsApp-native health-monitoring agent for people managing blood pressure and blood sugar.',
     tag: 'AI',
     color: '#1a1a2e',
     accent: '#7c3aed',
-    icon: '🤖',
-    github: 'https://github.com/weruroy/m_afya',
-    live: null,
+    readme:"/text/afya_track_readme.txt",
     tech: ['Python', 'LangGraph', 'FastAPI', 'Chroma', 'Twilio'],
+    files:{
+      demo:{
+        title:"Afyatrack",
+        src:"/videos/afya_track.mp4"
+      }
+    }
   }),
    project({
-    legacyId: 2,
-    title: 'Kontent Pyper',
-    description: 'Automated content operations pipeline for social teams. It gathers topic signals, drafts channel-specific posts, and schedules delivery from one workflow. The system includes review controls, campaign-level analytics, and queue-based workers for reliable publishing.',
+    legacyId: 3,
+    title: 'Gigaclaw agent',
+    description: 'An autonomous job-application agent: scrape, match, tailor, apply, report. A human stays in the loop by default.',
     tag: 'Dev',
     color: '#0d1117',
     accent: '#0066cc',
-    icon: '📱',
-    github: 'https://github.com/Royweru/kontent_pyper',
+    github: 'https://github.com/Royweru/gigclaw-agent',
     live: null,
-    tech: ['React', 'LangGraph', 'LangChain', 'FastAPI', 'PostgreSQL', 'ffmpeg', 'celery', 'Redis'],
+    tech: [ 'LangGraph', 'LangChain', 'FastAPI', 'PostgreSQL', 'API requests'],
+    readme:"/text/gigaclaw_readme.txt",
+    files:{
+      demo:{
+        src:"/videos/gigaclaw.mp4",
+        title:"Gigaclaw job hunting agent"
+      }
+    }
   }),
+
   project({
-    legacyId: 3,
-    title: 'eStore redesign',
-    description: 'Full UX/UI redesign and frontend rebuild of an e-commerce platform. Improved conversion rate by 34% through A/B tested component improvements.',
-    tag: 'Design',
-    color: '#c8a882',
-    accent: '#8b5e3c',
-    icon: '🛍️',
-    github: 'https://github.com/Royweru/Ecommerce-next-JS',
-    live: 'https://estore-ivory.vercel.app',
-    tech: ['Figma', 'Next.js', 'Tailwind', 'Stripe(Paystack)', 'Google Stitch', 'FastAPI', 'REST API'],
-  }),
-  project({
-    legacyId: 5,
-    title: 'Leos spa booking system',
-    description: 'A high end hotel management booking system that tops it class, allows users and regular clients to book their sessions and have their services tracked.',
-    tag: 'Dev',
-    color: '#0a1628',
-    accent: '#0284c7',
-    icon: '🏢',
-    github: null,
-    live: 'https://leos-spa-barbershop.vercel.app',
-    tech: ['Next.js', 'Prisma', 'tRPC', 'PostgreSQL'],
-  }),
-  project({
-    legacyId: 6,
+    legacyId: 4,
     title: 'Adventures',
     description: 'A tourism traveling agency website, designed to have the best feel and touch.',
     tag: 'Dev',
@@ -219,21 +210,16 @@ export const PROJECTS: ProjectDefinition[] = [
     accent: '#0284c7',
     icon: '🏢',
     github: 'https://github.com/Royweru/adventures-travel-luxury',
-    live: null,
+    live: "https://travelicious-rose.vercel.app",
     tech: ['Next.js', 'Prisma', 'tRPC', 'PostgreSQL'],
+    readme:"/videos/traveling_agency_readme.txt",
+    files:{
+      demo:{
+        "title":"Traveling agency website",
+        src:"/videos/traveling_agency_1.mp4"
+      }
+    }
   }),
-  // project({
-  //   legacyId: 7,
-  //   title: 'Thika sports golf club',
-  //   description: 'A tourism traveling agency website, designed to have the best feel and touch.',
-  //   tag: 'Dev',
-  //   color: '#0a1628',
-  //   accent: '#0284c7',
-  //   icon: '🏢',
-  //   github: 'https://github.com/Royweru/thika-sports-club-NextJS-15',
-  //   live: 'https://thika-sports-club.vercel.app',
-  //   tech: ['Next.js', 'Prisma', 'tRPC', 'PostgreSQL'],
-  // }),
 ];
 
 export const DOCUMENTS: DocumentDefinition[] = [

@@ -2,6 +2,7 @@
 
 > **Master Execution Tracker:** This checklist tracks all atomic tasks for filesystem decoupling, desktop shortcuts, flexible project typings, media preservation, and retro application associations.
 > Status Legend: `[x]` Completed & Verified · `[ ]` Pending / On Hold
+> Current library paths are governed by [`weru97-personal-media-and-outlook-architecture-2026-09-23.md`](weru97-personal-media-and-outlook-architecture-2026-09-23.md); its root `Pictures`/`Music` paths supersede the original `My Pictures`/Windows Media destinations below.
 
 ---
 
@@ -19,13 +20,14 @@
     - `Projects.lnk` ➔ points to `folder-projects` (`C:\Projects`).
     - `My Documents.lnk` ➔ points to `folder-my-documents` (`C:\My Documents`).
     - `Videos.lnk` ➔ points to `folder-videos` (`C:\Videos`).
-    - `My Pictures.lnk` ➔ points to `folder-pictures` (`C:\My Pictures`).
-    - `My Music.lnk` ➔ points to `folder-windows-media` (`C:\Windows\Media`).
+    - `My Pictures.lnk` ➔ points to `folder-pictures` (`C:\Pictures`).
+    - `My Music.lnk` ➔ points to `folder-music` (`C:\Music`).
+    - `Outlook Express.lnk` ➔ launches the Contact97 compose window.
 
 - [x] **1.4 Keep personal libraries separate from portfolio documents:**
   - `C:\My Documents` contains the portfolio text documents only.
-  - `C:\Videos` and `C:\My Pictures\Screenshots` are separate library locations.
-  - Layout version 8 reparents existing folders by stable node ID; descendants and user data are retained.
+  - `C:\Videos`, `C:\Pictures\Screenshots`, and `C:\Music` are separate root library locations; My Documents contains portfolio text files only.
+  - Current layout version 11 reparents existing folders by stable node ID and repairs protected reference assets; descendants and user data are retained.
   - The saved Videos and My Pictures desktop shortcuts are migrated to the canonical library paths.
 
 - [x] **1.3 Verify Shortcut Dereferencing & Routing:**
@@ -110,7 +112,7 @@
 ## Phase 7: Automated Tests, Smoke Tests & Verification Gates
 
 - [x] **7.1 Run Automated Test Suite:**
-  - Ran `npm test -- --run`: **16 test files passed, 69 tests passed**; TypeScript, lint, and production build also pass for the path/window correction.
+  - Latest verified run after the root-media and Outlook Express slice: **19 test files / 88 tests passed**; TypeScript, lint, production build, and `git diff --check` passed.
 - [~] **7.2 In-Browser Manual End-to-End Verification:**
-  - User authorized browser QA. One localhost:3000 tab verified File Explorer at `C:\`, My Documents with only its four text documents, My Pictures with a Screenshots child, the existing reference image at `C:\My Pictures\Screenshots`, and Videos at `C:\Videos`.
+  - Browser QA reuses one localhost:3000 tab. The latest check confirmed the C: root tree, My Documents' four text documents, `C:\Music`, Outlook Express routes, and the supplied reference image under `C:\Pictures\Screenshots`, opening in Paint. Full application and per-window control E2E verification remains active; no other browser tabs were opened.
   - Broader application and per-window control E2E verification remains active; no other browser tabs were opened.

@@ -64,7 +64,7 @@ function SegmentedProgress({ active }: { active: number }) {
   </div>;
 }
 
-export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion = false }: { onDone: () => void; onRevealDesktop: () => void; reducedMotion?: boolean }) {
+export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion = false, ready = true }: { onDone: () => void; onRevealDesktop: () => void; reducedMotion?: boolean; ready?: boolean }) {
   const [stage, setStage] = useState<BootStage97>(reducedMotion ? 'done' : 'bios');
   const [lineCount, setLineCount] = useState(reducedMotion ? BIOS_LINES.length : 0);
   const [memoryCount, setMemoryCount] = useState(reducedMotion ? BIOS_MEMORY_TARGET : 0);
@@ -73,6 +73,7 @@ export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion 
   const [skipped, setSkipped] = useState(reducedMotion);
   const [fading, setFading] = useState(false);
   const didFinish = useRef(false);
+  const finishWhenReady = useRef(false);
   const exitTimer = useRef<number | null>(null);
   const preloadPromise = useRef<Promise<void> | null>(null);
 
@@ -82,7 +83,15 @@ export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion 
 
   const finish = useCallback((animate = false) => {
     if (didFinish.current) return;
+    if (!ready) {
+      finishWhenReady.current = true;
+      setProgress(18);
+      setSkipped(true);
+      setStage('starting');
+      return;
+    }
     didFinish.current = true;
+    finishWhenReady.current = false;
     setSkipped(true);
     onRevealDesktop();
     if (animate && !reducedMotion) {
@@ -95,15 +104,19 @@ export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion 
     }
     setStage('done');
     onDone();
-  }, [onDone, onRevealDesktop, reducedMotion]);
+  }, [onDone, onRevealDesktop, ready, reducedMotion]);
 
   useEffect(() => {
-    if (reducedMotion && !didFinish.current) {
-      didFinish.current = true;
-      onRevealDesktop();
-      onDone();
-    }
-  }, [onDone, onRevealDesktop, reducedMotion]);
+    if (!reducedMotion || didFinish.current) return;
+    const timer = window.setTimeout(() => finish(false), 0);
+    return () => window.clearTimeout(timer);
+  }, [finish, reducedMotion]);
+
+  useEffect(() => {
+    if (!ready || !finishWhenReady.current || didFinish.current) return;
+    const timer = window.setTimeout(() => finish(false), 0);
+    return () => window.clearTimeout(timer);
+  }, [finish, ready]);
 
   useEffect(() => () => {
     if (exitTimer.current !== null) window.clearTimeout(exitTimer.current);
@@ -175,7 +188,9 @@ export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion 
 
   if (stage === 'done') return null;
 
-  return <div className={`boot97 boot97-${stage} ${fading ? 'boot97-fading' : ''}`} onClick={() => finish()} role="presentation">
+  // Keep the stage modifier separate from child stage classes. Reusing
+  // `.boot97-bios` here let the BIOS panel rule override this fixed overlay.
+  return <div className={`boot97 boot97-stage-${stage} ${fading ? 'boot97-fading' : ''}`} onClick={() => finish()} role="presentation">
     <div className="boot97-crt-overlay" aria-hidden="true" />
     <button type="button" className="boot97-skip" onClick={(event) => { event.stopPropagation(); finish(); }}>[ Click anywhere to skip ]</button>
 

@@ -28,18 +28,19 @@ export const WINDOW_CONFIGS: Record<WindowId, WindowConfig> = {
   notepad:    { title: 'Notepad', icon: '📝', w: 580, h: 450, ox: 20, oy: 20, hasSidebar: false, hasViewControls: false },
   settings:   { title: 'Settings', icon: '⚙', w: 820, h: 580, ox: 0, oy: 0, hasSidebar: false, hasViewControls: false },
   photos:     { title: 'Photos', icon: '▧', w: 820, h: 560, ox: 20, oy: 20, hasSidebar: false, hasViewControls: false },
-  mail:       { title: 'Contact', icon: '✉', w: 680, h: 520, ox: 20, oy: 30, hasSidebar: false, hasViewControls: false },
+  mail:       { title: 'Outlook Express - New Message', icon: 'mail', w: 680, h: 520, ox: 20, oy: 30, hasSidebar: false, hasViewControls: false },
   ie4:        { title: 'case-study.url - Internet Explorer', icon: '🌐', w: 940, h: 680, ox: 0, oy: 0, hasSidebar: false, hasViewControls: false },
   paint:      { title: 'Paint', icon: '🎨', w: 840, h: 478, ox: 20, oy: 20, hasSidebar: false, hasViewControls: false },
   'cd-player': { title: 'CD Player', icon: '💿', w: 940, h: 420, ox: 20, oy: 20, hasSidebar: false, hasViewControls: false },
   calculator: { title: 'Calculator', icon: '🧮', w: 278, h: 265, ox: -279, oy: -114, hasSidebar: false, hasViewControls: false },
   minesweeper: { title: 'Minesweeper', icon: '💣', w: 242, h: 276, ox: -35, oy: -102, hasSidebar: false, hasViewControls: false },
   msdos:      { title: 'MS-DOS Prompt', icon: '▣', w: 720, h: 460, ox: 0, oy: 20, hasSidebar: false, hasViewControls: false },
-  'system-properties': { title: 'About Me — System Properties', icon: '▣', w: 460, h: 430, ox: 80, oy: 50, hasSidebar: false, hasViewControls: false },
+  'system-properties': { title: 'About Me — System Properties', icon: '▣', w: 460, h: 420, centered: true, verticalBias: -21, hasSidebar: false, hasViewControls: false },
   'control-panel': { title: 'Control Panel', icon: '⚙', w: 640, h: 480, ox: 40, oy: 30, hasSidebar: false, hasViewControls: false },
   run:        { title: 'Run', icon: '▶', w: 430, h: 230, ox: 80, oy: 80, hasSidebar: false, hasViewControls: false },
   find:       { title: 'Find: All Files', icon: '🔎', w: 680, h: 460, ox: 50, oy: 50, hasSidebar: false, hasViewControls: false },
-  shutdown:   { title: 'Shut Down Weru 97', icon: '⏻', w: 440, h: 280, ox: 90, oy: 80, hasSidebar: false, hasViewControls: false },
+  shutdown:   { title: 'Shut Down Weru 97', icon: '⏻', w: 320, h: 240, ox: 90, oy: 80, hasSidebar: false, hasViewControls: false },
+  'system-warning': { title: 'System Warning', icon: '▣', w: 340, h: 180, ox: 120, oy: 100, hasSidebar: false, hasViewControls: false },
 };
 
 // ── Menu bar dropdown content ─────────────────────────────────────────────────

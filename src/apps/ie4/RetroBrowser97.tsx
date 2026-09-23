@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Button95 from '../../components/win95/Button95';
 import { isAllowedExternalUrl } from '../../features/os/open-target';
 import { useVisitorCount } from '../../os/visitors/useVisitorCount';
+import AppIcon from '../../components/AppIcon';
 
 const HOME_URL = 'https://weru.dev/';
 const LINK_TARGETS = [
@@ -19,7 +20,7 @@ const normalizeAddress = (value: string) => {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 };
 
-export default function RetroBrowser97({ initialAddress = HOME_URL }: { initialAddress?: string }) {
+export default function RetroBrowser97({ initialAddress = HOME_URL, onOpenApp }: { initialAddress?: string; onOpenApp?: (appId: string) => void }) {
   const visitorCount = useVisitorCount();
   const [address, setAddress] = useState(initialAddress);
   const [draft, setDraft] = useState(initialAddress);
@@ -68,6 +69,7 @@ export default function RetroBrowser97({ initialAddress = HOME_URL }: { initialA
       <Button95 size="sm" aria-label="Favorites" onClick={() => setStatus('Favorites')}>★ Favorites</Button95>
       <Button95 size="sm" aria-label="History" aria-expanded={historyOpen} onClick={() => setHistoryOpen(open => !open)}>▣ History</Button95>
       <Button95 size="sm" aria-label="Print" onClick={() => setStatus('Print unavailable')}>▤ Print</Button95>
+      <Button95 size="sm" aria-label="Mail" disabled={!onOpenApp} onClick={() => onOpenApp?.('mail')}><AppIcon appId="mail" size={14} /> Mail</Button95>
     </div>
     <div className="win97-browser-address"><label htmlFor="ie4-address">Address</label><input id="ie4-address" value={draft} onChange={event => setDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') navigate(draft); }} /><Button95 size="sm" onClick={() => navigate(draft)}>▶ Go</Button95></div>
 

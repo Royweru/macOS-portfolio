@@ -12,14 +12,15 @@ import AppIcon from '../components/AppIcon';
 
 const ROOT_ID: string = VIRTUAL_NODE_IDS.root;
 const QUICK_LOCATIONS = [
-  { id: ROOT_ID, label: 'My Computer', icon: 'computer' },
+  { id: ROOT_ID, label: 'My Computer (C:)', icon: 'computer' },
   { id: VIRTUAL_NODE_IDS.desktop, label: 'Desktop', icon: 'computer' },
   { id: VIRTUAL_NODE_IDS.documents, label: 'My Documents', icon: 'folder' },
-  { id: VIRTUAL_NODE_IDS.downloads, label: 'Downloads', icon: 'folder' },
   { id: VIRTUAL_NODE_IDS.projects, label: 'Projects', icon: 'folder' },
-  { id: VIRTUAL_NODE_IDS.pictures, label: 'Pictures', icon: 'paint' },
   { id: VIRTUAL_NODE_IDS.videos, label: 'Videos', icon: 'video' },
+  { id: VIRTUAL_NODE_IDS.pictures, label: 'Pictures', icon: 'paint' },
   { id: VIRTUAL_NODE_IDS.music, label: 'Music', icon: 'music' },
+  { id: VIRTUAL_NODE_IDS.programFiles, label: 'Program Files', icon: 'folder' },
+  { id: VIRTUAL_NODE_IDS.windows, label: 'Windows', icon: 'computer' },
 ];
 
 type ClipboardItem = { nodeId: string; mode: 'copy' | 'cut' };
@@ -149,7 +150,7 @@ export default function ExplorerContent({ initialFolderId, onOpenTarget }: { ini
       <div className="win97-explorer-address-row"><span>Address</span><div className="win97-explorer-address"><AppIcon appId={currentFolder?.kind === 'folder' ? 'folder' : 'computer'} size={14} /><ChevronRight size={11} aria-hidden="true" /><span className="truncate">{currentFolderId === ROOT_ID ? 'C:\\' : currentPath ?? currentFolder?.name ?? 'C:\\'}</span></div></div>
       {searchOpen && <label className="win97-explorer-search"><span>Find:</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Type a file name" aria-label="Find files in this folder" /></label>}
       <div className="win97-explorer-body">
-        {!isSourceDocumentsWindow && <nav className="win97-explorer-tree" aria-label="Explorer folders"><div className="win97-explorer-tree-heading">Folders</div>{QUICK_LOCATIONS.map((location, index) => <button type="button" key={`${location.label}-${location.id}`} className={`win97-explorer-tree-item level-${index < 3 ? 0 : 1}${currentFolderId === location.id ? ' selected' : ''}`} onClick={() => { setCurrentFolderId(location.id); setSelectedId(null); }}><span className="win97-explorer-tree-glyph" aria-hidden="true">{index === 0 ? '−' : '·'}</span><AppIcon appId={location.icon} size={16} /><span className="truncate">{location.label}</span></button>)}<button type="button" className={`win97-explorer-tree-item level-1${currentFolderId === VIRTUAL_NODE_IDS.windows ? ' selected' : ''}`} onClick={() => setCurrentFolderId(VIRTUAL_NODE_IDS.windows)}><span className="win97-explorer-tree-glyph">·</span><AppIcon appId="computer" size={16} /><span>Windows</span></button><button type="button" className={`win97-explorer-tree-item level-0${currentFolderId === VIRTUAL_NODE_IDS.recycled ? ' selected' : ''}`} onClick={() => setCurrentFolderId(VIRTUAL_NODE_IDS.recycled)}><span className="win97-explorer-tree-glyph">·</span><AppIcon appId="recycle-bin" size={16} /><span>Recycle Bin</span></button></nav>}
+        {!isSourceDocumentsWindow && <nav className="win97-explorer-tree" aria-label="Explorer folders"><div className="win97-explorer-tree-heading">Folders</div>{QUICK_LOCATIONS.map((location, index) => <button type="button" key={`${location.label}-${location.id}`} className={`win97-explorer-tree-item level-${index === 0 ? 0 : 1}${currentFolderId === location.id ? ' selected' : ''}`} onClick={() => { setCurrentFolderId(location.id); setSelectedId(null); }}><span className="win97-explorer-tree-glyph" aria-hidden="true">{index === 0 ? '−' : '·'}</span><AppIcon appId={location.icon} size={16} /><span className="truncate">{location.label}</span></button>)}<button type="button" className={`win97-explorer-tree-item level-0${currentFolderId === VIRTUAL_NODE_IDS.recycled ? ' selected' : ''}`} onClick={() => setCurrentFolderId(VIRTUAL_NODE_IDS.recycled)}><span className="win97-explorer-tree-glyph">·</span><AppIcon appId="recycle-bin" size={16} /><span>Recycle Bin</span></button></nav>}
         <section ref={contentRef} className="win97-explorer-folder" aria-label="Folder contents" tabIndex={0} onKeyDown={handleContentKeyDown} onContextMenu={event => showContextMenu(event)}>
           <div className={`win97-explorer-file-view ${viewMode}`}>
             {viewMode === 'details' && <div className="win97-explorer-details-head"><span>Name</span><span>Size</span><span>Type</span><span>Date Modified</span></div>}

@@ -1,15 +1,19 @@
-# Weru OS bundled media
+# Weru 97 bundled media
 
-Project media is declared in `src/data/project-media-manifest.ts` and served
-from this public directory. Keep binary assets out of IndexedDB; the virtual
-filesystem stores metadata and non-copying links to these sources.
+Put binary assets in the matching directory below and register them in the
+corresponding manifest. The virtual filesystem stores metadata and references;
+it does not copy binary files into IndexedDB.
 
-Expected directories:
+- `videos/` — personal videos in `src/data/personal-media-manifest.ts` and
+  project demos in `src/data/project-media-manifest.ts` (the manifests keep
+  their VFS ownership separate).
+- `pictures/` — personal pictures in `PERSONAL_PICTURES`.
+- `music/` — personal tracks in `PERSONAL_MUSIC`.
+- `images/` — existing project screenshot assets.
+- `audio/` — existing project audio assets.
+- `posters/` — optional video poster frames.
+- `captions/` — optional WebVTT caption files.
 
-- `videos/` — project demos and walkthroughs
-- `audio/` — interviews, narration, or project sound
-- `images/` — project screenshots and stills
-- `posters/` — optional video poster frames
-- `captions/` — optional WebVTT caption files
-
-Only bundled, allowlisted paths should be added to the manifest.
+Personal files appear under `C:\\Videos`, `C:\\Pictures`, and `C:\\Music`;
+project media appears only in its matching `C:\\Projects\\<ProjectName>` folder.
+Only bundled, allowlisted paths should be added to a manifest.

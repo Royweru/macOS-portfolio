@@ -175,7 +175,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
   },
   {
     id: 'mail',
-    name: 'Mail',
+    name: 'Outlook Express',
     icon: 'mail',
     description: 'Send a message to Weru.',
     category: 'portfolio',
@@ -195,7 +195,8 @@ export const APP_REGISTRY: RegisteredApp[] = [
   },
   { id: 'run', name: 'Run', icon: 'run', description: 'Launch a Weru 97 program by name.', category: 'system', canOpenMultiple: false, defaultWindow: { width: 430, height: 230 }, keywords: ['run', 'launch', 'program'] },
   { id: 'find', name: 'Find Files', icon: 'find', description: 'Search the virtual C: drive.', category: 'system', canOpenMultiple: false, defaultWindow: { width: 680, height: 460 }, keywords: ['find', 'search', 'files'] },
-  { id: 'shutdown', name: 'Shut Down', icon: 'shutdown', description: 'Close or restart the Weru 97 session.', category: 'system', canOpenMultiple: false, defaultWindow: { width: 440, height: 280 }, keywords: ['shutdown', 'restart', 'power'] },
+  { id: 'shutdown', name: 'Shut Down', icon: 'shutdown', description: 'Close or restart the Weru 97 session.', category: 'system', canOpenMultiple: false, defaultWindow: { width: 320, height: 240 }, keywords: ['shutdown', 'restart', 'power'] },
+  { id: 'system-warning', name: 'System Warning', icon: 'system-properties', description: 'Confirm before exploring the portfolio projects.', category: 'system', canOpenMultiple: false, defaultWindow: { width: 340, height: 180 }, keywords: ['warning', 'projects', 'portfolio'] },
 ];
 
 export const getRegisteredApp = (appId: string) => APP_REGISTRY.find(app => app.id === appId);

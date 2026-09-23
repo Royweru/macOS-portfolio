@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clampWindowRect97, getLogicalWindowPosition, getLogicalWindowSize, WIN97_WORK_AREA_HEIGHT } from './geometry97';
+import { clampWindowRect97, getCenteredWindowPosition97, getLogicalWindowPosition, getLogicalWindowSize, WIN97_WORK_AREA_HEIGHT } from './geometry97';
 
 describe('Weru 97 logical window geometry', () => {
   const sourceBounds = { width: 1024, workAreaHeight: WIN97_WORK_AREA_HEIGHT };
@@ -30,6 +30,11 @@ describe('Weru 97 logical window geometry', () => {
     const wideViewport = { width: 1422, workAreaHeight: 598 };
     expect(getLogicalWindowSize(940, 680, 0.98, 0.96, sourceBounds)).toEqual({ x: 0, y: 0, width: 940, height: 680 });
     expect(getLogicalWindowSize(940, 680, 0.98, 0.96, wideViewport)).toEqual({ x: 0, y: 0, width: 940, height: 574 });
+  });
+
+  it('centers source-authored dialogs in the live viewport with their measured vertical bias', () => {
+    const sourceBounds = { width: 1280, viewportHeight: 1024, workAreaHeight: 978 };
+    expect(getCenteredWindowPosition97(460, 420, -21, sourceBounds)).toEqual({ x: 410, y: 281 });
   });
 
   it('repairs an old saved rectangle against the current full-width work area', () => {

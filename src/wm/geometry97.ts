@@ -14,6 +14,7 @@ export const STITCH_DESKTOP_EXPLORER_RECT: WindowRect = { x: 240, y: 60, width: 
 export interface DesktopBounds97 {
   width: number;
   workAreaHeight: number;
+  viewportHeight?: number;
 }
 
 /**
@@ -29,6 +30,7 @@ export function getDesktopBounds97(): DesktopBounds97 {
   const height = document.documentElement.clientHeight || window.innerHeight || WIN97_DESKTOP_HEIGHT;
   return {
     width: Math.max(1, Math.round(width)),
+    viewportHeight: Math.max(1, Math.round(height)),
     workAreaHeight: Math.max(1, Math.round(height - WIN97_TASKBAR_HEIGHT)),
   };
 }
@@ -78,6 +80,23 @@ export function getLogicalWindowPosition(
     width,
     height,
   }, WIN97_MIN_WINDOW_WIDTH, WIN97_MIN_WINDOW_HEIGHT, bounds);
+  return { x: rect.x, y: rect.y };
+}
+
+/** Center a source-authored dialog in the viewport while respecting the taskbar. */
+export function getCenteredWindowPosition97(
+  width: number,
+  height: number,
+  verticalBias = 0,
+  bounds = getDesktopBounds97(),
+) {
+  const viewportHeight = bounds.viewportHeight ?? bounds.workAreaHeight + WIN97_TASKBAR_HEIGHT;
+  const rect = clampWindowRect97({
+    x: Math.floor((bounds.width - width) / 2),
+    y: Math.floor((viewportHeight - height) / 2 + verticalBias),
+    width,
+    height,
+  }, undefined, undefined, bounds);
   return { x: rect.x, y: rect.y };
 }
 

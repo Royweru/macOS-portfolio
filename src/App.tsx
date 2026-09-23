@@ -35,6 +35,7 @@ import MediaPlayer97 from './apps/media-player/MediaPlayer97';
 import RunDialog97 from './apps/system/RunDialog97';
 import FindFiles97 from './apps/system/FindFiles97';
 import ShutDown97 from './apps/system/ShutDown97';
+import SystemWarning97 from './apps/system/SystemWarning97';
 import Contact97 from './apps/system/Contact97';
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
@@ -45,9 +46,12 @@ import { resolveTarget, isAllowedExternalUrl } from './features/os/open-target';
 import { getNode } from './features/filesystem/filesystem-service';
 import { VIRTUAL_NODE_IDS } from './features/filesystem/virtual-paths';
 import { STITCH_DESKTOP_EXPLORER_RECT } from './wm/geometry97';
+import { getPersonalMediaAssets } from './data/personal-media-manifest';
 
 // ── Lazy window content (separate JS chunks) ──────────────────────────────────
 const NotepadContent      = lazy(() => import('./apps/notepad/Notepad97'));
+const PERSONAL_VIDEO_ASSETS = getPersonalMediaAssets('video');
+const PERSONAL_AUDIO_ASSETS = getPersonalMediaAssets('audio');
 
 const WindowSpinner = () => (
   <div className="win97-window-spinner" role="status" aria-label="Loading">
@@ -80,7 +84,7 @@ function WindowContent({ id, projectId, mediaAsset, fileId, locationId, terminal
         {id === 'about'      && <NotepadContent fileId={fileId ?? 'file-about-me'} />}
         {id === 'projects'   && <Explorer97 initialFolderId={locationId ?? VIRTUAL_NODE_IDS.projects} onOpenTarget={onOpenTarget} />}
         {id === 'project-detail' && <Explorer97 initialFolderId={locationId ?? (projectId ? `project-${projectId}` : VIRTUAL_NODE_IDS.projects)} onOpenTarget={onOpenTarget} />}
-        {id === 'media-player' && <MediaPlayer97 asset={resolvedMediaAsset} />}
+        {id === 'media-player' && <MediaPlayer97 key={resolvedMediaAsset ? `${resolvedMediaAsset.id}:${resolvedMediaAsset.source}` : 'media-player'} asset={resolvedMediaAsset} availableAssets={PERSONAL_VIDEO_ASSETS} />}
         {id === 'skills'     && <NotepadContent fileId={fileId ?? 'file-skills'} />}
         {id === 'experience' && <NotepadContent fileId={fileId ?? 'file-experience'} />}
         {id === 'contact'    && <Contact97 onClose={onClose} />}
@@ -96,12 +100,13 @@ function WindowContent({ id, projectId, mediaAsset, fileId, locationId, terminal
         {id === 'system-properties' && <SystemProperties97 onClose={onClose} />}
         {id === 'minesweeper' && <Minesweeper97 />}
         {id === 'msdos' && <MsDosPrompt97 initialCwd={terminalCwd} onEffect={onTerminalEffect} />}
-        {id === 'ie4' && <RetroBrowser97 key={ieAddress ?? 'weru-home'} initialAddress={ieAddress} />}
+        {id === 'ie4' && <RetroBrowser97 key={ieAddress ?? 'weru-home'} initialAddress={ieAddress} onOpenApp={onOpenApp} />}
         {id === 'paint' && <Paint97 asset={resolvedMediaAsset} />}
-        {id === 'cd-player' && <CdPlayer97 asset={resolvedMediaAsset} />}
+        {id === 'cd-player' && <CdPlayer97 key={resolvedMediaAsset ? `${resolvedMediaAsset.id}:${resolvedMediaAsset.source}` : 'cd-player'} asset={resolvedMediaAsset} availableAssets={PERSONAL_AUDIO_ASSETS} />}
         {id === 'run' && <RunDialog97 onOpenApp={onOpenApp} onClose={onClose} />}
         {id === 'find' && <FindFiles97 onOpenTarget={onOpenTarget} onClose={onClose} />}
         {id === 'shutdown' && <ShutDown97 onClose={onClose} />}
+        {id === 'system-warning' && <SystemWarning97 onOpenTarget={onOpenTarget} onClose={onClose} />}
       </Suspense>
     </ErrorBoundary>
   );
@@ -185,7 +190,7 @@ function App() {
         durationSeconds: node.media.durationSeconds,
         description: node.media.description,
       });
-      const mediaApp: 'paint' | 'media-player' = node.media.kind === 'image' ? 'paint' : 'media-player';
+      const mediaApp: 'paint' | 'media-player' | 'cd-player' = node.media.kind === 'image' ? 'paint' : node.media.kind === 'audio' ? 'cd-player' : 'media-player';
       wm.openWindow(mediaApp, { instanceId: `${mediaApp}-${node.id}`, fileId: node.id, title: node.name, allowMultiple: true });
       return;
     }
@@ -320,7 +325,7 @@ function App() {
   return (
     <div className="weru-app-root">
       {/* ── Boot ────────────────────────────────────────────────────────── */}
-      {bootOverlayVisible && <BootSequence97 onRevealDesktop={finishBoot} onDone={hideBootOverlay} reducedMotion={settings.reducedMotion} />}
+      {bootOverlayVisible && <BootSequence97 onRevealDesktop={finishBoot} onDone={hideBootOverlay} reducedMotion={settings.reducedMotion} ready={filesystem.ready || Boolean(filesystem.error)} />}
 
       {filesystem.error && (
         <div className="sr-only" role="status">
@@ -330,7 +335,7 @@ function App() {
 
       {/* ── Desktop icons ───────────────────────────────────────────────── */}
       {/* ── Windows ─────────────────────────────────────────────────────── */}
-      {booted && <Shell97 openInstances={wm.activeWindows} focusedWindowId={wm.focusedWindowId} onOpenTarget={handleOpenTarget} onOpenWindow={handleOpen} onFocusWindow={wm.focusWindow}>
+      {booted && (filesystem.ready || Boolean(filesystem.error)) && <Shell97 openInstances={wm.activeWindows} focusedWindowId={wm.focusedWindowId} onOpenTarget={handleOpenTarget} onOpenWindow={handleOpen} onFocusWindow={wm.focusWindow}>
         <WindowManager97
         windows={wm.activeWindows}
         focusedWindowId={wm.focusedWindowId}
