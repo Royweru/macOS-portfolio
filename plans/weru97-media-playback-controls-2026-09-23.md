@@ -55,4 +55,12 @@ Still required before Phase 7 media tasks can be checked complete:
 
 ## Status
 
-The controls, same-origin CD audio-processing graph, and honest empty states are implemented. Browser QA verified equalizer preset and reset state; unit tests verify graph parameters and cleanup. Actual playback and audible effects remain unverified because `PROJECT_MEDIA_MANIFEST` is empty. The post-follow-up full suite passes 20 files / 91 tests; TypeScript, lint, production build, and `git diff --check` pass. Media Player and CD Player functionality therefore remain `partial` in the Stitch manifest and Chapter 2 task list.
+The controls, same-origin CD audio-processing graph, and honest empty states are implemented. Browser QA verified equalizer preset and reset state; unit tests verify graph parameters and cleanup. The `PROJECT_MEDIA_MANIFEST` remains empty, but project demo videos are also seeded from `portfolio-manifest.ts`.
+
+## Verification update — 2026-09-23
+
+- Fixed all four project demo routes from `/videos/...` to the actual `/media/videos/...` public asset paths.
+- Added inline project-demo synchronization to the filesystem's normal startup sync, so existing IndexedDB nodes receive corrected source metadata without wiping user data.
+- In the existing localhost browser tab, Gigaclaw loaded `gigaclaw.mp4` at `/media/videos/gigaclaw.mp4`: metadata duration 307.05 seconds, `readyState=4`, no media error; after clicking Play, `paused=false` and current time advanced from 00:01 to 00:33.
+- Media Player and CD Player remain partial overall: reduced-motion behavior, end-state handling, audible CD playback, and matched Stitch screenshots still require verification.
+- Full test suite: 22 files / 95 tests passed. TypeScript passed. Lint remains blocked by the unrelated `no-useless-escape` on line 29 of `src/data/stitch-screen-manifest.ts`.

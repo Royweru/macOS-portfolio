@@ -33,3 +33,4 @@ Latest Chapter 2 evidence:
 - `chapter-2-system-warning-2026-09-23.md` — added the source warning as a movable app window on the Projects shortcut and live-tested Cancel and Yes → `C:\Projects`.
 - `chapter-2-media-player-window-controls-2026-09-23.md` — live-tested Media Player close/reopen, taskbar focus, drag, edge/corner resize, minimize/restore, and maximize/restore in the existing tab.
 - `chapter-2-outlook-games-overlap-2026-09-23.md` — repaired the persisted Outlook Express/Games desktop shortcut collision with a targeted OS-state migration and verified responsive separation in the existing browser tab.
+- `chapter-2-project-video-and-notepad-readability-2026-09-23.md` — corrected bundled project video URLs and persisted VFS sync, browser-verified Gigaclaw playback, and enlarged/fill-sized the Notepad text editor.

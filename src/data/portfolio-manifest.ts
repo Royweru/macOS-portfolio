@@ -162,7 +162,8 @@ export const PROJECTS: ProjectDefinition[] = [
     tech: ['Python', 'React18', 'FastAPI', 'Docker', 'Celery'],
     files:{
       demo:{
-        src:'/videos/showing_moniepal.mp4'
+        src:'/media/videos/showing_moniepal.mp4',
+        mimeType: 'video/mp4',
       }
     }
   }),
@@ -178,7 +179,8 @@ export const PROJECTS: ProjectDefinition[] = [
     files:{
       demo:{
         title:"Afyatrack",
-        src:"/videos/afya_track.mp4"
+        src:"/media/videos/afya_track.mp4",
+        mimeType: 'video/mp4',
       }
     }
   }),
@@ -195,7 +197,8 @@ export const PROJECTS: ProjectDefinition[] = [
     readme:"/text/gigaclaw_readme.txt",
     files:{
       demo:{
-        src:"/videos/gigaclaw.mp4",
+        src:"/media/videos/gigaclaw.mp4",
+        mimeType: 'video/mp4',
         title:"Gigaclaw job hunting agent"
       }
     }
@@ -216,7 +219,8 @@ export const PROJECTS: ProjectDefinition[] = [
     files:{
       demo:{
         "title":"Traveling agency website",
-        src:"/videos/traveling_agency_1.mp4"
+        src:"/media/videos/traveling_agency_1.mp4",
+        mimeType: 'video/mp4',
       }
     }
   }),

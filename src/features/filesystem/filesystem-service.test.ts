@@ -99,6 +99,17 @@ describe('Weru 97 seeded filesystem topology', () => {
     expect(projectNodes[0].parentId).not.toBe(VIRTUAL_NODE_IDS.videos);
   });
 
+  it('points seeded project demos at the bundled public video files', () => {
+    expect(byId.get('project-gigaclaw-agent-demo')).toMatchObject({
+      parentId: 'project-gigaclaw-agent',
+      name: 'demo.avi',
+      mimeType: 'video/mp4',
+      appId: 'media-player',
+      media: { kind: 'video', source: '/media/videos/gigaclaw.mp4', projectId: 3 },
+    });
+    expect(byId.get('project-afyatrack-demo')?.media?.source).toBe('/media/videos/afya_track.mp4');
+  });
+
   it('moves legacy Videos and Screenshots contents out of My Documents without losing descendants', () => {
     const makeNode = (id: string, parentId: string | null, name: string, kind: VfsNode['kind']): VfsNode => ({
       id, parentId, name, kind,
