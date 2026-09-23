@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+
+<html class="h-full w-full overflow-hidden select-none" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Windows 97 Desktop Simulation</title>
+<!-- Tailwind CSS CDN with forms and container plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "selection-blue": "#000080",
+            "primary-container": "#000080",
+            "on-primary": "#ffffff",
+            "desktop-sky-start": "#3A6EA5",
+            "desktop-sky-end": "#7BB3E8",
+            "desktop-grass-start": "#4C9A2A",
+            "desktop-grass-end": "#7EC850",
+            "inactive-title-start": "#808080",
+            "inactive-title-end": "#B5B5B5",
+            "folder-yellow": "#F8D878",
+            "folder-shadow": "#C0A860"
+          },
+          "fontFamily": {
+            "headline-sm": ["Tahoma", "MS Sans Serif", "sans-serif"],
+            "body-sm": ["Tahoma", "MS Sans Serif", "sans-serif"],
+            "label-sm": ["Tahoma", "MS Sans Serif", "sans-serif"],
+            "label-lg": ["Tahoma", "MS Sans Serif", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Authentic Windows 97 Cursor & Classic Bevel Styles -->
+<style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-font-smoothing: none;
+      -moz-osx-font-smoothing: grayscale;
+      font-smooth: never;
+    }
+    body, button, input, div, span, a, label {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" viewBox="0 0 16 24"><polygon points="0,0 0,20 4.5,15.5 8,23 11,21.5 7.5,14 13.5,14" fill="%23ffffff" stroke="%23000000" stroke-width="1.5" stroke-linejoin="miter"/></svg>') 0 0, auto !important;
+      font-family: 'Tahoma', 'MS Sans Serif', Geneva, sans-serif;
+    }
+    .win-window-frame {
+      box-shadow: 1px 1px 0px 0px #000000;
+      border-top: 1px solid #DFDFDF;
+      border-left: 1px solid #DFDFDF;
+      border-right: 1px solid #808080;
+      border-bottom: 1px solid #808080;
+      outline: 1px solid #404040;
+    }
+    .win-inset-panel {
+      border: 2px solid;
+      border-color: #808080 #FFFFFF #FFFFFF #808080;
+      box-shadow: inset 1px 1px 0px #404040;
+    }
+    .win-inset-thin {
+      border: 1px solid;
+      border-color: #808080 #FFFFFF #FFFFFF #808080;
+    }
+    .win-outset-btn {
+      border: 1px solid;
+      border-color: #FFFFFF #404040 #404040 #FFFFFF;
+      background-color: #c0c0c0;
+    }
+    .win-btn-pressed {
+      border: 2px solid;
+      border-color: #404040 #FFFFFF #FFFFFF #404040;
+      background-color: #e0e0e0;
+      background-image: radial-gradient(#a0a0a0 25%, transparent 25%);
+      background-size: 2px 2px;
+    }
+    .win-text-shadow {
+      text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    }
+  </style>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+</head>
+<body class="w-screen h-screen overflow-hidden m-0 p-0 bg-black flex items-center justify-center">
+<!-- Desktop Base Frame: Fixed 1024x768 Container (16:9 / 4:3 fit, no scrollbars) -->
+<div class="relative w-[1024px] h-[768px] overflow-hidden select-none bg-desktop-sky-start flex flex-col justify-between shadow-2xl" id="desktop-viewport">
+<!-- Bliss Wallpaper: Rolling Green Hills (#4C9A2A to #7EC850) + Blue Cloudy Sky (#3A6EA5 to #7BB3E8) -->
+<div class="absolute inset-0 z-0 pointer-events-none" data-purpose="bliss-wallpaper">
+<!-- Sky Gradient -->
+<div class="h-[62%] w-full bg-gradient-to-b from-desktop-sky-start via-desktop-sky-end to-[#bce1ff] relative overflow-hidden">
+<svg class="absolute inset-0 w-full h-full opacity-85" preserveaspectratio="none" viewbox="0 0 1000 480">
+<g fill="#ffffff" filter="blur(3px)">
+<ellipse cx="210" cy="140" opacity="0.7" rx="90" ry="24"></ellipse>
+<ellipse cx="270" cy="130" opacity="0.85" rx="70" ry="30"></ellipse>
+<ellipse cx="760" cy="170" opacity="0.8" rx="160" ry="42"></ellipse>
+<ellipse cx="850" cy="155" opacity="0.9" rx="110" ry="48"></ellipse>
+<ellipse cx="680" cy="190" opacity="0.5" rx="95" ry="30"></ellipse>
+<ellipse cx="480" cy="210" opacity="0.4" rx="120" ry="22"></ellipse>
+<ellipse cx="140" cy="230" opacity="0.5" rx="80" ry="18"></ellipse>
+</g>
+</svg>
+</div>
+<!-- Rolling Hills -->
+<div class="h-[38%] w-full relative overflow-hidden">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 1024 292">
+<defs>
+<lineargradient id="hillBackGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#4C9A2A"></stop>
+<stop offset="100%" stop-color="#2d6318"></stop>
+</lineargradient>
+<lineargradient id="hillFrontGrad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#7EC850"></stop>
+<stop offset="40%" stop-color="#55a525"></stop>
+<stop offset="100%" stop-color="#26610c"></stop>
+</lineargradient>
+</defs>
+<path d="M0,120 Q300,50 620,105 T1024,75 L1024,292 L0,292 Z" fill="url(#hillBackGrad)" opacity="0.9"></path>
+<path d="M0,90 Q390,25 730,100 T1024,140 L1024,292 L0,292 Z" fill="url(#hillFrontGrad)"></path>
+<path d="M0,91 Q390,26 730,101" fill="none" opacity="0.5" stroke="#a3ea62" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+<!-- Scanline Overlay (3% opacity) -->
+<div class="absolute inset-0 z-40 pointer-events-none" style="background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px);"></div>
+<!-- LEFT COLUMN OF DESKTOP ICONS (Strict Left Rail) -->
+<div class="absolute top-2 left-2 z-10 flex flex-col gap-y-1 w-[74px]" id="desktop-icon-column">
+<!-- 1. My Computer -->
+<div class="flex flex-col items-center justify-center p-1 cursor-pointer" onclick="bringToFront('window-b')">
+<svg class="w-8 h-8 drop-shadow-sm" viewbox="0 0 32 32">
+<rect fill="#d4d0c8" height="18" stroke="#404040" stroke-width="1.2" width="24" x="4" y="3"></rect>
+<rect fill="#000080" height="12" width="18" x="7" y="6"></rect>
+<rect fill="#0845a5" height="10" width="16" x="8" y="7"></rect>
+<circle cx="16" cy="12" fill="#53aefd" opacity="0.8" r="2.5"></circle>
+<path d="M12,21 L20,21 L22,25 L10,25 Z" fill="#b0aca4" stroke="#404040" stroke-width="1"></path>
+<rect fill="#d4d0c8" height="4" stroke="#404040" stroke-width="1" width="28" x="2" y="25"></rect>
+<line stroke="#404040" stroke-width="1" x1="20" x2="26" y1="27" y2="27"></line>
+<circle cx="6" cy="27" fill="#00ff00" r="0.75"></circle>
+</svg>
+<span class="text-[11px] text-white text-center px-1 leading-tight win-text-shadow">My Computer</span>
+</div>
+<!-- 2. My Documents -->
+<div class="flex flex-col items-center justify-center p-1 cursor-pointer">
+<svg class="w-8 h-8 drop-shadow-sm" viewbox="0 0 32 32">
+<polygon fill="#F8D878" points="2,6 12,6 14,9 30,9 30,26 2,26" stroke="#C0A860" stroke-width="1.2"></polygon>
+<rect fill="#ffffff" height="13" stroke="#808080" stroke-width="0.8" width="20" x="6" y="11"></rect>
+<line stroke="#404040" stroke-width="0.8" x1="9" x2="23" y1="14" y2="14"></line>
+<line stroke="#404040" stroke-width="0.8" x1="9" x2="20" y1="17" y2="17"></line>
+<line stroke="#404040" stroke-width="0.8" x1="9" x2="22" y1="20" y2="20"></line>
+</svg>
+<span class="text-[11px] text-white text-center px-1 leading-tight win-text-shadow">My Documents</span>
+</div>
+<!-- 3. Projects (Selected with dotted outline) -->
+<div class="flex flex-col items-center justify-center p-1 cursor-pointer bg-selection-blue/40" onclick="bringToFront('window-a')" style="outline: 1px dotted #ffffff;">
+<svg class="w-8 h-8 drop-shadow-sm" viewbox="0 0 32 32">
+<polygon fill="#F8D878" points="2,5 11,5 14,8 30,8 30,26 2,26" stroke="#C0A860" stroke-width="1.2"></polygon>
+<polygon fill="#ffe28a" points="2,11 30,11 27,26 2,26" stroke="#808080" stroke-width="0.8"></polygon>
+<rect fill="#000080" height="2" opacity="0.7" width="14" x="8" y="15"></rect>
+<rect fill="#000080" height="2" opacity="0.7" width="10" x="8" y="19"></rect>
+</svg>
+<span class="text-[11px] text-white bg-primary-container px-1 py-0.5 text-center leading-tight">Projects</span>
+</div>
+<!-- 4. Videos -->
+<div class="flex flex-col items-center justify-center p-1 cursor-pointer">
+<svg class="w-8 h-8 drop-shadow-sm" viewbox="0 0 32 32">
+<rect fill="#404040" height="20" stroke="#1a1c1c" stroke-width="1.2" width="26" x="3" y="6"></rect>
+<rect fill="#7BB3E8" height="14" width="20" x="6" y="9"></rect>
+<circle cx="5" cy="8" fill="#ffffff" r="1"></circle>
+<circle cx="5" cy="16" fill="#ffffff" r="1"></circle>
+<circle cx="5" cy="24" fill="#ffffff" r="1"></circle>
+<circle cx="27" cy="8" fill="#ffffff" r="1"></circle>
+<circle cx="27" cy="16" fill="#ffffff" r="1"></circle>
+<circle cx="27" cy="24" fill="#ffffff" r="1"></circle>
+<polygon fill="#ffffff" points="13,12 21,16 13,20"></polygon>
+</svg>
+<span class="text-[11px] text-white text-center px-1 leading-tight win-text-shadow">Videos</span>
+</div>
+<!-- 5. My Music -->
+<div class="flex flex-col items-center justify-center p-1 cursor-pointer">
+<svg class="w-8 h-8 drop-shadow-sm" viewbox="0 0 32 32">
+<polygon fill="#F8D878" points="2,6 12,6 14,9 30,9 30,26 2,26" stroke="#C0A860" stroke-width="1.2"></polygon>
+<ellipse cx="12" cy="20" fill="#000080" rx="3" ry="2"></ellipse>
+<ellipse cx="20" cy="18" fill="#000080" rx="3" ry="2"></ellipse>
+<path d="M14,20 L14,13 L22,11 L22,18" fill="none" stroke="#000080" stroke-width="1.8"></path>
+<line stroke="#000080" stroke-width="2.5" x1="14" x2="22" y1="13" y2="11"></line>
+</svg>
+<span class="text-[11px] text-white text-center px-1 leading-tight win-text-shadow">My Music</span>
+</div>
+<!-- 6. My Pictures -->
+<div class="flex flex-col items-center justify-center p-1 cursor-pointer">
+<svg class="w-8 h-8 drop-shadow-sm" viewbox="0 0 32 32">
+<polygon fill="#F8D878" points="2,6 12,6 14,9 30,9 30,26 2,26" stroke="#C0A860" stroke-width="1.2"></polygon>
+<rect fill="#ffffff" height="13" stroke="#808080" stroke-width="0.8" width="20" x="6" y="11"></rect>
+<circle cx="11" cy="15" fill="#FFFF00" r="2"></circle>
+<polygon fill="#4C9A2A" points="7,22 13,16 17,20 22,14 25,22"></polygon>
+</svg>
+<span class="text-[11px] text-white text-center px-1 leading-tight win-text-shadow">My Pictures</span>
+</div>
+<!-- 7. Internet Explorer -->
+<div class="flex flex-col items-center justify-center p-1 cursor-pointer">
+<svg class="w-8 h-8 drop-shadow-sm" viewbox="0 0 32 32">
+<ellipse cx="16" cy="16" fill="none" rx="14" ry="5" stroke="#FFFF00" stroke-width="2.2" transform="rotate(-30 16 16)"></ellipse>
+<text fill="#00629e" font-family="Tahoma" font-size="22" font-weight="900" stroke="#000080" stroke-width="0.8" x="7" y="23">e</text>
+</svg>
+<span class="text-[11px] text-white text-center px-1 leading-tight win-text-shadow">Internet Explorer</span>
+</div>
+<!-- 8. Games -->
+<div class="flex flex-col items-center justify-center p-1 cursor-pointer">
+<svg class="w-8 h-8 drop-shadow-sm" viewbox="0 0 32 32">
+<polygon fill="#F8D878" points="2,6 12,6 14,9 30,9 30,26 2,26" stroke="#C0A860" stroke-width="1.2"></polygon>
+<rect fill="#404040" height="10" rx="2" width="18" x="7" y="13"></rect>
+<polygon fill="#ffffff" points="10,18 12,18 12,16 14,16 14,18 16,18 16,20 14,20 14,22 12,22 12,20 10,20"></polygon>
+<circle cx="20" cy="18" fill="#D40000" r="1.2"></circle>
+<circle cx="23" cy="20" fill="#FFFF00" r="1.2"></circle>
+</svg>
+<span class="text-[11px] text-white text-center px-1 leading-tight win-text-shadow">Games</span>
+</div>
+<!-- Gap before Recycle Bin -->
+<div class="h-2"></div>
+<!-- 9. Recycle Bin -->
+<div class="flex flex-col items-center justify-center p-1 cursor-pointer">
+<svg class="w-8 h-8 drop-shadow-sm" viewbox="0 0 32 32">
+<polygon fill="#d4d0c8" points="8,9 24,9 21,28 11,28" stroke="#404040" stroke-width="1.2"></polygon>
+<line stroke="#404040" stroke-width="2" x1="6" x2="26" y1="8" y2="8"></line>
+<rect fill="#808080" height="3" width="6" x="13" y="5"></rect>
+<path d="M12,14 L16,12 L16,16 Z" fill="#00629e"></path>
+<path d="M20,18 L16,20 L18,24 Z" fill="#4C9A2A"></path>
+</svg>
+<span class="text-[11px] text-white text-center px-1 leading-tight win-text-shadow">Recycle Bin</span>
+</div>
+</div>
+<!-- ================================================================= -->
+<!-- WINDOW B: INACTIVE, OFFSET UPPER-LEFT / BACKGROUND (left: 60px, top: 40px, 440x320) -->
+<!-- Gray Gradient Titlebar #808080 -> #B5B5B5, Dark/Black Text -->
+<!-- ================================================================= -->
+<div class="absolute left-[60px] top-[40px] w-[440px] h-[320px] bg-[#c0c0c0] flex flex-col z-20 cursor-default win-window-frame shadow-xl" id="window-b" onclick="bringToFront('window-b')">
+<!-- Inactive Title Bar -->
+<div class="h-[18px] px-1 bg-gradient-to-r from-[#808080] to-[#B5B5B5] flex items-center justify-between text-black select-none" id="titlebar-b">
+<div class="flex items-center space-x-1.5 overflow-hidden">
+<!-- Computer Mini Icon -->
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<rect fill="#d4d0c8" height="9" stroke="#404040" stroke-width="0.8" width="12" x="2" y="2"></rect>
+<rect fill="#808080" height="5" width="8" x="4" y="4"></rect>
+<path d="M6,11 L10,11 L11,13 L5,13 Z" fill="#808080"></path>
+<rect fill="#d4d0c8" height="2" width="14" x="1" y="13"></rect>
+</svg>
+<span class="text-[11px] font-bold truncate">My Computer</span>
+</div>
+<!-- Classic Beveled Min/Max/Close Square Buttons -->
+<div class="flex items-center space-x-0.5">
+<button class="w-[14px] h-[14px] win-outset-btn flex items-center justify-center text-[8px] font-bold text-black leading-none">_</button>
+<button class="w-[14px] h-[14px] win-outset-btn flex items-center justify-center text-[8px] font-bold text-black leading-none">
+<span class="w-[7px] h-[6px] border border-black border-t-2"></span>
+</button>
+<button class="w-[14px] h-[14px] win-outset-btn flex items-center justify-center text-[8px] font-bold text-black leading-none">✕</button>
+</div>
+</div>
+<!-- Menu Bar: File | Edit | View | Help -->
+<div class="h-[18px] bg-[#c0c0c0] flex items-center px-1 space-x-3 text-[11px] text-black border-b border-[#808080]">
+<span class="hover:bg-selection-blue hover:text-white px-1 cursor-pointer"><u>F</u>ile</span>
+<span class="hover:bg-selection-blue hover:text-white px-1 cursor-pointer"><u>E</u>dit</span>
+<span class="hover:bg-selection-blue hover:text-white px-1 cursor-pointer"><u>V</u>iew</span>
+<span class="hover:bg-selection-blue hover:text-white px-1 cursor-pointer"><u>H</u>elp</span>
+</div>
+<!-- Address Bar: 'My Computer' -->
+<div class="h-[21px] bg-[#c0c0c0] flex items-center px-1.5 space-x-1 text-[10px] border-b border-[#808080]">
+<span class="text-[#404040]">Address</span>
+<div class="flex-1 h-[17px] win-inset-thin bg-white px-1 flex items-center space-x-1 overflow-hidden">
+<svg class="w-3 h-3 flex-shrink-0" viewbox="0 0 16 16">
+<rect fill="#d4d0c8" height="9" stroke="#404040" stroke-width="0.8" width="12" x="2" y="2"></rect>
+<rect fill="#808080" height="5" width="8" x="4" y="4"></rect>
+</svg>
+<span class="text-[10px] text-black truncate">My Computer</span>
+</div>
+<button class="w-[15px] h-[17px] win-outset-btn flex items-center justify-center text-[7px]">▼</button>
+</div>
+<!-- Sunken White Content Pane: Large Icon Grid View -->
+<div class="flex-1 win-inset-panel bg-white m-1 p-3 overflow-auto flex flex-wrap content-start gap-4" id="window-b-content">
+<!-- 1. 3½ Floppy (A:) -->
+<div class="flex flex-col items-center w-[68px] p-1 hover:bg-[#000080] hover:text-white group cursor-pointer">
+<svg class="w-8 h-8 mb-1" viewbox="0 0 32 32">
+<rect fill="#404040" height="24" rx="1" stroke="#1a1c1c" stroke-width="1.2" width="22" x="5" y="4"></rect>
+<rect fill="#d0d0d0" height="11" stroke="#808080" stroke-width="0.8" width="12" x="9" y="4"></rect>
+<rect fill="#1a1c1c" height="7" width="3" x="11" y="6"></rect>
+<rect fill="#ffffff" height="10" stroke="#a0a0a0" stroke-width="0.8" width="16" x="8" y="17"></rect>
+<line stroke="#000080" stroke-width="1" x1="10" x2="22" y1="20" y2="20"></line>
+<line stroke="#D40000" stroke-width="1" x1="10" x2="19" y1="23" y2="23"></line>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white leading-tight">3½ Floppy (A:)</span>
+</div>
+<!-- 2. Local Disk (C:) -->
+<div class="flex flex-col items-center w-[68px] p-1 hover:bg-[#000080] hover:text-white group cursor-pointer">
+<svg class="w-8 h-8 mb-1" viewbox="0 0 32 32">
+<rect fill="#d4d0c8" height="14" rx="1" stroke="#404040" stroke-width="1.2" width="26" x="3" y="10"></rect>
+<rect fill="#808080" height="6" opacity="0.6" width="22" x="5" y="12"></rect>
+<circle cx="8" cy="20" fill="#4C9A2A" r="1.5"></circle>
+<circle cx="13" cy="20" fill="#D40000" r="1"></circle>
+<line stroke="#404040" stroke-width="1.5" x1="18" x2="26" y1="20" y2="20"></line>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white leading-tight">Local Disk (C:)</span>
+</div>
+<!-- 3. CD-ROM Disc (D:) -->
+<div class="flex flex-col items-center w-[68px] p-1 hover:bg-[#000080] hover:text-white group cursor-pointer">
+<svg class="w-8 h-8 mb-1" viewbox="0 0 32 32">
+<rect fill="#c0c0c0" height="10" stroke="#404040" stroke-width="1" width="28" x="2" y="18"></rect>
+<rect fill="#404040" height="2" width="12" x="10" y="23"></rect>
+<circle cx="25" cy="24" fill="#4C9A2A" r="1"></circle>
+<circle cx="16" cy="13" fill="#e8e8e8" r="9" stroke="#808080" stroke-width="1"></circle>
+<circle cx="16" cy="13" fill="#c0c0c0" r="3" stroke="#404040" stroke-width="0.8"></circle>
+<path d="M12,7 A8,8 0 0,1 20,9" fill="none" opacity="0.8" stroke="#53aefd" stroke-width="1.5"></path>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white leading-tight">CD-ROM Disc (D:)</span>
+</div>
+<!-- 4. Control Panel -->
+<div class="flex flex-col items-center w-[68px] p-1 hover:bg-[#000080] hover:text-white group cursor-pointer">
+<svg class="w-8 h-8 mb-1" viewbox="0 0 32 32">
+<rect fill="#d4d0c8" height="22" stroke="#404040" stroke-width="1.2" width="24" x="4" y="5"></rect>
+<circle cx="13" cy="14" fill="#808080" r="4" stroke="#220000" stroke-width="1"></circle>
+<circle cx="13" cy="14" fill="#ffffff" r="1.5"></circle>
+<line stroke="#404040" stroke-width="1.5" x1="20" x2="26" y1="10" y2="10"></line>
+<line stroke="#404040" stroke-width="1.5" x1="20" x2="26" y1="16" y2="16"></line>
+<line stroke="#404040" stroke-width="1.5" x1="20" x2="26" y1="22" y2="22"></line>
+<rect fill="#D40000" height="3" width="2" x="22" y="9"></rect>
+<rect fill="#000080" height="3" width="2" x="24" y="15"></rect>
+<rect fill="#4C9A2A" height="3" width="2" x="21" y="21"></rect>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white leading-tight">Control Panel</span>
+</div>
+<!-- 5. Printers -->
+<div class="flex flex-col items-center w-[68px] p-1 hover:bg-[#000080] hover:text-white group cursor-pointer">
+<svg class="w-8 h-8 mb-1" viewbox="0 0 32 32">
+<rect fill="#ffffff" height="8" stroke="#808080" stroke-width="0.8" width="12" x="10" y="4"></rect>
+<rect fill="#d4d0c8" height="12" rx="1" stroke="#404040" stroke-width="1.2" width="24" x="4" y="11"></rect>
+<rect fill="#ffffff" height="10" stroke="#808080" stroke-width="0.8" width="16" x="8" y="17"></rect>
+<line stroke="#404040" stroke-width="0.8" x1="10" x2="22" y1="20" y2="20"></line>
+<line stroke="#404040" stroke-width="0.8" x1="10" x2="19" y1="23" y2="23"></line>
+<circle cx="24" cy="14" fill="#4C9A2A" r="1"></circle>
+</svg>
+<span class="text-[10px] text-center text-black group-hover:text-white leading-tight">Printers</span>
+</div>
+</div>
+<!-- Sunken Status Bar: '5 object(s)' -->
+<div class="h-[18px] bg-[#c0c0c0] px-1 pb-0.5 flex items-center text-black text-[10px]">
+<div class="win-inset-thin px-2 h-[15px] flex items-center flex-1">
+<span>5 object(s)</span>
+</div>
+</div>
+</div>
+<!-- ================================================================= -->
+<!-- WINDOW A: ACTIVE, FOREGROUND OVERLAPPING WINDOW B (left: 240px, top: 90px, 660x440) -->
+<!-- Active Titlebar: #000080 -> #1084D0, Bold White Tahoma Text -->
+<!-- Two-Pane Explorer View: Tree + Details View -->
+<!-- ================================================================= -->
+<div class="absolute left-[240px] top-[90px] w-[660px] h-[440px] bg-[#c0c0c0] flex flex-col z-30 cursor-default win-window-frame shadow-2xl" id="window-a" onclick="bringToFront('window-a')">
+<!-- Active Title Bar -->
+<div class="h-[18px] px-1 bg-gradient-to-r from-selection-blue via-[#0845a5] to-[#1084D0] flex items-center justify-between text-white select-none cursor-move" id="titlebar-a">
+<div class="flex items-center space-x-1.5 overflow-hidden">
+<!-- Yellow Folder Icon -->
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#F8D878" points="1,2 6,2 7,4 15,4 15,14 1,14" stroke="#C0A860" stroke-width="0.8"></polygon>
+</svg>
+<span class="text-[11px] font-bold tracking-wide text-white truncate">Projects</span>
+</div>
+<!-- Square Beveled Min/Max/Close Buttons -->
+<div class="flex items-center space-x-0.5">
+<button class="w-[14px] h-[14px] win-outset-btn flex items-center justify-center text-[8px] font-bold text-black leading-none">_</button>
+<button class="w-[14px] h-[14px] win-outset-btn flex items-center justify-center text-[8px] font-bold text-black leading-none">
+<span class="w-[7px] h-[6px] border border-black border-t-2"></span>
+</button>
+<button class="w-[14px] h-[14px] win-outset-btn flex items-center justify-center text-[8px] font-bold text-black leading-none">✕</button>
+</div>
+</div>
+<!-- Menu Bar: File | Edit | View | Tools | Help -->
+<div class="h-[18px] bg-[#c0c0c0] flex items-center px-1 space-x-2.5 text-[11px] text-black border-b border-[#808080]">
+<span class="hover:bg-selection-blue hover:text-white px-1 cursor-pointer"><u>F</u>ile</span>
+<span class="hover:bg-selection-blue hover:text-white px-1 cursor-pointer"><u>E</u>dit</span>
+<span class="hover:bg-selection-blue hover:text-white px-1 cursor-pointer"><u>V</u>iew</span>
+<span class="hover:bg-selection-blue hover:text-white px-1 cursor-pointer"><u>T</u>ools</span>
+<span class="hover:bg-selection-blue hover:text-white px-1 cursor-pointer"><u>H</u>elp</span>
+</div>
+<!-- 24px Gray Toolbar: Back, Forward, Up | Cut, Copy, Paste | Views -->
+<div class="h-[24px] bg-[#c0c0c0] flex items-center px-1 space-x-1 text-[10px] text-black border-b border-[#808080]">
+<!-- Back -->
+<button class="win-outset-btn h-[19px] px-1.5 flex items-center space-x-1">
+<span class="text-[#008000] font-black text-[10px]">←</span>
+<span>Back</span>
+</button>
+<!-- Forward (disabled) -->
+<button class="win-outset-btn h-[19px] px-1.5 flex items-center space-x-1 opacity-50">
+<span class="text-[#808080] font-black text-[10px]">→</span>
+<span>Forward</span>
+</button>
+<!-- Up -->
+<button class="win-outset-btn h-[19px] px-1.5 flex items-center space-x-1">
+<span class="text-[#808000] font-black text-[10px]">⬆</span>
+<span>Up</span>
+</button>
+<!-- Divider -->
+<div class="h-[16px] w-[2px] mx-0.5 border-l border-[#808080] border-r border-white"></div>
+<!-- Cut, Copy, Paste -->
+<button class="win-outset-btn h-[19px] px-1.5">Cut</button>
+<button class="win-outset-btn h-[19px] px-1.5">Copy</button>
+<button class="win-outset-btn h-[19px] px-1.5">Paste</button>
+<!-- Divider -->
+<div class="h-[16px] w-[2px] mx-0.5 border-l border-[#808080] border-r border-white"></div>
+<!-- Views (details icon) -->
+<button class="win-outset-btn h-[19px] px-1.5 flex items-center space-x-1">
+<!-- Mini details view icon -->
+<svg class="w-3 h-3" viewbox="0 0 16 16">
+<line stroke="#000" stroke-width="1.5" x1="2" x2="5" y1="4" y2="4"></line>
+<line stroke="#000" stroke-width="1.5" x1="7" x2="14" y1="4" y2="4"></line>
+<line stroke="#000" stroke-width="1.5" x1="2" x2="5" y1="8" y2="8"></line>
+<line stroke="#000" stroke-width="1.5" x1="7" x2="14" y1="8" y2="8"></line>
+<line stroke="#000" stroke-width="1.5" x1="2" x2="5" y1="12" y2="12"></line>
+<line stroke="#000" stroke-width="1.5" x1="7" x2="14" y1="12" y2="12"></line>
+</svg>
+<span>Views</span>
+<span class="text-[6px]">▼</span>
+</button>
+</div>
+<!-- Sunken Address Bar: Yellow Folder Icon + 'C:\Projects' with Dropdown -->
+<div class="h-[21px] bg-[#c0c0c0] flex items-center px-1.5 space-x-1 text-[10px] border-b border-[#808080]">
+<span class="text-[#404040]">Address</span>
+<div class="flex-1 h-[17px] win-inset-thin bg-white px-1 flex items-center space-x-1 overflow-hidden">
+<svg class="w-3 h-3 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#F8D878" points="1,2 6,2 7,4 15,4 15,14 1,14" stroke="#C0A860" stroke-width="0.8"></polygon>
+</svg>
+<span class="text-[10px] text-black font-sans truncate">C:\Projects</span>
+</div>
+<button class="w-[15px] h-[17px] win-outset-btn flex items-center justify-center text-[7px]">▼</button>
+</div>
+<!-- Two-Pane Split Explorer Container -->
+<div class="flex-1 m-1 flex overflow-hidden win-inset-panel">
+<!-- LEFT PANE: Folder Tree (width ~200px, sunken white frame) -->
+<div class="w-[200px] bg-white overflow-y-auto p-1.5 text-black text-[10px] select-none border-r border-[#808080]" id="explorer-tree">
+<!-- Root: Desktop -->
+<div class="flex items-center space-x-1 py-0.5">
+<svg class="w-3.5 h-3.5" viewbox="0 0 16 16">
+<rect fill="#53aefd" height="8" stroke="#000080" stroke-width="0.8" width="12" x="2" y="2"></rect>
+<line stroke="#404040" stroke-width="1" x1="8" x2="8" y1="10" y2="13"></line>
+<line stroke="#404040" stroke-width="1" x1="5" x2="11" y1="13" y2="13"></line>
+</svg>
+<span class="font-bold">Desktop</span>
+</div>
+<!-- Tree Level 1: My Computer -->
+<div class="relative pl-3">
+<div class="absolute left-[6px] top-0 bottom-0 w-0" style="border-left: 1px dotted #808080;"></div>
+<div class="flex items-center space-x-1 py-0.5 relative">
+<span class="w-2.5 h-2.5 bg-white text-[8px] flex items-center justify-center font-bold text-black z-10 border border-[#808080]">-</span>
+<svg class="w-3.5 h-3.5" viewbox="0 0 16 16">
+<rect fill="#d4d0c8" height="9" stroke="#404040" stroke-width="0.8" width="12" x="2" y="2"></rect>
+<rect fill="#000080" height="5" width="8" x="4" y="4"></rect>
+</svg>
+<span>My Computer</span>
+</div>
+<!-- Tree Level 2: Drives under My Computer -->
+<div class="relative pl-4">
+<div class="absolute left-[7px] top-0 bottom-2 w-0" style="border-left: 1px dotted #808080;"></div>
+<!-- (C:) expanded [-] -->
+<div class="flex items-center space-x-1 py-0.5 relative">
+<span class="w-2.5 h-2.5 bg-white text-[8px] flex items-center justify-center font-bold text-black z-10 -ml-1 border border-[#808080]">-</span>
+<span class="text-[10px]">💽</span>
+<span class="truncate">Local Disk (C:)</span>
+</div>
+<!-- Folders under C: -->
+<div class="relative pl-4">
+<div class="absolute left-[6px] top-0 bottom-2 w-0" style="border-left: 1px dotted #808080;"></div>
+<!-- My Documents -->
+<div class="flex items-center space-x-1 py-0.5">
+<span class="w-2 h-0" style="border-top: 1px dotted #808080;"></span>
+<svg class="w-3 h-3 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#F8D878" points="1,2 6,2 7,4 15,4 15,14 1,14" stroke="#C0A860" stroke-width="0.8"></polygon>
+</svg>
+<span class="truncate">My Documents</span>
+</div>
+<!-- Projects (Highlighted in Active Navy #000080 with White Text) -->
+<div class="flex items-center space-x-1 py-0.5 bg-selection-blue text-white px-0.5">
+<span class="w-2 h-0" style="border-top: 1px dotted #808080;"></span>
+<svg class="w-3 h-3 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#ffffff" points="1,2 6,2 7,4 15,4 15,14 1,14"></polygon>
+</svg>
+<span class="font-bold truncate">Projects</span>
+</div>
+</div>
+<!-- (D:) collapsed [+] -->
+<div class="flex items-center space-x-1 py-0.5 relative">
+<span class="w-2.5 h-2.5 bg-white text-[8px] flex items-center justify-center font-bold text-black z-10 -ml-1 border border-[#808080]">+</span>
+<span class="text-[10px]">💿</span>
+<span class="truncate">CD-ROM (D:)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Vertical Divider Splitter Bar -->
+<div class="w-[5px] bg-[#c0c0c0] cursor-col-resize flex items-center justify-center border-l border-white border-r border-[#808080]">
+<div class="w-[1px] h-[32px] bg-[#808080]"></div>
+</div>
+<!-- RIGHT PANE: Details View (Sunken white frame with Column Headers) -->
+<div class="flex-1 bg-white overflow-y-auto flex flex-col select-none">
+<!-- Raised Beveled Column Headers: Name, Size, Type, Date Modified -->
+<div class="h-[20px] bg-[#c0c0c0] flex items-center text-[10px] text-black sticky top-0 z-10 border-b border-[#808080]">
+<div class="w-[170px] h-full px-2 flex items-center font-bold bg-[#c0c0c0] border-t border-l border-white border-r border-[#808080] border-b border-[#404040]">Name</div>
+<div class="w-[60px] h-full px-2 flex items-center font-bold bg-[#c0c0c0] border-t border-l border-white border-r border-[#808080] border-b border-[#404040]">Size</div>
+<div class="w-[85px] h-full px-2 flex items-center font-bold bg-[#c0c0c0] border-t border-l border-white border-r border-[#808080] border-b border-[#404040]">Type</div>
+<div class="flex-1 h-full px-2 flex items-center font-bold bg-[#c0c0c0] border-t border-l border-white border-b border-[#404040]">Date Modified</div>
+</div>
+<!-- Rows (Yellow Folder Icons) -->
+<div class="flex flex-col text-black text-[10px]">
+<!-- Row 1: 3D-Website (Selected: Solid Navy #000080 BG, White Text, Dotted Focus Marquee) -->
+<div class="flex items-center h-[20px] px-1 bg-selection-blue text-white cursor-pointer" style="outline: 1px dotted #ffffff; outline-offset: -1px;">
+<div class="w-[166px] flex items-center space-x-1.5 overflow-hidden pr-1">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#ffffff" points="1,2 6,2 7,4 15,4 15,14 1,14"></polygon>
+</svg>
+<span class="truncate font-bold">3D-Website</span>
+</div>
+<div class="w-[60px] text-right pr-2"></div>
+<div class="w-[85px] truncate">File Folder</div>
+<div class="flex-1 truncate">10/14/97 4:20 PM</div>
+</div>
+<!-- Row 2: AI-Chatbot -->
+<div class="flex items-center h-[20px] px-1 hover:bg-[#e0e0e0] cursor-pointer">
+<div class="w-[166px] flex items-center space-x-1.5 overflow-hidden pr-1">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#F8D878" points="1,2 6,2 7,4 15,4 15,14 1,14" stroke="#C0A860" stroke-width="0.8"></polygon>
+</svg>
+<span class="truncate">AI-Chatbot</span>
+</div>
+<div class="w-[60px] text-right pr-2"></div>
+<div class="w-[85px] truncate text-[#404040]">File Folder</div>
+<div class="flex-1 truncate text-[#404040]">10/22/97 11:05 AM</div>
+</div>
+<!-- Row 3: Brand-Identity -->
+<div class="flex items-center h-[20px] px-1 hover:bg-[#e0e0e0] cursor-pointer">
+<div class="w-[166px] flex items-center space-x-1.5 overflow-hidden pr-1">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#F8D878" points="1,2 6,2 7,4 15,4 15,14 1,14" stroke="#C0A860" stroke-width="0.8"></polygon>
+</svg>
+<span class="truncate">Brand-Identity</span>
+</div>
+<div class="w-[60px] text-right pr-2"></div>
+<div class="w-[85px] truncate text-[#404040]">File Folder</div>
+<div class="flex-1 truncate text-[#404040]">11/03/97 2:15 PM</div>
+</div>
+<!-- Row 4: Mobile-App -->
+<div class="flex items-center h-[20px] px-1 hover:bg-[#e0e0e0] cursor-pointer">
+<div class="w-[166px] flex items-center space-x-1.5 overflow-hidden pr-1">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#F8D878" points="1,2 6,2 7,4 15,4 15,14 1,14" stroke="#C0A860" stroke-width="0.8"></polygon>
+</svg>
+<span class="truncate">Mobile-App</span>
+</div>
+<div class="w-[60px] text-right pr-2"></div>
+<div class="w-[85px] truncate text-[#404040]">File Folder</div>
+<div class="flex-1 truncate text-[#404040]">11/18/97 9:45 AM</div>
+</div>
+<!-- Row 5: E-Commerce-Store -->
+<div class="flex items-center h-[20px] px-1 hover:bg-[#e0e0e0] cursor-pointer">
+<div class="w-[166px] flex items-center space-x-1.5 overflow-hidden pr-1">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#F8D878" points="1,2 6,2 7,4 15,4 15,14 1,14" stroke="#C0A860" stroke-width="0.8"></polygon>
+</svg>
+<span class="truncate">E-Commerce-Store</span>
+</div>
+<div class="w-[60px] text-right pr-2"></div>
+<div class="w-[85px] truncate text-[#404040]">File Folder</div>
+<div class="flex-1 truncate text-[#404040]">12/01/97 3:30 PM</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sunken Status Bar with Multiple Panels -->
+<div class="h-[20px] bg-[#c0c0c0] px-1 pb-0.5 flex items-center space-x-1.5 text-[10px] text-black">
+<div class="win-inset-thin px-2 h-[16px] flex items-center w-[85px]">
+<span>5 object(s)</span>
+</div>
+<div class="win-inset-thin px-2 h-[16px] flex items-center flex-1">
+<span>0 bytes (Disk free space: 1.44 MB)</span>
+</div>
+</div>
+<!-- Subtle Tooltip / Helper Annotation Badge at bottom right of Window A -->
+<div class="absolute -bottom-6 right-2 bg-[#ffffea] text-black px-2 py-0.5 text-[10px] z-50 pointer-events-none shadow border border-black">
+        💡 <span>Tip: Double-click = navigate in same window</span>
+</div>
+</div>
+<!-- Authentic White Pixel Arrow Cursor Hovering Over Active Window -->
+<div class="absolute top-[200px] left-[520px] z-50 pointer-events-none">
+<svg class="w-4 h-6 filter drop-shadow" viewbox="0 0 16 24">
+<polygon fill="#ffffff" points="0,0 0,20 4.5,15.5 8,23 11,21.5 7.5,14 13.5,14" stroke="#000000" stroke-linejoin="miter" stroke-width="1.5"></polygon>
+</svg>
+</div>
+<!-- ================================================================= -->
+<!-- PINNED TASKBAR (Bottom 30px, #C0C0C0, Authentic Bevels) -->
+<!-- ================================================================= -->
+<footer class="relative z-[1000] h-[30px] bg-[#c0c0c0] border-t-2 border-white flex items-center justify-between px-1 select-none shadow-md">
+<!-- Left: Start Button + Quick Launch + Two Taskbar Buttons -->
+<div class="flex items-center space-x-1.5 h-full py-0.5">
+<!-- Start Button (Raised Bevel with 4-Color Windows Flag) -->
+<button class="h-[23px] px-2 bg-[#c0c0c0] flex items-center space-x-1 win-outset-btn active:win-btn-pressed cursor-pointer" id="btn-start" onclick="toggleStartMenu()" style="border-width: 2px;">
+<svg class="w-4 h-4" viewbox="0 0 16 16">
+<path d="M1,2 L7,1 L7,7 L1,8 Z" fill="#D40000"></path>
+<path d="M8,1 L15,0 L15,7 L8,7 Z" fill="#4C9A2A"></path>
+<path d="M1,9 L7,8 L7,14 L1,15 Z" fill="#00629e"></path>
+<path d="M8,8 L15,7 L15,15 L8,14 Z" fill="#FFFF00"></path>
+</svg>
+<span class="font-bold text-[11px] text-black">Start</span>
+</button>
+<!-- Quick Launch Divider -->
+<div class="h-[20px] w-[2px] border-l border-[#808080] border-r border-white"></div>
+<!-- Quick Launch Icons -->
+<div class="flex items-center space-x-1 px-0.5">
+<button class="w-[18px] h-[18px] flex items-center justify-center hover:win-outset-btn" title="Show Desktop">
+<svg class="w-3.5 h-3.5" viewbox="0 0 16 16">
+<rect fill="#000080" height="9" width="12" x="2" y="2"></rect>
+<rect fill="#808080" height="2" width="8" x="4" y="12"></rect>
+</svg>
+</button>
+<button class="w-[18px] h-[18px] flex items-center justify-center hover:win-outset-btn" title="Launch Internet Explorer">
+<svg class="w-3.5 h-3.5" viewbox="0 0 16 16">
+<ellipse cx="8" cy="8" fill="none" rx="6" ry="3" stroke="#FFFF00" stroke-width="1.2" transform="rotate(-20 8 8)"></ellipse>
+<text fill="#00629e" font-size="10" font-weight="bold" x="4" y="11">e</text>
+</svg>
+</button>
+</div>
+<!-- Divider -->
+<div class="h-[20px] w-[2px] border-l border-[#808080] border-r border-white"></div>
+<!-- TWO TASKBAR BUTTONS: Inactive raised 'My Computer' & Active sunken 'Projects' -->
+<div class="flex items-center space-x-1">
+<!-- Button 1: Inactive Raised 'My Computer' -->
+<button class="h-[22px] w-[130px] px-1.5 flex items-center space-x-1.5 text-left truncate cursor-pointer bg-[#c0c0c0]" id="taskbar-btn-mycomputer" onclick="bringToFront('window-b')" style="border: 2px solid; border-color: #FFFFFF #404040 #404040 #FFFFFF; box-shadow: inset 1px 1px 0px #DFDFDF, 1px 1px 0px #000000;">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<rect fill="#d4d0c8" height="9" stroke="#404040" stroke-width="0.8" width="12" x="2" y="2"></rect>
+<rect fill="#808080" height="5" width="8" x="4" y="4"></rect>
+</svg>
+<span class="text-[11px] text-black truncate">My Computer</span>
+</button>
+<!-- Button 2: Active Sunken/Pressed 'Projects' -->
+<button class="win-btn-pressed h-[22px] w-[140px] px-1.5 flex items-center space-x-1.5 text-left truncate cursor-pointer" id="taskbar-btn-projects" onclick="bringToFront('window-a')">
+<svg class="w-3.5 h-3.5 flex-shrink-0" viewbox="0 0 16 16">
+<polygon fill="#F8D878" points="1,2 6,2 7,4 15,4 15,14 1,14" stroke="#C0A860" stroke-width="0.8"></polygon>
+</svg>
+<span class="text-[11px] font-bold text-black truncate">Projects</span>
+</button>
+</div>
+</div>
+<!-- Right: System Tray (Inset box with Speaker, Monitor & Clock) -->
+<div class="h-[22px] px-2 bg-[#c0c0c0] win-inset-thin flex items-center space-x-2 text-black text-[11px]">
+<!-- Speaker / Volume -->
+<svg class="w-3.5 h-3.5" title="Volume" viewbox="0 0 16 16">
+<polygon fill="#000000" points="1,5 4,5 8,2 8,14 4,11 1,11"></polygon>
+<path d="M10,5 Q13,8 10,11" fill="none" stroke="#000000" stroke-width="1.2"></path>
+</svg>
+<!-- Monitor / Screen Resolution -->
+<svg class="w-3.5 h-3.5" title="Display Properties" viewbox="0 0 16 16">
+<rect fill="#53aefd" height="8" stroke="#000000" stroke-width="0.8" width="12" x="2" y="3"></rect>
+<rect fill="#000000" height="2" width="4" x="6" y="11"></rect>
+<line stroke="#000000" stroke-width="1.2" x1="4" x2="12" y1="13" y2="13"></line>
+</svg>
+<!-- Clock -->
+<span class="ml-1 tracking-tight" id="tray-clock">9:15 PM</span>
+</div>
+</footer>
+<!-- Start Menu Flyout -->
+<div class="hidden absolute left-0 bottom-[30px] z-[2000] bg-[#c0c0c0] w-[200px] flex shadow-2xl win-window-frame" id="start-menu-panel">
+<!-- Windows 97 Banner -->
+<div class="w-[28px] py-2 flex items-center justify-end select-none bg-gradient-to-t from-[#000020] via-selection-blue to-[#1084D0]" style="writing-mode: vertical-lr; transform: rotate(180deg);">
+<span class="text-white font-bold text-[15px] tracking-widest pl-1">Windows<span class="text-[#c0c0c0] font-light">97</span></span>
+</div>
+<!-- Items -->
+<div class="flex-1 py-1 flex flex-col text-[11px] text-black">
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-selection-blue hover:text-white cursor-pointer">
+<span>📁</span>
+<span class="flex-1"><u>P</u>rograms</span>
+<span class="text-[8px]">►</span>
+</div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-selection-blue hover:text-white cursor-pointer">
+<span>📄</span>
+<span class="flex-1"><u>D</u>ocuments</span>
+<span class="text-[8px]">►</span>
+</div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-selection-blue hover:text-white cursor-pointer">
+<span>⚙️</span>
+<span class="flex-1"><u>S</u>ettings</span>
+<span class="text-[8px]">►</span>
+</div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-selection-blue hover:text-white cursor-pointer">
+<span>🔍</span>
+<span class="flex-1"><u>F</u>ind</span>
+<span class="text-[8px]">►</span>
+</div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-selection-blue hover:text-white cursor-pointer">
+<span>❓</span>
+<span class="flex-1"><u>H</u>elp</span>
+</div>
+<div class="h-[1px] bg-[#808080] border-b border-white my-1 mx-1"></div>
+<div class="px-3 py-1.5 flex items-center space-x-2 hover:bg-selection-blue hover:text-white cursor-pointer">
+<span>⏻</span>
+<span class="flex-1">Sh<u>u</u>t Down...</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Micro-Interactions Script for Authentic Window Stacking & Toggle -->
+<script>
+    function bringToFront(targetId) {
+      const winA = document.getElementById('window-a');
+      const winB = document.getElementById('window-b');
+      const titleA = document.getElementById('titlebar-a');
+      const titleB = document.getElementById('titlebar-b');
+      const taskBtnA = document.getElementById('taskbar-btn-projects');
+      const taskBtnB = document.getElementById('taskbar-btn-mycomputer');
+
+      if (targetId === 'window-a') {
+        // Window A Active (Foreground)
+        winA.style.zIndex = '30';
+        winB.style.zIndex = '20';
+
+        // Titlebars
+        titleA.className = 'h-[18px] px-1 bg-gradient-to-r from-selection-blue via-[#0845a5] to-[#1084D0] flex items-center justify-between text-white select-none cursor-move';
+        titleB.className = 'h-[18px] px-1 bg-gradient-to-r from-[#808080] to-[#B5B5B5] flex items-center justify-between text-black select-none';
+
+        // Taskbar Buttons
+        taskBtnA.className = 'win-btn-pressed h-[22px] w-[140px] px-1.5 flex items-center space-x-1.5 text-left truncate cursor-pointer';
+        taskBtnA.style.borderColor = '#404040 #FFFFFF #FFFFFF #404040';
+        taskBtnA.style.boxShadow = 'none';
+
+        taskBtnB.className = 'h-[22px] w-[130px] px-1.5 flex items-center space-x-1.5 text-left truncate cursor-pointer bg-[#c0c0c0]';
+        taskBtnB.style.borderColor = '#FFFFFF #404040 #404040 #FFFFFF';
+        taskBtnB.style.backgroundImage = 'none';
+        taskBtnB.style.boxShadow = 'inset 1px 1px 0px #DFDFDF, 1px 1px 0px #000000';
+      } else if (targetId === 'window-b') {
+        // Window B Active (Foreground)
+        winA.style.zIndex = '20';
+        winB.style.zIndex = '30';
+
+        // Titlebars
+        titleB.className = 'h-[18px] px-1 bg-gradient-to-r from-selection-blue via-[#0845a5] to-[#1084D0] flex items-center justify-between text-white select-none cursor-move';
+        titleA.className = 'h-[18px] px-1 bg-gradient-to-r from-[#808080] to-[#B5B5B5] flex items-center justify-between text-black select-none';
+
+        // Taskbar Buttons
+        taskBtnB.className = 'win-btn-pressed h-[22px] w-[130px] px-1.5 flex items-center space-x-1.5 text-left truncate cursor-pointer';
+        taskBtnB.style.borderColor = '#404040 #FFFFFF #FFFFFF #404040';
+        taskBtnB.style.boxShadow = 'none';
+
+        taskBtnA.className = 'h-[22px] w-[140px] px-1.5 flex items-center space-x-1.5 text-left truncate cursor-pointer bg-[#c0c0c0]';
+        taskBtnA.style.borderColor = '#FFFFFF #404040 #404040 #FFFFFF';
+        taskBtnA.style.backgroundImage = 'none';
+        taskBtnA.style.boxShadow = 'inset 1px 1px 0px #DFDFDF, 1px 1px 0px #000000';
+      }
+    }
+
+    function toggleStartMenu() {
+      const menu = document.getElementById('start-menu-panel');
+      const startBtn = document.getElementById('btn-start');
+      if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        startBtn.style.borderColor = '#404040 #FFFFFF #FFFFFF #404040';
+      } else {
+        menu.classList.add('hidden');
+        startBtn.style.borderColor = '#FFFFFF #404040 #404040 #FFFFFF';
+      }
+    }
+
+    document.addEventListener('click', function(e) {
+      const menu = document.getElementById('start-menu-panel');
+      const startBtn = document.getElementById('btn-start');
+      if (menu && startBtn && !menu.contains(e.target) && !startBtn.contains(e.target)) {
+        menu.classList.add('hidden');
+        startBtn.style.borderColor = '#FFFFFF #404040 #404040 #FFFFFF';
+      }
+    });
+
+    // Update Clock
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+      const clockEl = document.getElementById('tray-clock');
+      if (clockEl) {
+        clockEl.textContent = `${hours}:${minutes} ${ampm}`;
+      }
+    }
+    updateClock();
+    setInterval(updateClock, 10000);
+  </script>
+</body></html>

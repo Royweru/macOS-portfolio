@@ -1,0 +1,17 @@
+@import '../styles/base.css';
+@import '../styles/tokens97.css';
+@import '../styles/bevels.css';
+@import '../styles/fonts97.css';
+@import '../styles/crt.css';
+@import '../styles/win95-kit.css';
+@import '../styles/shell97.css';
+@import '../styles/window97.css';
+@import '../styles/wallpaper.css';
+@import '../styles/boot.css';
+@import '../styles/stitch97.css';
+
+.app-loading-screen {
+  position: fixed;
+  inset: 0;
+  background: #090909;
+}

@@ -1,0 +1,9 @@
+:root {
+  --font-win97: Tahoma, 'MS Sans Serif', Arial, sans-serif;
+  --font-mono97: 'Courier New', 'Lucida Console', monospace;
+  --font-terminal97: 'Courier New', 'Lucida Console', monospace;
+}
+
+body {
+  font-family: var(--font-win97);
+}

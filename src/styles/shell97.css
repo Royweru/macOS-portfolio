@@ -1,0 +1,54 @@
+.weru-app-root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #3c8edb; }
+.shell97-viewport { position: relative; width: 100%; height: 100%; overflow: hidden; background: #3c8edb; }
+.shell97-stage { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.shell97 { position: relative; width: 100%; height: 100%; overflow: hidden; background-color: transparent; background-image: none; color: var(--w95-text); }
+.shell97-crt-overlay { position: absolute; inset: 0; z-index: 1000; pointer-events: none; background: repeating-linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, .04) 3px, rgba(0, 0, 0, .04) 4px); }
+.bliss97-wallpaper { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: #000; }
+.bliss97-sky { position: absolute; inset: 0 0 auto; height: 65%; background: linear-gradient(to bottom, #1b6ee0 0%, #4d9ef5 50%, #99cdfb 100%); }
+.bliss97-clouds { position: absolute; inset: 0 0 auto; width: 100%; height: 65%; opacity: .9; }
+.bliss97-clouds g { filter: blur(2px); }
+.bliss97-hills { position: absolute; inset: auto 0 0; height: 48%; overflow: hidden; }
+.bliss97-hills svg { display: block; width: 100%; height: 100%; }
+.desktop97 { position: absolute; inset: 0 0 var(--w95-taskbar-h); overflow: hidden; }
+.desktop97-icons { position: absolute; inset: 0; }
+.desktop97-icon { position: absolute; display: flex; width: 88px; height: 72px; flex-direction: column; align-items: center; justify-content: flex-start; gap: 0; padding: 2px; color: #fff; background: transparent; border: 1px solid transparent; text-shadow: 1px 1px #000; font: 10px/12px var(--w95-font-ui); cursor: var(--w95-cursor-pointer); }
+.desktop97-icon:hover, .desktop97-icon.selected { outline: 1px dotted #fff; background: rgba(0, 0, 128, .4); }
+.desktop97-icon.selected > span:last-child { background: #000080; outline: 1px dotted #ffff80; }
+.desktop97-icon:focus-visible { outline: 1px dotted #fff; }
+.desktop97-icon-image { width: 48px; height: 42px; display: grid; place-items: center; }
+.desktop97-context, .context97 { position: fixed; z-index: 500; min-width: 190px; padding: 2px; background: var(--w95-surface); }
+.desktop97-context button, .context97 button { display: block; width: 100%; padding: 4px 16px; border: 0; background: transparent; text-align: left; font: 11px var(--w95-font-ui); }
+.desktop97-context button:hover, .context97 button:hover { color: #fff; background: var(--w95-highlight); }
+.desktop97-context button:disabled, .start97-programs button:disabled { color: #808080; text-shadow: 1px 1px #fff; }
+.desktop97-context button:disabled:hover, .start97-programs button:disabled:hover { color: #808080; background: transparent; }
+.desktop97-context-arrow { float: right; margin-left: 24px; font-size: 9px; }
+.desktop97-context hr, .context97 hr { border: 0; border-top: 1px solid var(--w95-bevel-dark); border-bottom: 1px solid var(--w95-bevel-light); margin: 3px 2px; }
+.taskbar97 { position: absolute; inset: auto 0 0; z-index: 600; display: flex; align-items: center; gap: 8px; height: var(--w95-taskbar-h); padding: 4px 8px; background: var(--w95-taskbar-bg); border-top: 2px solid var(--w95-bevel-light); }
+.start97-button { display: flex; align-items: center; gap: 7px; height: 36px; padding: 1px 14px 1px 5px; font: 12px var(--w95-font-ui); }
+.start97-logo { display: grid; width: 30px; height: 30px; place-items: center; color: #fff; background: #008000; font: bold 20px Arial; }
+.taskbar97-divider { width: 2px; height: 20px; margin: 0 1px; border-left: 1px solid var(--w95-bevel-dark); border-right: 1px solid var(--w95-bevel-light); }
+.taskbar97-quicklaunch { display: flex; flex: 0 0 auto; align-items: center; gap: 2px; padding-right: 4px; }
+.taskbar97-quick-button { display: grid; width: 32px; height: 32px; place-items: center; padding: 2px; font: 12px var(--w95-font-ui); }
+.taskbar97-quick-button img { image-rendering: pixelated; }
+.taskbar97-windows { display: flex; flex: 1 1 0%; gap: 3px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.taskbar97-windows::-webkit-scrollbar { display: none; }
+.taskbar97-window { display: flex; flex: 1 1 160px; align-items: center; gap: 7px; min-width: 48px; max-width: 220px; height: 35px; padding: 1px 8px; text-align: left; font: 12px var(--w95-font-ui); }
+.taskbar97-window > span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.taskbar97-window.focused { border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); background: var(--w95-surface-light); }
+.taskbar97-window.minimized { background: var(--w95-surface-light); border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark); }
+.taskbar97-tray { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; white-space: nowrap; }
+.taskbar97-tray-icon { min-width: 16px; color: #000080; font: bold 10px var(--w95-font-mono); text-align: center; }
+.taskbar97-status { padding: 4px 6px; font: 10px var(--w95-font-ui); }
+.start97-backdrop { position: absolute; inset: 0 0 var(--w95-taskbar-h); z-index: 550; }
+.start97 { position: absolute; left: 0; bottom: var(--w95-taskbar-h); z-index: 700; display: flex; width: 210px; flex-direction: row; background: var(--w95-surface); box-shadow: 2px 2px 0 #000; }
+.start97-brand { display: flex; width: 28px; min-height: 220px; align-items: flex-end; justify-content: center; padding: 8px 3px; color: #fff; background: linear-gradient(180deg, #000080 0%, #1084d0 60%, #000020 100%); writing-mode: vertical-lr; transform: rotate(180deg); font: bold 16px Arial; letter-spacing: 1px; }
+.start97-brand strong { color: #c0c0c0; font-weight: normal; }
+.start97-body { flex: 1; padding: 4px 0; }
+.start97-row { display: flex; align-items: center; width: 100%; min-height: 29px; gap: 8px; padding: 5px 10px; border: 0; background: transparent; text-align: left; font: 11px var(--w95-font-ui); }
+.start97-row:hover { color: #fff; background: var(--w95-highlight); }
+.start97-row u { text-decoration: underline; }
+.start97-divider { margin: 8px 0; border-top: 1px solid var(--w95-bevel-dark); border-bottom: 1px solid var(--w95-bevel-light); }
+.start97-arrow { margin-left: auto; font-size: 9px; }
+.start97-programs { position: absolute; left: 100%; top: 4px; z-index: 5; width: 230px; padding: 3px; background: var(--w95-surface); border: 2px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); box-shadow: 2px 2px #000; }
+.start97-programs button { display: flex; align-items: center; width: 100%; min-height: 27px; gap: 7px; padding: 4px 7px; border: 0; background: transparent; text-align: left; font: 10px var(--w95-font-ui); }
+.start97-programs button:hover { color: #fff; background: var(--w95-highlight); }

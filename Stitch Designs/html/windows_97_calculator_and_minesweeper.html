@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Courier+Prime&amp;family=Space+Grotesk:wght@700&amp;family=Work+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}body{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="white" stroke="black" stroke-width="1" d="M0,0 L0,15 L4,11 L7,16 L9,15 L6,10 L11,10 Z"/></svg>'),default;user-select:none;}.scanline-overlay{pointer-events:none;background:linear-gradient(rgba(18,16,16,0) 50%,rgba(0,0,0,0.25) 50%);background-size:100% 4px;opacity:0.03;}.win-raised{border-top:1px solid #FFFFFF;border-left:1px solid #FFFFFF;border-right:1px solid #404040;border-bottom:1px solid #404040;box-shadow:inset 1px 1px 0px #DFDFDF,inset -1px -1px 0px #808080;}.win-sunken{border-top:1px solid #404040;border-left:1px solid #404040;border-right:1px solid #FFFFFF;border-bottom:1px solid #FFFFFF;box-shadow:inset 1px 1px 0px #808080,inset -1px -1px 0px #DFDFDF;}.win-icon-text{text-shadow:1px 1px 1px #000000;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-container-high": "#e8e8e8",
+          "desktop-sky-start": "#3A6EA5",
+          "error-container": "#ffdad6",
+          "desktop-grass-end": "#7EC850",
+          "secondary-fixed-dim": "#9acbff",
+          "desktop-grass-start": "#4C9A2A",
+          "on-error-container": "#93000a",
+          "surface-container-highest": "#e3e2e2",
+          "on-primary-container": "#777eea",
+          "on-secondary-container": "#00406a",
+          "outline": "#767684",
+          "on-tertiary-fixed": "#410000",
+          "on-background": "#1a1c1c",
+          "surface-tint": "#4b53bc",
+          "on-surface": "#1a1c1c",
+          "surface-variant": "#e3e2e2",
+          "error": "#ba1a1a",
+          "bevel-highlight": "#FFFFFF",
+          "inverse-primary": "#bfc2ff",
+          "surface-dim": "#dadada",
+          "system-error": "#D40000",
+          "on-tertiary-fixed-variant": "#82271c",
+          "bevel-dark-shadow": "#404040",
+          "on-secondary": "#ffffff",
+          "inverse-on-surface": "#f1f0f0",
+          "secondary": "#00629e",
+          "on-primary-fixed": "#00006e",
+          "bevel-shadow": "#808080",
+          "tertiary": "#220000",
+          "tertiary-fixed": "#ffdad4",
+          "secondary-container": "#53aefd",
+          "on-error": "#ffffff",
+          "surface-bright": "#faf9f9",
+          "on-surface-variant": "#464653",
+          "on-tertiary": "#ffffff",
+          "selection-blue": "#000080",
+          "on-tertiary-container": "#d96756",
+          "on-secondary-fixed-variant": "#004a78",
+          "inactive-title-start": "#808080",
+          "system-warning": "#FFFF00",
+          "primary-fixed": "#e0e0ff",
+          "inverse-surface": "#2f3131",
+          "on-secondary-fixed": "#001d34",
+          "on-primary-fixed-variant": "#3239a3",
+          "surface-container": "#eeeeee",
+          "tertiary-fixed-dim": "#ffb4a8",
+          "outline-variant": "#c6c5d5",
+          "folder-shadow": "#C0A860",
+          "folder-yellow": "#F8D878",
+          "secondary-fixed": "#cfe5ff",
+          "inactive-title-end": "#B5B5B5",
+          "primary-container": "#000080",
+          "on-primary": "#ffffff",
+          "primary-fixed-dim": "#bfc2ff",
+          "surface-container-low": "#f4f3f3",
+          "tertiary-container": "#4d0000",
+          "primary": "#00003c",
+          "surface-container-lowest": "#ffffff",
+          "window-body-bg": "#FFFFFF",
+          "background": "#faf9f9",
+          "surface": "#faf9f9",
+          "desktop-sky-end": "#7BB3E8"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-xs": "0.125rem",
+          "space-xl": "1rem",
+          "space-sm": "0.25rem",
+          "space-lg": "0.5rem",
+          "space-md": "0.375rem",
+          "gutter": "0.5rem",
+          "margin": "0.25rem"
+        },
+        "fontFamily": {
+          "headline-sm": [
+            "Work Sans"
+          ],
+          "label-md": [
+            "Work Sans"
+          ],
+          "headline-lg": [
+            "Space Grotesk"
+          ],
+          "body-sm": [
+            "Courier Prime"
+          ],
+          "body-md": [
+            "Courier Prime"
+          ],
+          "label-sm": [
+            "Work Sans"
+          ],
+          "label-lg": [
+            "Work Sans"
+          ]
+        },
+        "fontSize": {
+          "headline-sm": [
+            "11px",
+            {
+              "lineHeight": "14px",
+              "fontWeight": "700"
+            }
+          ],
+          "label-md": [
+            "9px",
+            {
+              "lineHeight": "12px",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-lg": [
+            "16px",
+            {
+              "lineHeight": "20px",
+              "letterSpacing": "0.05em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-sm": [
+            "10px",
+            {
+              "lineHeight": "14px",
+              "fontWeight": "400"
+            }
+          ],
+          "body-md": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "fontWeight": "400"
+            }
+          ],
+          "label-sm": [
+            "8px",
+            {
+              "lineHeight": "10px",
+              "fontWeight": "400"
+            }
+          ],
+          "label-lg": [
+            "11px",
+            {
+              "lineHeight": "14px",
+              "fontWeight": "700"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-[#3A6EA5] text-on-surface select-none relative min-h-screen overflow-x-hidden"><div class="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-desktop-sky-start via-desktop-sky-end to-desktop-grass-start"><div class="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-desktop-grass-start via-desktop-grass-end to-transparent opacity-90"></div></div><div class="fixed inset-0 z-10 scanline-overlay"></div><header class="fixed top-0 left-0 right-0 h-8 z-40 bg-surface-container win-raised flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><div class="w-3 h-3 bg-primary-container win-sunken"></div><span class="font-label-lg text-label-lg text-primary uppercase font-bold tracking-wider">Microsoft Windows 97</span></div><div class="flex items-center gap-space-lg"><span class="font-body-sm text-body-sm text-on-surface-variant">v4.10.1997</span><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><aside class="fixed left-0 top-8 bottom-7 w-20 z-20 flex flex-col pt-space-md pb-space-lg px-space-xs overflow-hidden"><nav class="flex flex-col gap-space-md items-center" data-active-classes="bg-selection-blue text-on-primary font-bold"><a class="w-16 h-16 flex flex-col items-center justify-center p-space-xs text-center group" data-path="desktop" href="#"><span class="material-symbols-outlined text-[#00629e] group-hover:scale-105 transition-transform">computer</span><span class="font-label-md text-label-md text-on-primary win-icon-text mt-space-xs leading-tight">My Computer</span></a><a class="w-16 h-16 flex flex-col items-center justify-center p-space-xs text-center group" data-path="my-documents" href="#"><span class="material-symbols-outlined text-folder-yellow group-hover:scale-105 transition-transform">folder</span><span class="font-label-md text-label-md text-on-primary win-icon-text mt-space-xs leading-tight">My Documents</span></a><a class="w-16 h-16 flex flex-col items-center justify-center p-space-xs text-center group" data-path="projects" href="#"><span class="material-symbols-outlined text-folder-yellow group-hover:scale-105 transition-transform">folder_special</span><span class="font-label-md text-label-md text-on-primary win-icon-text mt-space-xs leading-tight">Projects</span></a><a class="w-16 h-16 flex flex-col items-center justify-center p-space-xs text-center group" data-path="videos" href="#"><span class="material-symbols-outlined text-[#9acbff] group-hover:scale-105 transition-transform">movie</span><span class="font-label-md text-label-md text-on-primary win-icon-text mt-space-xs leading-tight">Videos</span></a><a class="w-16 h-16 flex flex-col items-center justify-center p-space-xs text-center group" data-path="my-music" href="#"><span class="material-symbols-outlined text-[#ffb4a8] group-hover:scale-105 transition-transform">queue_music</span><span class="font-label-md text-label-md text-on-primary win-icon-text mt-space-xs leading-tight">My Music</span></a><a class="w-16 h-16 flex flex-col items-center justify-center p-space-xs text-center group" data-path="internet-explorer" href="#"><span class="material-symbols-outlined text-secondary group-hover:scale-105 transition-transform">public</span><span class="font-label-md text-label-md text-on-primary win-icon-text mt-space-xs leading-tight">Internet Explorer</span></a><a aria-current="page" class="w-16 h-16 flex flex-col items-center justify-center p-space-xs group bg-selection-blue text-on-primary font-bold" data-path="games" href="#"><span class="material-symbols-outlined text-[#4C9A2A] group-hover:scale-105 transition-transform">sports_esports</span><span class="font-label-md text-label-md text-on-primary win-icon-text mt-space-xs leading-tight">Games</span></a><a class="w-16 h-16 flex flex-col items-center justify-center p-space-xs text-center group" data-path="recycle-bin" href="#"><span class="material-symbols-outlined text-surface-container-highest group-hover:scale-105 transition-transform">delete</span><span class="font-label-md text-label-md text-on-primary win-icon-text mt-space-xs leading-tight">Recycle Bin</span></a></nav></aside><div class="pl-20 relative z-20 pb-7"><main class="w-full pt-8 min-h-screen px-space-lg"><div class="flex flex-col w-full relative select-none">
+<!-- Desktop Workspace Area: 100% retro monitor composition with two draggable/layered windows -->
+<div class="relative w-full min-h-[calc(100vh-4.5rem)] overflow-hidden p-space-md flex flex-wrap items-start content-start gap-space-lg">
+<!-- Retro System Tip Note Window (Pinned classic post-it / Readme popup) -->
+<div class="absolute right-6 top-4 w-72 bg-surface-container win-raised z-20 shadow-md">
+<div class="h-[18px] bg-gradient-to-r from-inactive-title-start to-inactive-title-end px-space-xs flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-on-primary">
+<span class="material-symbols-outlined text-[12px] text-system-warning">sticky_note_2</span>
+<span class="font-headline-sm text-headline-sm text-on-primary tracking-tight font-bold">Accessories_Tips.txt</span>
+</div>
+<div class="flex items-center gap-[1px]">
+<button class="w-[14px] h-[13px] bg-surface-container win-raised flex items-center justify-center text-[9px] font-bold leading-none active:win-sunken" type="button">_</button>
+<button class="w-[14px] h-[13px] bg-surface-container win-raised flex items-center justify-center text-[9px] font-bold leading-none active:win-sunken" type="button">×</button>
+</div>
+</div>
+<div class="p-space-md bg-[#FFFCE8] win-sunken text-on-surface">
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="font-headline-sm text-headline-sm text-selection-blue font-bold uppercase">WINDOWS 97 ACCESSORIES</span>
+</div>
+<p class="font-body-sm text-body-sm leading-tight text-on-surface">
+          calc.exe &amp; winmine.exe active. Click keypad buttons to calculate, or mine-cells to toggle flag and step into the 9x9 Beginner minefield.
+        </p>
+<div class="mt-space-md flex justify-between items-center text-[8px] font-body-sm text-on-surface-variant">
+<span>MEM: 16.0 MB RAM OK</span>
+<span class="font-bold text-system-error">STATUS: READY</span>
+</div>
+</div>
+</div>
+<!-- WINDOW 1: Calculator (calc.exe) - Active In Front -->
+<div class="relative z-30 w-[278px] bg-surface-container win-raised select-none mb-space-xl" id="calc-win">
+<!-- Title Bar: Active Navy Gradient #000080 to #1084D0 -->
+<div class="h-[18px] bg-gradient-to-r from-selection-blue to-[#1084D0] px-space-xs flex items-center justify-between cursor-default">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[13px] text-on-primary">calculate</span>
+<span class="font-headline-sm text-headline-sm text-on-primary font-bold tracking-tight">Calculator</span>
+</div>
+<div class="flex items-center gap-[1px]">
+<button class="w-[14px] h-[13px] bg-surface-container win-raised flex items-center justify-center font-label-md text-label-md leading-none text-on-surface active:win-sunken" type="button">_</button>
+<button class="w-[14px] h-[13px] bg-surface-container win-raised flex items-center justify-center font-label-md text-label-md leading-none text-on-surface active:win-sunken" type="button">□</button>
+<button class="w-[14px] h-[13px] bg-surface-container win-raised flex items-center justify-center font-label-md text-label-md font-bold leading-none text-on-surface active:win-sunken" type="button">×</button>
+</div>
+</div>
+<!-- Menu Bar: Edit | View | Help -->
+<div class="h-[18px] bg-surface-container flex items-center gap-space-md px-space-sm font-label-md text-label-md text-on-surface">
+<span class="hover:bg-selection-blue hover:text-on-primary px-space-xs cursor-default"><span class="underline">E</span>dit</span>
+<span class="hover:bg-selection-blue hover:text-on-primary px-space-xs cursor-default"><span class="underline">V</span>iew</span>
+<span class="hover:bg-selection-blue hover:text-on-primary px-space-xs cursor-default"><span class="underline">H</span>elp</span>
+</div>
+<!-- Calculator Interior Client Panel -->
+<div class="p-space-md bg-surface-container flex flex-col gap-space-md">
+<!-- Sunken LCD Display -->
+<div class="w-full bg-surface-container-lowest win-sunken px-space-md py-space-xs flex items-center justify-end overflow-hidden">
+<span class="font-body-md text-headline-lg font-bold text-on-surface tracking-tight" id="calc-display">3.14159</span>
+</div>
+<!-- Upper Edit Row: Empty indicator well + [Back], [CE], [C] -->
+<div class="grid grid-cols-5 gap-space-sm items-center">
+<div class="h-6 bg-surface-container win-sunken flex items-center justify-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold">M</span>
+</div>
+<div class="col-span-1"></div>
+<button class="h-6 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" onclick="calcAppend('B')" type="button">Back</button>
+<button class="h-6 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" onclick="calcAppend('CE')" type="button">CE</button>
+<button class="h-6 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" onclick="calcClear()" type="button">C</button>
+</div>
+<!-- Keypad Core Grid -->
+<div class="grid grid-cols-5 gap-space-sm">
+<!-- Column 1: Memory Keys in Red -->
+<div class="flex flex-col gap-space-sm">
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" type="button">MC</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" type="button">MR</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" type="button">MS</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" type="button">M+</button>
+</div>
+<!-- Columns 2 to 5: Numerical and Operator Matrix -->
+<div class="col-span-4 grid grid-cols-4 gap-space-sm">
+<!-- Row 1 -->
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('7')" type="button">7</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('8')" type="button">8</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('9')" type="button">9</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" onclick="calcNum('/')" type="button">/</button>
+<!-- Row 2 -->
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('4')" type="button">4</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('5')" type="button">5</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('6')" type="button">6</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" onclick="calcNum('*')" type="button">*</button>
+<!-- Row 3 -->
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('1')" type="button">1</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('2')" type="button">2</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('3')" type="button">3</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" onclick="calcNum('-')" type="button">-</button>
+<!-- Row 4 -->
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('0')" type="button">0</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('+/-')" type="button">+/-</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-selection-blue font-bold active:win-sunken" onclick="calcNum('.')" type="button">.</button>
+<button class="h-7 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" onclick="calcNum('+')" type="button">+</button>
+</div>
+</div>
+<!-- Single row for [sqrt], [%], [1/x], [=] -->
+<div class="grid grid-cols-4 gap-space-sm">
+<button class="h-6 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-secondary font-bold active:win-sunken" onclick="calcNum('sqrt')" type="button">sqrt</button>
+<button class="h-6 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-secondary font-bold active:win-sunken" onclick="calcNum('%')" type="button">%</button>
+<button class="h-6 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-secondary font-bold active:win-sunken" onclick="calcNum('1/x')" type="button">1/x</button>
+<button class="h-6 bg-surface-container win-raised flex items-center justify-center font-headline-sm text-headline-sm text-system-error font-bold active:win-sunken" onclick="calcEquals()" type="button">=</button>
+</div>
+</div>
+</div>
+<!-- WINDOW 2: Minesweeper (winmine.exe) - Overlapping / Companion Window -->
+<div class="relative z-20 w-[242px] bg-surface-container win-raised select-none -ml-4 mt-8 md:mt-2 md:-ml-6 shadow-xl" id="mine-win">
+<!-- Title Bar: Inactive/Secondary Retro Gradient -->
+<div class="h-[18px] bg-gradient-to-r from-selection-blue to-[#1084D0] px-space-xs flex items-center justify-between cursor-default">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[13px] text-on-primary">grid_on</span>
+<span class="font-headline-sm text-headline-sm text-on-primary font-bold tracking-tight">Minesweeper</span>
+</div>
+<div class="flex items-center gap-[1px]">
+<button class="w-[14px] h-[13px] bg-surface-container win-raised flex items-center justify-center font-label-md text-label-md leading-none text-on-surface active:win-sunken" type="button">_</button>
+<button class="w-[14px] h-[13px] bg-surface-container win-raised flex items-center justify-center font-label-md text-label-md leading-none text-on-surface active:win-sunken" type="button">□</button>
+<button class="w-[14px] h-[13px] bg-surface-container win-raised flex items-center justify-center font-label-md text-label-md font-bold leading-none text-on-surface active:win-sunken" type="button">×</button>
+</div>
+</div>
+<!-- Menu Bar: Game | Help -->
+<div class="h-[18px] bg-surface-container flex items-center gap-space-md px-space-sm font-label-md text-label-md text-on-surface">
+<span class="hover:bg-selection-blue hover:text-on-primary px-space-xs cursor-default"><span class="underline">G</span>ame</span>
+<span class="hover:bg-selection-blue hover:text-on-primary px-space-xs cursor-default"><span class="underline">H</span>elp</span>
+</div>
+<!-- Game Board Container with thick retro border -->
+<div class="p-space-md bg-surface-container flex flex-col gap-space-md">
+<!-- Sunken Top Status Dashboard -->
+<div class="bg-surface-container win-sunken p-space-sm flex items-center justify-between">
+<!-- 3-digit Mine Remaining Counter (Red 7-segment style) -->
+<div class="bg-black win-sunken px-space-sm py-[1px] flex items-center justify-center">
+<span class="font-body-md text-headline-sm font-bold text-system-error tracking-widest">010</span>
+</div>
+<!-- Smiley Reset Face Button (Click to reset) -->
+<button class="w-6 h-6 bg-surface-container win-raised flex items-center justify-center active:win-sunken" id="smile-btn" onclick="resetMinefield()" type="button">
+<div class="w-4 h-4 rounded-full bg-system-warning flex flex-col items-center justify-center p-[1px]">
+<div class="flex justify-between w-2.5 px-[1px]">
+<div class="w-0.5 h-0.5 bg-black"></div>
+<div class="w-0.5 h-0.5 bg-black"></div>
+</div>
+<div class="w-2 h-0.5 bg-black mt-0.5 rounded-full"></div>
+</div>
+</button>
+<!-- 3-digit Elapsed Seconds Counter -->
+<div class="bg-black win-sunken px-space-sm py-[1px] flex items-center justify-center">
+<span class="font-body-md text-headline-sm font-bold text-system-error tracking-widest" id="mine-timer">042</span>
+</div>
+</div>
+<!-- Sunken 9x9 Classic Minefield Grid -->
+<div class="bg-surface-container win-sunken p-space-xs flex justify-center">
+<div class="grid grid-cols-9 gap-0 bg-[#808080] p-[1px]">
+<!-- Row 1 -->
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-desktop-grass-start">2</div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<!-- Row 2 -->
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default">
+<!-- Flagged Square -->
+<span class="material-symbols-outlined text-[12px] text-system-error">flag</span>
+</div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-desktop-grass-start">2</div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<!-- Row 3 -->
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<!-- Row 4 -->
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center"></div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center"></div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<!-- Row 5 -->
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center"></div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<!-- Row 6 -->
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center"></div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<!-- Clicked Mine Explosion Tile in Red -->
+<div class="w-5 h-5 bg-system-error win-sunken flex items-center justify-center">
+<span class="material-symbols-outlined text-[13px] text-black">emergency</span>
+</div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-system-error">3</div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<!-- Row 7 -->
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center"></div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-selection-blue">1</div>
+<div class="w-5 h-5 bg-surface-container-high win-sunken flex items-center justify-center font-headline-sm text-headline-sm font-bold text-desktop-grass-start">2</div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<!-- Row 8 -->
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<!-- Row 9 -->
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+<div class="w-5 h-5 bg-surface-container win-raised flex items-center justify-center cursor-default"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive JavaScript logic for retro accessories -->
+<script>
+    var currentCalc = '3.14159';
+    var resetNext = true;
+
+    function calcNum(val) {
+      var d = document.getElementById('calc-display');
+      if (!d) return;
+      if (resetNext) {
+        currentCalc = '';
+        resetNext = false;
+      }
+      if (val === '+/-') {
+        if (currentCalc.startsWith('-')) {
+          currentCalc = currentCalc.substring(1);
+        } else {
+          currentCalc = '-' + currentCalc;
+        }
+      } else if (val === 'sqrt') {
+        var num = parseFloat(currentCalc || '0');
+        currentCalc = String(Math.sqrt(num));
+        resetNext = true;
+      } else if (val === '1/x') {
+        var num = parseFloat(currentCalc || '1');
+        currentCalc = String(1 / num);
+        resetNext = true;
+      } else {
+        currentCalc += val;
+      }
+      d.innerText = currentCalc || '0';
+    }
+
+    function calcAppend(action) {
+      var d = document.getElementById('calc-display');
+      if (!d) return;
+      if (action === 'B') {
+        currentCalc = currentCalc.slice(0, -1);
+      } else if (action === 'CE') {
+        currentCalc = '0';
+        resetNext = true;
+      }
+      d.innerText = currentCalc || '0';
+    }
+
+    function calcClear() {
+      currentCalc = '0';
+      resetNext = true;
+      var d = document.getElementById('calc-display');
+      if (d) d.innerText = '0';
+    }
+
+    function calcEquals() {
+      var d = document.getElementById('calc-display');
+      if (!d) return;
+      try {
+        var sanitized = currentCalc.replace(/[^0-9+\-*/.]/g, '');
+        var res = Function('"use strict";return (' + sanitized + ')')();
+        currentCalc = String(res);
+        d.innerText = currentCalc;
+        resetNext = true;
+      } catch (e) {
+        d.innerText = 'Error';
+        resetNext = true;
+      }
+    }
+
+    function resetMinefield() {
+      var timer = document.getElementById('mine-timer');
+      if (timer) timer.innerText = '000';
+      var smile = document.getElementById('smile-btn');
+      if (smile) {
+        smile.classList.add('win-sunken');
+        setTimeout(function() {
+          smile.classList.remove('win-sunken');
+          smile.classList.add('win-raised');
+        }, 150);
+      }
+    }
+  </script>
+</div></main></div><footer class="fixed bottom-0 inset-x-0 h-7 z-50 bg-surface-container win-raised flex items-center justify-between px-space-sm"><div class="flex items-center gap-space-sm h-full"><button class="h-5 px-space-md bg-surface-container win-raised flex items-center gap-space-xs active:win-sunken" type="button"><div class="w-3.5 h-3.5 grid grid-cols-2 gap-[1px] p-[1px] bg-background win-sunken"><span class="bg-system-error"></span><span class="bg-desktop-grass-start"></span><span class="bg-secondary"></span><span class="bg-system-warning"></span></div><span class="font-headline-sm text-headline-sm text-on-surface font-bold">Start</span></button><div class="h-4 w-[1px] bg-bevel-shadow border-r border-bevel-highlight mx-space-xs"></div><div class="flex items-center gap-space-xs"><button class="h-5 px-space-md min-w-[120px] bg-surface-container win-sunken flex items-center gap-space-xs" type="button"><span class="material-symbols-outlined text-[13px] text-on-surface">calculate</span><span class="font-label-lg text-label-lg text-on-surface truncate font-bold">Calculator</span></button><button class="h-5 px-space-md min-w-[120px] bg-surface-container win-sunken flex items-center gap-space-xs" type="button"><span class="material-symbols-outlined text-[13px] text-on-surface">grid_on</span><span class="font-label-lg text-label-lg text-on-surface truncate font-bold">Minesweeper</span></button></div></div><div class="h-5 px-space-md bg-surface-container win-sunken flex items-center gap-space-md"><span class="material-symbols-outlined text-[13px] text-on-surface">volume_up</span><span class="font-body-sm text-body-sm text-on-surface font-bold tracking-tight">8:52 PM</span></div></footer></body></html>

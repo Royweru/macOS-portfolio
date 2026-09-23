@@ -4,17 +4,17 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { Code2, Github, Linkedin, Mail, Search, X } from 'lucide-react';
 import projectsData from '../../data/projects_data.json';
 import type { WindowId } from '../../types';
 import { WINDOW_CONFIGS } from '../../constants';
-import './spotlight.css';
+import AppIcon from '../AppIcon';
 
 interface SpotlightResult {
   id: string;
   label: string;
   subtitle: string;
-  icon: string;
+  icon: React.ReactNode;
   action: () => void;
 }
 
@@ -56,7 +56,7 @@ const Spotlight: React.FC<SpotlightProps> = ({ isOpen, onClose, onOpenWindow }) 
         id: `win-${id}`,
         label: WINDOW_CONFIGS[id].title,
         subtitle: 'Open window',
-        icon: WINDOW_CONFIGS[id].icon,
+        icon: <AppIcon appId={id} size={19} />,
         action: () => { onOpenWindow(id); onClose(); },
       }));
 
@@ -72,14 +72,14 @@ const Spotlight: React.FC<SpotlightProps> = ({ isOpen, onClose, onOpenWindow }) 
         id: `proj-${p.id}`,
         label: p.title,
         subtitle: `${p.tag} · ${p.tech.slice(0, 2).join(', ')}`,
-        icon: p.icon,
+        icon: <Code2 size={19} color="#0067c0" />,
         action: () => { onOpenWindow('projects'); onClose(); },
       }));
 
     const quickActions: SpotlightResult[] = q === '' ? [] : [
-      { id: 'qa-contact',  label: 'Contact Weru',     subtitle: 'Open contact form', icon: '✉️', action: () => { onOpenWindow('contact'); onClose(); } },
-      { id: 'qa-github',   label: 'View GitHub',      subtitle: 'github.com/weru',   icon: '🐙', action: () => { window.open('https://github.com/weru','_blank'); onClose(); } },
-      { id: 'qa-linkedin', label: 'View LinkedIn',    subtitle: 'linkedin.com/in/weru', icon: '💼', action: () => { window.open('https://linkedin.com/in/weru','_blank'); onClose(); } },
+      { id: 'qa-contact',  label: 'Contact Weru',     subtitle: 'Open contact form', icon: <Mail size={19} color="#3f4f5f" />, action: () => { onOpenWindow('contact'); onClose(); } },
+      { id: 'qa-github',   label: 'View GitHub',      subtitle: 'github.com/weru',   icon: <Github size={19} />, action: () => { window.open('https://github.com/weru','_blank'); onClose(); } },
+      { id: 'qa-linkedin', label: 'View LinkedIn',    subtitle: 'linkedin.com/in/weru', icon: <Linkedin size={19} color="#0067c0" />, action: () => { window.open('https://linkedin.com/in/weru','_blank'); onClose(); } },
     ].filter(a => a.label.toLowerCase().includes(q) || a.subtitle.toLowerCase().includes(q));
 
     return [...windowResults, ...projectResults, ...quickActions];
@@ -134,7 +134,7 @@ const Spotlight: React.FC<SpotlightProps> = ({ isOpen, onClose, onOpenWindow }) 
                 onKeyDown={handleKey}
               />
               {query && (
-                <button className="spotlight-clear" onClick={() => setQuery('')}>⌫</button>
+                <button className="spotlight-clear" onClick={() => setQuery('')} aria-label="Clear search"><X size={14} /></button>
               )}
             </div>
 
@@ -151,7 +151,7 @@ const Spotlight: React.FC<SpotlightProps> = ({ isOpen, onClose, onOpenWindow }) 
                     onMouseEnter={() => setSelected(i)}
                     onClick={r.action}
                   >
-                    <span className="spotlight-result-icon">{r.icon}</span>
+                <span className="spotlight-result-icon">{r.icon}</span>
                     <div className="spotlight-result-text">
                       <span className="spotlight-result-label">{r.label}</span>
                       <span className="spotlight-result-sub">{r.subtitle}</span>
@@ -167,7 +167,7 @@ const Spotlight: React.FC<SpotlightProps> = ({ isOpen, onClose, onOpenWindow }) 
             {/* Empty state */}
             {query && results.length === 0 && (
               <div className="spotlight-empty">
-                <span className="text-3xl">🔍</span>
+                <Search size={28} className="text-slate-400" />
                 <span>No results for "<strong>{query}</strong>"</span>
               </div>
             )}

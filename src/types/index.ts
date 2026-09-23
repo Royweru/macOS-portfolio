@@ -3,7 +3,7 @@
 // Import from here — never redeclare inline in components.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type WindowId = 'about' | 'projects' | 'experience' | 'skills' | 'contact';
+export type WindowId = 'about' | 'projects' | 'project-detail' | 'media-player' | 'experience' | 'skills' | 'contact' | 'explorer' | 'recycle-bin' | 'terminal' | 'notepad' | 'settings' | 'photos' | 'mail' | 'ie4' | 'paint' | 'cd-player' | 'calculator' | 'minesweeper' | 'msdos' | 'system-properties' | 'control-panel' | 'run' | 'find' | 'shutdown' | 'system-warning';
 export type ViewMode  = 'grid' | 'list';
 export type TagFilter = 'main' | 'recent' | 'starred' | 'design' | 'dev' | 'ai' | 'archived';
 
@@ -15,6 +15,8 @@ export interface WindowConfig {
   h: number;
   ox?: number;   // x offset from center
   oy?: number;   // y offset from center
+  centered?: boolean;
+  verticalBias?: number;
   hasSidebar?: boolean;
   hasViewControls?: boolean;
 }
