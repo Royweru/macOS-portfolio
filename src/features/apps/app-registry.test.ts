@@ -12,5 +12,6 @@ describe('Win97 application registry', () => {
     expect(resolveAppForExtension('demo.bmp')?.id).toBe('paint');
     expect(resolveAppForExtension('demo.wav')?.id).toBe('media-player');
     expect(resolveAppForExtension('demo.mid')?.id).toBe('cd-player');
+    expect(resolveAppForExtension('README.md')?.id).toBe('notepad');
   });
 });

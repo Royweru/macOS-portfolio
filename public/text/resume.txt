@@ -1,0 +1,94 @@
+ROY MATHERI WAWERU
+Full-Stack Developer | Agentic AI Engineer
+Nairobi, Kenya
+weruroy347@gmail.com | +254 759 355 344
+github.com/Royweru | linkedin.com/in/roy-matheri
+
+
+SUMMARY
+----------------------------------------------------------------
+Full-stack and agentic AI engineer who builds LangGraph agents
+and payment-connected systems for the Kenyan market:
+offline-first POS, M-Pesa, WhatsApp bots. Python/FastAPI and
+TypeScript/Next.js, self-hosted on Linux. Looking for remote
+contract or full-time roles.
+
+
+SKILLS
+----------------------------------------------------------------
+Agentic AI : LangGraph, LangChain, RAG, ChromaDB, pgvector
+Backend    : Python, FastAPI, Celery, Redis, Playwright, httpx
+Frontend   : TypeScript, JavaScript, Next.js, React, Tailwind
+Data       : PostgreSQL (Neon), SQLite
+Desktop    : C#, Avalonia UI; Android (Java)
+Kenya      : M-Pesa Daraja, Africa's Talking, KRA eTIMS
+Infra      : Linux, Hetzner VPS, Nginx, systemd, Certbot
+
+
+PROJECTS
+----------------------------------------------------------------
+MoniePal - offline-first, multi-branch POS
+C#/Avalonia, FastAPI, Next.js, Neon PostgreSQL, SQLite
+  * Event-sourced: tills write every sale to local SQLite and
+    sync when online, so trading continues through outages.
+  * M-Pesa STK Push and C2B via Daraja; callbacks reach the till
+    over WebSockets instead of polling, so payment confirmation
+    and receipt are near-instant.
+  * KRA eTIMS integration, one dashboard for all tills and
+    branches, and bulk promotional messaging.
+
+KontentPyper - autonomous content and lead-gen pipeline
+LangGraph, LangChain, FastAPI, React, PostgreSQL, Celery, Redis
+  * Scrapes trending topics from X and Reddit, drafts posts and
+    produces video (HeyGen + FFmpeg with captions).
+  * Publishes to X (hand-built OAuth 1.0a), LinkedIn and Meta.
+  * Lead-gen and cold-email pipeline: Google Maps Places,
+    LinkedIn scraping, Hunter.io enrichment, Resend.
+
+GigaClaw - autonomous job-application agent
+LangGraph, LangChain, OpenAI, Playwright, Typer, Pydantic
+  * Five-node pipeline: scrape, match, tailor, apply, report.
+  * Tailoring quality gate, human approval by default, and hard
+    caps on live submissions per run and per day.
+
+M-Afya - WhatsApp health-monitoring agent
+LangGraph, FastAPI, ChromaDB (RAG), Africa's Talking, ReportLab
+  * Interprets blood pressure and blood sugar readings sent over
+    WhatsApp, grounded in a retrieval knowledge base.
+  * Generates PDF reports. Built for a pharmacy; self-hosted on
+    a Hetzner VPS.
+
+PyTutor AI - six-node LangGraph tutoring system
+  * pgvector RAG with two-layer PostgresSaver / PostgresStore
+    memory.
+
+Also built: fmitt (daily Linux newsletter on FastAPI + Neon,
+with SPF/DKIM/DMARC), Caption Studio (Whisper captioning), and
+the Android apps JifunzeAI (CBC quiz) and KCA Alert, both in
+Java.
+
+
+EXPERIENCE
+----------------------------------------------------------------
+Independent Developer and Automations Consultant   Present
+  * Building POS, booking and automation products for Kenyan
+    SMEs and running outreach to win clients.
+
+IT Attachment, Kenyatta University                 2026
+  * 12 weeks in the IT Labs department: machine maintenance and
+    networking tasks.
+
+Junior Designer, Africa Media                      2024
+  * UI/UX work under a senior designer: typography, colour and
+    design consistency.
+
+Software Engineering Intern, Yashio Kenya          Apr-Aug 2023
+  * Worked in TypeScript alongside experienced developers and
+    fixed bugs in the existing codebase.
+
+
+EDUCATION
+----------------------------------------------------------------
+BSc in ICT, KCA University, Nairobi                2022 - 2026
+Certificate in Software Engineering, Emobilis      2023
+Technology Institute

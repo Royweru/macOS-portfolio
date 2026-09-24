@@ -22,6 +22,8 @@ export interface VfsNode {
   mimeType: string;
   appId?: string;
   content?: string;
+  /** Same-origin public text asset loaded by the owning app on demand. */
+  contentUrl?: string;
   size: number;
   createdAt: string;
   updatedAt: string;

@@ -282,7 +282,8 @@ export const createWin97Nodes = () => {
 
   const documentNodeIds: Record<string, string> = { about: 'file-about-me', skills: 'file-skills', experience: 'file-experience', resume: 'file-resume' };
   nodes.push(...DOCUMENTS.map((document) => ({
-    ...createFile(documentNodeIds[document.id] ?? `file-${document.id}`, myDocumentsId, document.filename, document.content, 'text/plain', 'notepad'),
+    ...createFile(documentNodeIds[document.id] ?? `file-${document.id}`, myDocumentsId, document.filename, '', 'text/plain', 'notepad'),
+    contentUrl: document.src,
     isSystem: document.readOnly,
     isReadOnly: document.readOnly,
   })));
@@ -292,7 +293,12 @@ export const createWin97Nodes = () => {
     nodes.push(createFolder(projectId, projectsId, project.folderName));
 
     if (project.readme) {
-      nodes.push(createFile(`${projectId}-readme`, projectId, 'README.txt', project.readme, 'text/plain', 'notepad'));
+      nodes.push({
+        ...createFile(`${projectId}-readme`, projectId, 'README.md', '', 'text/markdown', 'notepad'),
+        contentUrl: project.readme,
+        isSystem: true,
+        isReadOnly: true,
+      });
     }
 
     if (project.skillsUsed && project.skillsUsed.length > 0) {
@@ -464,7 +470,12 @@ async function migrateWin97Layout() {
 
     for (const node of nodes) {
       const existing = await filesystemDb.nodes.get(node.id);
-      if (!existing || node.isSystem || node.kind === 'folder') await filesystemDb.nodes.put(node);
+      if (!existing || node.isSystem || node.kind === 'folder') {
+        const nextNode = node.contentUrl && existing?.contentUrl === node.contentUrl && existing.content
+          ? { ...node, content: existing.content, size: existing.size, createdAt: existing.createdAt }
+          : node;
+        await filesystemDb.nodes.put(nextNode);
+      }
     }
     // These app-owned assets must remain discoverable even in a profile whose
     // original seed predates the Pictures library. Reconcile only these stable
@@ -554,7 +565,7 @@ const seedLegacyFilesystem = async () => {
       isSystem: true,
       isReadOnly: true,
     },
-    ...PORTFOLIO_DOCUMENTS.map(document => ({ ...createFile(document.id, desktopId, document.name, document.content, 'text/plain', 'notepad'), isSystem: true, isReadOnly: true })),
+    ...PORTFOLIO_DOCUMENTS.map(document => ({ ...createFile(document.id, desktopId, document.name, '', 'text/plain', 'notepad'), contentUrl: document.contentUrl, isSystem: true, isReadOnly: true })),
     createShortcut(VIRTUAL_NODE_IDS.desktopThisPcShortcut, desktopId, 'This PC.lnk', ROOT_ID, VIRTUAL_PATHS.drive),
     createShortcut(VIRTUAL_NODE_IDS.desktopProjectsShortcut, desktopId, 'Projects.lnk', projectsId, VIRTUAL_PATHS.projects),
     createShortcut(VIRTUAL_NODE_IDS.desktopContactShortcut, desktopId, 'Contact.lnk', undefined, undefined, 'mail'),
@@ -651,9 +662,9 @@ async function migrateFilesystemLayout() {
       const byId = await filesystemDb.nodes.get(document.id);
       const legacy = byId ?? await filesystemDb.nodes.where('parentId').equals(profileId).filter(node => node.kind === 'file' && node.name.toLowerCase() === document.name.toLowerCase()).first();
       if (legacy) {
-        await filesystemDb.nodes.put({ ...legacy, id: document.id, parentId: desktop.id, name: document.name, content: legacy.content || document.content, appId: 'notepad', isSystem: true, isReadOnly: true, updatedAt: now() });
+        await filesystemDb.nodes.put({ ...legacy, id: document.id, parentId: desktop.id, name: document.name, contentUrl: document.contentUrl, content: legacy.content ?? '', appId: 'notepad', isSystem: true, isReadOnly: true, updatedAt: now() });
       } else {
-        await filesystemDb.nodes.put({ ...createFile(document.id, desktop.id, document.name, document.content), isSystem: true, isReadOnly: true });
+        await filesystemDb.nodes.put({ ...createFile(document.id, desktop.id, document.name, '', 'text/plain', 'notepad'), contentUrl: document.contentUrl, isSystem: true, isReadOnly: true });
       }
     }
     for (const project of projectsData) {
@@ -750,7 +761,7 @@ export const createFolderNode = async (parentId: string, name: string) => {
 
 export const createTextFileNode = async (parentId: string, name: string, content = '') => {
   const id = `file-${crypto.randomUUID()}`;
-  const node = createFile(id, parentId, name, content);
+  const node = createFile(id, parentId, name, content, name.toLowerCase().endsWith('.md') ? 'text/markdown' : 'text/plain', 'notepad');
   await filesystemDb.nodes.add(node);
   return node;
 };
@@ -834,6 +845,13 @@ export const updateTextFile = async (id: string, content: string) => {
   const updated = { ...node, content, size: content.length, updatedAt: now() };
   await filesystemDb.nodes.put(updated);
   return updated;
+};
+
+/** Cache fetched, read-only public text assets in IndexedDB for repeat and offline reads. */
+export const cacheTextAssetContent = async (id: string, content: string) => {
+  const node = await filesystemDb.nodes.get(id);
+  if (!node || node.kind !== 'file' || !node.contentUrl || !['text/plain', 'text/markdown'].includes(node.mimeType)) return;
+  await filesystemDb.nodes.put({ ...node, content, size: content.length, updatedAt: now() });
 };
 
 export const deleteNodeToTrash = async (id: string) => {

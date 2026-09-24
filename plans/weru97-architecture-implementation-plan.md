@@ -72,7 +72,7 @@ export interface ProjectDefinition {
   color?: string;
   accent?: string;
   icon?: string;
-  readme?: string;                 // OPTIONAL -> seeds README.txt
+  readme?: string;                 // OPTIONAL same-origin .md asset path -> seeds a linked README.md
   skillsUsed?: string[];           // OPTIONAL -> seeds skills-used.txt
   techStack?: ProjectTechStack;    // OPTIONAL -> seeds tech-stack.spec
   github?: string | null;          // OPTIONAL -> convenience fallback for sourceCode
@@ -83,7 +83,7 @@ export interface ProjectDefinition {
 
 ### 2. Dynamic Virtual Filesystem Seeding (`filesystem-service.ts`)
 When Weru 97 builds the folder for each project (`C:\Projects\[folderName]\`), it inspects the definition and **only creates files that actually exist**:
-* If `project.readme` is provided ➔ creates `README.txt` (opens in Notepad).
+* If `project.readme` is provided ➔ creates a read-only `README.md` VFS node whose `contentUrl` points to the same-origin Markdown asset (opens in Notepad; content is fetched and cached, not duplicated in the manifest).
 * If `project.skillsUsed` is provided ➔ creates `skills-used.txt` (opens in Notepad).
 * If `project.techStack` is provided ➔ creates `tech-stack.spec` (opens in System Properties / Notepad).
 * If `project.files?.demo` is provided ➔ creates `demo.avi` (with `media` metadata ➔ opens in Media Player 6.4).
@@ -91,6 +91,8 @@ When Weru 97 builds the folder for each project (`C:\Projects\[folderName]\`), i
 * If `project.files?.audio` is provided ➔ creates `soundtrack.wav` (opens in CD Player).
 * If `project.files?.sourceCode` or `project.github` is provided ➔ creates `source-code.url` (opens in IE4).
 * If `project.files?.liveSite` or `project.live` is provided ➔ creates `live-site.url` (opens in IE4).
+
+Project README and personal profile document contents belong in standalone files under `public/text/`. `PROJECTS[].readme` and `DOCUMENTS[].src` contain only their public paths. Personal document VFS entries retain their familiar `.txt` names, use `text/plain`, and fetch their same-origin `contentUrl` in Notepad; README assets use `.md` / `text/markdown` and can be previewed as rendered Markdown. Both types are read-only, path-validated, and cached in IndexedDB after successful fetch.
 
 ### 3. Desktop Shortcut Architecture
 ```
@@ -161,7 +163,7 @@ Shortcuts (`.lnk`) contain `shortcutTargetId` and `shortcutTargetPath`. Double-c
 1. Seed a project with **only** a demo video and live link ➔ Verify folder contains only `demo.avi` and `live-site.url`.
 2. Seed a project with full specs (README, skills, tech-stack, GitHub) ➔ Verify folder contains all corresponding files.
 3. Double-click `demo.avi` ➔ Verify playback in Media Player 6.4.
-4. Double-click `README.txt` ➔ Verify opening in Notepad.
+4. Double-click `README.md` ➔ Verify linked content loads in Notepad and Markdown Preview renders it.
 5. Double-click `live-site.url` ➔ Verify opening in IE4.
 6. Open `C:\Desktop` in Explorer ➔ Verify shortcuts navigate to target folders.
 

@@ -43,6 +43,7 @@ export interface ProjectDefinition {
   icon?: string;
   github?: string | null;
   live?: string | null;
+  /** Same-origin public asset path to the project's Markdown README (for example, `/media/text/my-project-readme.md`). */
   readme?: string;
   skillsUsed?: string[];
   techStack?: ProjectTechStack;
@@ -62,6 +63,7 @@ export interface ProjectInput {
   github?: string | null;
   live?: string | null;
   tech?: string[];
+  /** Same-origin public asset path to a `.md` file; README content lives in that file, not in this manifest. */
   readme?: string;
   skillsUsed?: string[];
   techStack?: ProjectTechStack;
@@ -74,7 +76,8 @@ export interface ProjectInput {
 export interface DocumentDefinition {
   id: string;
   filename: string;
-  content: string;
+  /** Same-origin public text asset; Notepad loads and displays the linked file. */
+  src: string;
   readOnly: boolean;
 }
 
@@ -122,6 +125,16 @@ const project = (definition: ProjectInput): ProjectDefinition => {
       : undefined
   );
   const skillsUsed = definition.skillsUsed ?? (definition.tech ? definition.tech.slice(0, 4) : undefined);
+  const readme = definition.readme?.trim();
+  if (readme && (
+    !readme.startsWith('/')
+    || readme.startsWith('//')
+    || readme.includes('\\')
+    || readme.split('/').includes('..')
+    || !readme.toLowerCase().endsWith('.md')
+  )) {
+    throw new Error(`Project README must be a safe, same-origin .md asset path: ${readme}`);
+  }
   const files: ProjectFiles = {
     demo: definition.demo ?? definition.files?.demo,
     screenshots: definition.screenshots ?? definition.files?.screenshots,
@@ -142,7 +155,7 @@ const project = (definition: ProjectInput): ProjectDefinition => {
     icon: definition.icon ?? '📁',
     github: definition.github ?? null,
     live: definition.live ?? null,
-    readme: definition.readme ?? definition.description,
+    readme,
     skillsUsed,
     techStack,
     files,
@@ -157,7 +170,7 @@ export const PROJECTS: ProjectDefinition[] = [
     tag:"AI",
     color: '#1a1a2e',
     accent: '#7c3aed',
-    readme:"/text/moniepal_readme.txt",
+    readme: '/text/moniepal_readme.md',
     live: "https://moniepal-two.vercel.app",
     tech: ['Python', 'React18', 'FastAPI', 'Docker', 'Celery'],
     files:{
@@ -174,7 +187,7 @@ export const PROJECTS: ProjectDefinition[] = [
     tag: 'AI',
     color: '#1a1a2e',
     accent: '#7c3aed',
-    readme:"/text/afya_track_readme.txt",
+    readme: '/text/afya_track_readme.md',
     tech: ['Python', 'LangGraph', 'FastAPI', 'Chroma', 'Twilio'],
     files:{
       demo:{
@@ -194,7 +207,7 @@ export const PROJECTS: ProjectDefinition[] = [
     github: 'https://github.com/Royweru/gigclaw-agent',
     live: null,
     tech: [ 'LangGraph', 'LangChain', 'FastAPI', 'PostgreSQL', 'API requests'],
-    readme:"/text/gigaclaw_readme.txt",
+    readme: '/text/gigaclaw_readme.md',
     files:{
       demo:{
         src:"/media/videos/gigaclaw.mp4",
@@ -215,7 +228,7 @@ export const PROJECTS: ProjectDefinition[] = [
     github: 'https://github.com/Royweru/adventures-travel-luxury',
     live: "https://travelicious-rose.vercel.app",
     tech: ['Next.js', 'Prisma', 'tRPC', 'PostgreSQL'],
-    readme:"/videos/traveling_agency_readme.txt",
+    readme: '/text/traveling_agency_readme.md',
     files:{
       demo:{
         "title":"Traveling agency website",
@@ -230,25 +243,25 @@ export const DOCUMENTS: DocumentDefinition[] = [
   {
     id: 'about',
     filename: 'about_me.txt',
-    content: 'Weru is a software engineer focused on automation systems, backend services, and product-quality frontends.\n\nBased in Nairobi, Kenya.',
+    src: '/text/about_me.txt',
     readOnly: true,
   },
   {
     id: 'skills',
     filename: 'skills.txt',
-    content: 'Skills\n======\n\nAI & Agents\n- LangGraph / LangChain\n- Claude / OpenAI APIs\n- RAG & Embeddings\n\nFrontend\n- React / Next.js\n- TypeScript\n- Tailwind CSS',
+    src: '/text/skills.txt',
     readOnly: true,
   },
   {
     id: 'experience',
     filename: 'experience.txt',
-    content: 'Experience\n==========\n\nFreelance / Independent — Automation Systems Developer\n2023 — Present · Nairobi, Kenya\n\nTech Startup — Full-Stack Engineer\n2021 — 2023 · Nairobi, Kenya',
+    src: '/text/experience.txt',
     readOnly: true,
   },
   {
     id: 'resume',
     filename: 'Resume.txt',
-    content: 'Weru\nSoftware Engineer · Automation Systems Developer\n\nAI & Agents · React · Next.js · Python · FastAPI · PostgreSQL',
+    src: '/text/resume.txt',
     readOnly: true,
   },
 ];

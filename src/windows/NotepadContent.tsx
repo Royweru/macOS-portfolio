@@ -1,29 +1,85 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { createTextFileNode, getNode, updateTextFile } from '../features/filesystem/filesystem-service';
+import { cacheTextAssetContent, createTextFileNode, getNode, updateTextFile } from '../features/filesystem/filesystem-service';
 import type { VfsNode } from '../features/filesystem/filesystem-types';
+import type { OpenTarget } from '../features/os/os-types';
+import MarkdownPreview97 from '../apps/notepad/MarkdownPreview97';
 
-export default function NotepadContent({ fileId }: { fileId?: string }) {
+export default function NotepadContent({ fileId, onOpenTarget }: { fileId?: string; onOpenTarget?: (target: OpenTarget) => void }) {
   const node = useLiveQuery(() => fileId ? getNode(fileId) : undefined, [fileId]);
 
   if (!fileId) return <div className="flex h-full items-center justify-center text-xs font-mono text-gray-500 bg-white">Select a text file to open in Notepad.</div>;
   if (node === undefined) return <div className="flex h-full items-center justify-center text-xs font-mono text-gray-500 bg-white">Loading document…</div>;
   if (!node) return <div className="flex h-full items-center justify-center text-xs font-mono text-red-700 bg-white">This document is no longer available.</div>;
 
-  return <NotepadEditor key={node.id} node={node} />;
+  return <NotepadEditor key={node.id} node={node} onOpenTarget={onOpenTarget} />;
 }
 
-function NotepadEditor({ node }: { node: VfsNode }) {
+function NotepadEditor({ node, onOpenTarget }: { node: VfsNode; onOpenTarget?: (target: OpenTarget) => void }) {
   const [draft, setDraft] = useState(node.content ?? '');
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState(node.isReadOnly ? 'Read-only' : 'Ready');
+  const [sourceLoading, setSourceLoading] = useState(Boolean(node.contentUrl && !node.content));
+  const [sourceError, setSourceError] = useState<string | null>(null);
+  const [preview, setPreview] = useState(false);
   const [saveAsOpen, setSaveAsOpen] = useState(false);
   const [findOpen, setFindOpen] = useState(false);
   const [findTerm, setFindTerm] = useState('');
   const [saveAsName, setSaveAsName] = useState(`${node.name.replace(/\.[^.]+$/, '')} copy.txt`);
+  const loadedAssetUrl = useRef<string | null>(null);
   const readOnly = Boolean(node.isReadOnly || node.isSystem);
+  const isMarkdown = node.mimeType === 'text/markdown' || node.name.toLowerCase().endsWith('.md');
+
+  useEffect(() => {
+    if (!node.contentUrl) {
+      setDraft(node.content ?? '');
+      setSourceLoading(false);
+      setSourceError(null);
+      return;
+    }
+    if (node.content && loadedAssetUrl.current === node.contentUrl) {
+      setDraft(node.content);
+      setSourceLoading(false);
+      setSourceError(null);
+      setStatus(readOnly ? 'Read-only' : 'Ready');
+      return;
+    }
+    const controller = new AbortController();
+    setDraft(node.content ?? '');
+    setSourceLoading(true);
+    setSourceError(null);
+    setStatus('Loading document…');
+    void (async () => {
+      try {
+        const url = new URL(node.contentUrl!, window.location.origin);
+        const pathname = url.pathname.toLowerCase();
+        const hasExpectedExtension = node.mimeType === 'text/markdown'
+          ? pathname.endsWith('.md')
+          : node.mimeType === 'text/plain' && pathname.endsWith('.txt');
+        if (url.origin !== window.location.origin || !hasExpectedExtension) {
+          throw new Error('Document must be a same-origin text asset with a matching file extension.');
+        }
+        const response = await fetch(url, { signal: controller.signal, credentials: 'same-origin' });
+        if (!response.ok) throw new Error(`${node.name} could not be loaded (${response.status}).`);
+        const content = await response.text();
+        if (controller.signal.aborted) return;
+        loadedAssetUrl.current = node.contentUrl!;
+        setDraft(content);
+        setStatus(readOnly ? 'Read-only' : 'Ready');
+        await cacheTextAssetContent(node.id, content);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        const message = error instanceof Error ? error.message : `${node.name} could not be loaded.`;
+        setSourceError(message);
+        setStatus('Read error');
+      } finally {
+        if (!controller.signal.aborted) setSourceLoading(false);
+      }
+    })();
+    return () => controller.abort();
+  }, [node.content, node.contentUrl, node.id, node.mimeType, node.name, readOnly]);
 
   const save = async () => {
     if (readOnly) return;
@@ -56,20 +112,23 @@ function NotepadEditor({ node }: { node: VfsNode }) {
         <button type="button" onClick={() => setSaveAsOpen(true)} className="px-1 py-0.5 hover:bg-[#000080] hover:text-white"><span className="underline">E</span>dit</button>
         <button type="button" onClick={() => setFindOpen(true)} className="px-1 py-0.5 hover:bg-[#000080] hover:text-white"><span className="underline">S</span>earch</button>
         <button type="button" className="px-1 py-0.5 hover:bg-[#000080] hover:text-white"><span className="underline">H</span>elp</button>
+        {isMarkdown && <button type="button" aria-pressed={preview} onClick={() => setPreview(value => !value)} className={`px-1 py-0.5 hover:bg-[#000080] hover:text-white${preview ? ' bg-[#000080] text-white' : ''}`}>{preview ? 'Source' : 'Preview'}</button>}
       </div>
 
       {/* Editor Content Area */}
-      <textarea
+      {preview && isMarkdown ? <MarkdownPreview97 source={draft} onOpenTarget={onOpenTarget} /> : <textarea
         value={draft}
         readOnly={readOnly}
         onChange={event => { setDraft(event.target.value); setDirty(true); setStatus('Modified'); }}
         onKeyDown={event => {
           if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); void save(); }
         }}
-        className="min-h-0 flex-1 resize-none border-0 bg-white p-3 font-mono text-xs leading-5 text-black outline-none retro-sunken selection:bg-[#000080] selection:text-white cursor-text"
+        className="min-h-0 flex-1 resize-none border-0 bg-white p-3 font-mono text-base leading-6 text-black outline-none retro-sunken selection:bg-[#000080] selection:text-white cursor-text"
         style={{ fontFamily: "'Courier New', Courier, monospace" }}
         aria-label={`${node.name} contents`}
-      />
+      />}
+      {sourceLoading && <div className="win97-notepad-loading" role="status">Loading {node.name}…</div>}
+      {sourceError && <div className="win97-notepad-source-error" role="alert">{sourceError}</div>}
 
       {/* Retro Status Bar */}
       <div className="h-5 bg-[#C0C0C0] px-1 py-0.5 flex items-center gap-1 text-[10px] border-t border-[#808080]">

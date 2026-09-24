@@ -28,6 +28,8 @@ export default function RetroBrowser97({ initialAddress = HOME_URL, onOpenApp }:
   const [historyIndex, setHistoryIndex] = useState(0);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [status, setStatus] = useState('Done');
+  const [reloadToken, setReloadToken] = useState(0);
+  const [previewRunning, setPreviewRunning] = useState(true);
 
   const isHome = useMemo(() => address === HOME_URL || address === 'weru://home', [address]);
   const displayAddress = isHome ? HOME_URL : address;
@@ -43,7 +45,9 @@ export default function RetroBrowser97({ initialAddress = HOME_URL, onOpenApp }:
     setDraft(next);
     setHistory(nextHistory);
     setHistoryIndex(nextHistory.length - 1);
-    setStatus(next === HOME_URL ? 'Done' : 'Protected Connection');
+    setPreviewRunning(true);
+    setReloadToken(token => token + 1);
+    setStatus(next === HOME_URL ? 'Done' : 'Connecting…');
   };
 
   const moveHistory = (direction: -1 | 1) => {
@@ -52,7 +56,19 @@ export default function RetroBrowser97({ initialAddress = HOME_URL, onOpenApp }:
     setHistoryIndex(nextIndex);
     setAddress(history[nextIndex]);
     setDraft(history[nextIndex]);
-    setStatus('Done');
+    setPreviewRunning(true);
+    setReloadToken(token => token + 1);
+    setStatus(history[nextIndex] === HOME_URL ? 'Done' : 'Connecting…');
+  };
+
+  const refresh = () => {
+    if (isHome) {
+      setStatus('Done');
+      return;
+    }
+    setPreviewRunning(true);
+    setReloadToken(token => token + 1);
+    setStatus('Refreshing…');
   };
 
   return <div className="win97-app win97-browser win97-ie4">
@@ -62,8 +78,8 @@ export default function RetroBrowser97({ initialAddress = HOME_URL, onOpenApp }:
       <Button95 size="sm" aria-label="Forward" disabled={historyIndex >= history.length - 1} onClick={() => moveHistory(1)}>Forward ▶</Button95>
       <Button95 size="sm" aria-label="Up" onClick={() => navigate(HOME_URL)}>⬆ Up</Button95>
       <span className="win97-toolbar-divider" />
-      <Button95 size="sm" aria-label="Stop" onClick={() => setStatus('Stopped')}>■ Stop</Button95>
-      <Button95 size="sm" aria-label="Refresh" onClick={() => setStatus('Refreshing')}>↻ Refresh</Button95>
+      <Button95 size="sm" aria-label="Stop" onClick={() => { setPreviewRunning(false); setStatus('Stopped'); }}>■ Stop</Button95>
+      <Button95 size="sm" aria-label="Refresh" onClick={refresh}>↻ Refresh</Button95>
       <Button95 size="sm" aria-label="Home" onClick={() => navigate(HOME_URL)}>⌂ Home</Button95>
       <Button95 size="sm" aria-label="Search" onClick={() => setStatus('Search unavailable')}>⌕ Search</Button95>
       <Button95 size="sm" aria-label="Favorites" onClick={() => setStatus('Favorites')}>★ Favorites</Button95>
@@ -81,7 +97,20 @@ export default function RetroBrowser97({ initialAddress = HOME_URL, onOpenApp }:
         <p>Thank you for visiting my cyberspace corner! Click any link below to explore my external destinations or view the portfolio projects.</p>
         <div className="win97-ie-construction">⚒ UNDER CONTINUOUS CONSTRUCTION 1997–2024 ⚒</div>
         <div className="win97-browser-links">{LINK_TARGETS.map(link => <a key={link.label} href={link.url} onClick={event => { event.preventDefault(); navigate(link.url); }}><b>{link.label}</b><small>{link.description}</small></a>)}</div>
-      </> : <div className="sunken win97-ie-external"><h3>External URL</h3><p>Weru 97 has opened this allowed address in the protected browser view:</p><code>{displayAddress}</code><p className="win97-muted">External navigation is represented inside the portfolio shell; the desktop remains in control.</p></div>}
+      </> : <section className="sunken win97-ie-external" aria-label="External website preview">
+        <div className="win97-ie-preview-heading"><h3>Web page preview</h3><a href={displayAddress} target="_blank" rel="noopener noreferrer">Open in a new browser tab ↗</a></div>
+        <code>{displayAddress}</code>
+        <p className="win97-muted">Weru is previewing this site here when it allows embedding. Some sites block in-app previews; use “Open in a new browser tab” if the page is blank.</p>
+        {previewRunning ? <iframe
+          key={`${displayAddress}:${reloadToken}`}
+          className="win97-ie-preview-frame"
+          src={displayAddress}
+          title={`Preview of ${displayAddress}`}
+          sandbox="allow-forms allow-scripts allow-popups allow-popups-to-escape-sandbox"
+          referrerPolicy="no-referrer"
+          onLoad={() => setStatus('Preview loaded; embedding may be restricted')}
+        /> : <div className="win97-ie-preview-stopped" role="status">Preview stopped. <button type="button" onClick={refresh}>Reload preview</button></div>}
+      </section>}
       <div className="win97-ie-badges"><span>Best viewed at 800×600</span><span>Enhanced for IE 4.0</span><span>Netscape Navigator Compatible</span></div>
       <p className="win97-ie-visitor">You are visitor number <b>{visitorCount ?? '—'}</b></p>
       <div className="win97-browser-page-footer"><span aria-live="polite">{status}</span><span>public Internet zone</span></div>

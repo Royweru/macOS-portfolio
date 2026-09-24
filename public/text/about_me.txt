@@ -1,0 +1,69 @@
+ABOUT ME
+================================================================
+
+I'm Roy Matheri Waweru, but most people call me Weru. I'm a
+full-stack developer and agentic AI engineer in Nairobi, Kenya,
+finishing a BSc in ICT at KCA University.
+
+
+WHAT I LIKE BUILDING
+--------------------
+Software that does real work on its own and knows when to stop
+and ask first.
+
+  - GigaClaw hunts remote jobs, tailors my CV to each one and
+    applies, but waits for my approval before anything is sent.
+
+  - KontentPyper watches X and Reddit for what's trending,
+    writes the posts, cuts the video and publishes it.
+
+  - M-Afya lets a patient text a blood pressure or blood sugar
+    reading on WhatsApp and get a plain-language answer back.
+
+Most of it runs on Python, FastAPI and LangGraph. The front ends
+are Next.js and TypeScript.
+
+
+BUILT FOR WHERE I LIVE
+----------------------
+In Kenya the internet drops and customers pay with M-Pesa. So my
+POS, MoniePal, keeps selling offline and syncs later, takes
+payments through M-Pesa Daraja, and integrates KRA eTIMS for tax
+compliance. Those constraints shape the design from the start,
+not as an afterthought.
+
+
+HOW I WORK
+----------
+I build bottom-up and test each piece on its own before wiring
+the pieces together. I deploy on Linux servers I set up myself
+(Nginx, systemd, Certbot), and I start on SQLite while keeping
+the path to PostgreSQL open.
+
+I live in the terminal. I even built fmitt, a daily newsletter
+about Linux and terminal tricks.
+
+
+WHERE I CAME FROM
+-----------------
+In 2023 I did a software engineering internship at Yashio Kenya,
+fixing bugs in a TypeScript codebase next to more experienced
+developers. In 2024 I worked as a junior designer at Africa
+Media, where I learned to care about typography, colour and
+consistency. That still shapes how I build interfaces.
+
+
+RIGHT NOW
+---------
+I'm going deeper on LangChain and Langflow, building automations
+and agents for Kenyan SMEs, and looking for remote contract or
+full-time roles in agentic AI and full-stack engineering.
+
+I build in public as @theeCodeKartel.
+
+
+GET IN TOUCH
+------------
+Email   : weruroy347@gmail.com
+GitHub  : github.com/Royweru
+LinkedIn: linkedin.com/in/roy-matheri

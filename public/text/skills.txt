@@ -1,0 +1,60 @@
+SKILLS
+================================================================
+
+
+AGENTIC AI
+----------
+  LangGraph, LangChain, RAG pipelines, ChromaDB, pgvector,
+  PostgresSaver / PostgresStore memory, OpenAI API, Whisper,
+  human-in-the-loop approval flows
+
+
+BACKEND
+-------
+  Python, FastAPI, httpx, Celery, Redis, Playwright,
+  PostgreSQL (Neon), SQLite
+
+
+FRONTEND
+--------
+  TypeScript, JavaScript, Next.js, React, Tailwind CSS
+
+
+DESKTOP AND MOBILE
+------------------
+  C# with Avalonia UI, Java (Android)
+
+
+KENYA-MARKET INTEGRATIONS
+-------------------------
+  M-Pesa Daraja (STK Push, C2B), Africa's Talking (SMS and
+  messaging), KRA eTIMS, Paystack
+
+
+OTHER APIS
+----------
+  X API (hand-built OAuth 1.0a), LinkedIn, Meta (Facebook,
+  Instagram), Google Maps Places, Hunter.io, Resend, HeyGen
+
+
+INFRASTRUCTURE
+--------------
+  Linux, Hetzner VPS, Nginx, systemd, Certbot, FFmpeg,
+  SPF / DKIM / DMARC email setup
+
+
+DESIGN
+------
+  Figma, Google Stitch, typography, colour, UI/UX
+
+
+HOW I ENGINEER
+--------------
+  Bottom-up, isolated testing
+  Event-sourced, offline-first design
+  SQLite first, with a clean upgrade path to PostgreSQL
+
+
+LEARNING NOW
+------------
+  Langflow, and going deeper on LangChain

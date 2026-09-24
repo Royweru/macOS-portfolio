@@ -81,19 +81,19 @@ function WindowContent({ id, projectId, mediaAsset, fileId, locationId, terminal
   return (
     <ErrorBoundary>
       <Suspense fallback={<WindowSpinner />}>
-        {id === 'about'      && <NotepadContent fileId={fileId ?? 'file-about-me'} />}
+        {id === 'about'      && <NotepadContent fileId={fileId ?? 'file-about-me'} onOpenTarget={onOpenTarget} />}
         {id === 'projects'   && <Explorer97 initialFolderId={locationId ?? VIRTUAL_NODE_IDS.projects} onOpenTarget={onOpenTarget} />}
         {id === 'project-detail' && <Explorer97 initialFolderId={locationId ?? (projectId ? `project-${projectId}` : VIRTUAL_NODE_IDS.projects)} onOpenTarget={onOpenTarget} />}
         {id === 'media-player' && <MediaPlayer97 key={resolvedMediaAsset ? `${resolvedMediaAsset.id}:${resolvedMediaAsset.source}` : 'media-player'} asset={resolvedMediaAsset} availableAssets={PERSONAL_VIDEO_ASSETS} />}
-        {id === 'skills'     && <NotepadContent fileId={fileId ?? 'file-skills'} />}
-        {id === 'experience' && <NotepadContent fileId={fileId ?? 'file-experience'} />}
+        {id === 'skills'     && <NotepadContent fileId={fileId ?? 'file-skills'} onOpenTarget={onOpenTarget} />}
+        {id === 'experience' && <NotepadContent fileId={fileId ?? 'file-experience'} onOpenTarget={onOpenTarget} />}
         {id === 'contact'    && <Contact97 onClose={onClose} />}
         {id === 'mail'       && <Contact97 onClose={onClose} />}
         {id === 'photos'     && <Paint97 asset={resolvedMediaAsset} />}
         {id === 'explorer'   && <Explorer97 initialFolderId={locationId ?? VIRTUAL_NODE_IDS.root} onOpenTarget={onOpenTarget} />}
         {id === 'recycle-bin' && <RecycleBin97 />}
         {id === 'terminal'   && <MsDosPrompt97 initialCwd={terminalCwd} onEffect={onTerminalEffect} />}
-        {id === 'notepad'    && <NotepadContent fileId={fileId} />}
+        {id === 'notepad'    && <NotepadContent fileId={fileId} onOpenTarget={onOpenTarget} />}
         {id === 'settings'   && <ControlPanel97 onClose={onClose} />}
         {id === 'calculator' && <Calculator97 />}
         {id === 'control-panel' && <ControlPanel97 onClose={onClose} />}

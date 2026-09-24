@@ -15,6 +15,7 @@ The current source-of-truth audit is `audit-2026-09-21.md`; it supersedes optimi
 
 Latest Chapter 2 evidence:
 
+- `chapter-2-linked-documents-2026-09-24.md` — moved personal document bodies to linked public text assets and verified VFS seeding, Notepad fetch/cache handling, tests, typecheck, lint, and production build; browser-level display remains unverified with localhost stopped.
 - `chapter-2-desktop-single-column-correction-2026-09-23.md` — historical source-order desktop correction; its always-single-column claim was superseded by the 2026-09-23 responsive source-flow audit.
 - `chapter-2-desktop-source-flow-and-start-state-2026-09-23.md` — column-first responsive wrapping, source-sized My Documents first-visit window, and honest matched-viewport evidence status.
 - `chapter-2-explorer-control-sample-2026-09-23.md` — live Explorer close, move, resize, minimize, maximize, and restore checks.

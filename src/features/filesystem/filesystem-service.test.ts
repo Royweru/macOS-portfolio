@@ -1,8 +1,11 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { createPersonalMediaNodes, createProjectMediaNodes, createWin97Nodes, planLegacyMediaLibraryFolderRepair, planLegacyMusicLibraryRepair } from './filesystem-service';
 import type { VfsNode } from './filesystem-types';
 import { VIRTUAL_NODE_IDS, VIRTUAL_PATHS } from './virtual-paths';
 import { createPersonalMediaEntries } from '../../data/personal-media-manifest';
+import { DOCUMENTS, PROJECTS } from '../../data/portfolio-manifest';
 
 describe('Weru 97 seeded filesystem topology', () => {
   const nodes = createWin97Nodes();
@@ -108,6 +111,46 @@ describe('Weru 97 seeded filesystem topology', () => {
       media: { kind: 'video', source: '/media/videos/gigaclaw.mp4', projectId: 3 },
     });
     expect(byId.get('project-afyatrack-demo')?.media?.source).toBe('/media/videos/afya_track.mp4');
+  });
+
+  it('seeds project README links as read-only Markdown assets, not as literal path text', () => {
+    const projectsWithReadmes = PROJECTS.filter(project => project.readme);
+    expect(projectsWithReadmes.length).toBeGreaterThan(0);
+    for (const project of projectsWithReadmes) {
+      expect(project.readme).toMatch(/^\/(?!\/).+\.md$/i);
+      expect(existsSync(join(process.cwd(), 'public', project.readme!.slice(1)))).toBe(true);
+      const readme = byId.get(`project-${project.id}-readme`);
+      expect(readme).toMatchObject({
+        parentId: `project-${project.id}`,
+        name: 'README.md',
+        mimeType: 'text/markdown',
+        appId: 'notepad',
+        contentUrl: project.readme,
+        content: '',
+        isReadOnly: true,
+        isSystem: true,
+      });
+      expect(readme?.content).not.toBe(project.readme);
+    }
+  });
+
+  it('seeds personal documents as links to public text assets, not inline manifest text', () => {
+    for (const document of DOCUMENTS) {
+      expect(document.src).toMatch(/^\/(?!\/).+\.txt$/i);
+      expect(existsSync(join(process.cwd(), 'public', document.src.slice(1)))).toBe(true);
+      const nodeId = `file-${document.id === 'about' ? 'about-me' : document.id}`;
+      expect(byId.get(nodeId)).toMatchObject({
+        parentId: VIRTUAL_NODE_IDS.myDocuments,
+        name: document.filename,
+        mimeType: 'text/plain',
+        appId: 'notepad',
+        contentUrl: document.src,
+        content: '',
+        isReadOnly: true,
+        isSystem: true,
+      });
+      expect('content' in document).toBe(false);
+    }
   });
 
   it('moves legacy Videos and Screenshots contents out of My Documents without losing descendants', () => {
