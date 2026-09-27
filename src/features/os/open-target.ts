@@ -2,12 +2,29 @@ import type { OpenTarget } from './os-types';
 import { getNode, resolveShortcut } from '../filesystem/filesystem-service';
 import type { VfsNode } from '../filesystem/filesystem-types';
 import { resolveAppForExtension } from '../apps/app-registry';
+import { isAllowedExternalUrl } from './external-url97';
 
-export const isAllowedExternalUrl = (value: string) => {
+export { isAllowedExternalUrl } from './external-url97';
+
+/** Open a web destination in a top-level browser tab, never inside the OS shell. */
+export const openExternalUrlInNewTab = (value: string) => {
+  if (!isAllowedExternalUrl(value) || typeof window === 'undefined') return false;
+  // Open a same-origin blank first so we can detect popup blocking. The new
+  // document receives a no-referrer policy and loses its opener before it is
+  // navigated to the external destination.
+  const destination = window.open('about:blank', '_blank');
+  if (!destination) return false;
+
   try {
-    const url = new URL(value);
-    return url.protocol === 'https:' || url.protocol === 'http:';
+    const referrerPolicy = destination.document.createElement('meta');
+    referrerPolicy.name = 'referrer';
+    referrerPolicy.content = 'no-referrer';
+    destination.document.head.append(referrerPolicy);
+    destination.opener = null;
+    destination.location.replace(value);
+    return true;
   } catch {
+    try { destination.close(); } catch { /* Keep popup failures non-fatal. */ }
     return false;
   }
 };

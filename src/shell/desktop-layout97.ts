@@ -16,6 +16,18 @@ export function getDesktopShortcutPosition97(index: number, desktopHeight: numbe
   };
 }
 
+/** Make the focused desktop shortcut open like Enter on a classic desktop. */
+export function activateDesktopShortcutOnKey97(
+  event: Pick<KeyboardEvent, 'key' | 'preventDefault' | 'stopPropagation'>,
+  open: () => void,
+) {
+  if (event.key !== 'Enter') return false;
+  event.preventDefault();
+  event.stopPropagation();
+  open();
+  return true;
+}
+
 /** Route the two source-backed desktop Properties actions to real Weru surfaces. */
 export function getDesktopPropertiesTarget97(shortcutId?: string): OpenTarget | undefined {
   if (!shortcutId) return { kind: 'application', appId: 'control-panel' };

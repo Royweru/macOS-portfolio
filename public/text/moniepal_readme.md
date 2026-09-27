@@ -14,7 +14,7 @@ a laptop or a phone.
 
 TRY IT
 ------
-Live demo : REPLACE_WITH_MONIEPAL_LIVE_URL
+Live demo : [Open the MoniePal live demo](https://moniepal-two.vercel.app)
 Demo video: open the MoniePal folder in Projects
 
 This is a shared demo workspace. Anything you change is visible

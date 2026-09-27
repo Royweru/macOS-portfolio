@@ -98,6 +98,7 @@ export interface PortfolioProfile {
   email: string;
   github: string;
   linkedin: string;
+  x: string;
   website: string;
 }
 
@@ -109,6 +110,7 @@ export const PROFILE: PortfolioProfile = {
   email: 'weruroy347@gmail.com',
   github: 'https://github.com/Royweru',
   linkedin: 'https://www.linkedin.com/in/roy-matheri',
+  x: 'https://x.com/RoyWeru',
   website: 'https://github.com/Royweru',
 };
 

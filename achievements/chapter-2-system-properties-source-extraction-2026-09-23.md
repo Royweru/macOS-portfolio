@@ -39,3 +39,10 @@
 - Fixed the source-backed My Computer > Properties context action, which previously closed the menu without opening anything. It now opens System Properties. The desktop-background Properties action now opens Control Panel; unsupported per-shortcut Properties is visibly disabled rather than a no-op.
 - Live browser verification: opening System Properties from Start → Programs and then through My Computer > Properties both exposed the four-tab dialog. The active app viewport was 744×638 CSS px, not the source's 1280×1024; this proves behavior and content presence only, not pixel parity.
 - Added geometry and Properties-route regression coverage. Full validation will be recorded after rerunning the suite/build; the matched-viewport comparison and remaining dialog compositions stay open.
+
+## Stitch contract refresh — 2026-09-25
+
+- Compared the active React surface and CSS with the exact System Properties dialog region in the preserved HTML. Corrected tab gap, active/inactive bevel direction and fill, source text size, bottom border, and the app-specific 18px gradient titlebar.
+- Added a raw-source regression tying the 460×420 window, four tabs, 21/18 meter-cell count, button contract, and extracted dialog boundaries to the React surface.
+- Focused System Properties tests pass (3/3); full Vitest passes (65 files / 285 tests), TypeScript, lint, and production build pass. The build emits only the existing stale Browserslist-data advisory.
+- Matched-viewport screenshot comparison and the other System Dialogs regions remain partial; source-contract tests are not visual acceptance.

@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import Button95 from '../../components/win95/Button95';
 import { soundEngine } from '../../os/sound/synth';
-
-type ShutdownAction97 = 'shutdown' | 'restart' | 'logon';
-type ShutdownResult97 = 'shutdown' | 'logon' | null;
+import { executeShutdownAction97, type ShutdownAction97, type ShutdownResult97 } from './shutdown-actions97';
 
 function ShutdownComputerArt97() {
   return <svg className="win97-shutdown-computer" viewBox="0 0 40 40" role="img" aria-label="Computer power icon" shapeRendering="crispEdges">
@@ -19,16 +17,15 @@ function ShutdownComputerArt97() {
 
 export default function ShutDown97({ onClose }: { onClose?: () => void }) {
   const [action, setAction] = useState<ShutdownAction97>('shutdown');
-  const [result, setResult] = useState<ShutdownResult97>(null);
+  const [result, setResult] = useState<ShutdownResult97 | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
 
   const confirm = () => {
-    soundEngine.play('shutdown');
-    if (action === 'restart') {
-      window.location.reload();
-      return;
-    }
-    setResult(action);
+    executeShutdownAction97(action, {
+      playShutdownSound: () => soundEngine.play('shutdown'),
+      reload: () => window.location.reload(),
+      setResult,
+    });
   };
 
   if (result === 'shutdown') {

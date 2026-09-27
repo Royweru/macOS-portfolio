@@ -1,7 +1,7 @@
-import { existsSync } from 'node:fs';
+import { closeSync, existsSync, openSync, readSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { createPersonalMediaNodes, createProjectMediaNodes, createWin97Nodes, planLegacyMediaLibraryFolderRepair, planLegacyMusicLibraryRepair } from './filesystem-service';
+import { createPersonalMediaNodes, createProjectMediaNodes, createWin97Nodes, mergeSeededTextAsset97, mergeSyncedMediaNode97, planLegacyMediaLibraryFolderRepair, planLegacyMusicLibraryRepair } from './filesystem-service';
 import type { VfsNode } from './filesystem-types';
 import { VIRTUAL_NODE_IDS, VIRTUAL_PATHS } from './virtual-paths';
 import { createPersonalMediaEntries } from '../../data/personal-media-manifest';
@@ -105,12 +105,53 @@ describe('Weru 97 seeded filesystem topology', () => {
   it('points seeded project demos at the bundled public video files', () => {
     expect(byId.get('project-gigaclaw-agent-demo')).toMatchObject({
       parentId: 'project-gigaclaw-agent',
-      name: 'demo.avi',
+      name: 'gigaclaw.mp4',
       mimeType: 'video/mp4',
       appId: 'media-player',
       media: { kind: 'video', source: '/media/videos/gigaclaw.mp4', projectId: 3 },
     });
     expect(byId.get('project-afyatrack-demo')?.media?.source).toBe('/media/videos/afya_track.mp4');
+  });
+
+  it('migrates only the legacy generated demo.avi label and preserves visitor-renamed media files', () => {
+    const seeded = byId.get('project-gigaclaw-agent-demo')!;
+    const oldSeed = { ...seeded, name: 'demo.avi' };
+    const customName = { ...seeded, name: 'My edited demo.avi' };
+
+    expect(mergeSyncedMediaNode97(seeded, oldSeed).name).toBe('gigaclaw.mp4');
+    expect(mergeSyncedMediaNode97(seeded, customName).name).toBe('My edited demo.avi');
+  });
+
+  it('maps every configured project video to a real MP4 in that project folder', () => {
+    const demoProjects = PROJECTS.filter(project => project.files?.demo);
+
+    expect(demoProjects.length).toBeGreaterThan(0);
+    for (const project of demoProjects) {
+      const demo = project.files!.demo!;
+      const sourcePath = join(process.cwd(), 'public', demo.src.replace(/^\/+/, ''));
+      const seeded = byId.get(`project-${project.id}-demo`);
+
+      expect(demo.mimeType ?? 'video/mp4').toBe('video/mp4');
+      expect(existsSync(sourcePath), `${project.title} demo should exist at ${demo.src}`).toBe(true);
+      const descriptor = openSync(sourcePath, 'r');
+      const boxType = Buffer.alloc(4);
+      let bytesRead = 0;
+      try {
+        bytesRead = readSync(descriptor, boxType, 0, boxType.length, 4);
+      } finally {
+        closeSync(descriptor);
+      }
+      expect(bytesRead).toBe(4);
+      expect(boxType.toString('ascii')).toBe('ftyp');
+      expect(seeded).toMatchObject({
+        parentId: `project-${project.id}`,
+        kind: 'file',
+        name: decodeURIComponent(new URL(demo.src, 'https://weru97.live').pathname.split('/').at(-1) ?? ''),
+        appId: 'media-player',
+        mimeType: 'video/mp4',
+        media: { kind: 'video', source: demo.src },
+      });
+    }
   });
 
   it('seeds project README links as read-only Markdown assets, not as literal path text', () => {
@@ -132,6 +173,42 @@ describe('Weru 97 seeded filesystem topology', () => {
       });
       expect(readme?.content).not.toBe(project.readme);
     }
+  });
+
+  it('repairs generated README nodes to the current linked Markdown asset and retains only a matching fetched cache', () => {
+    const seeded = byId.get('project-adventures-readme')!;
+    const legacyInline = {
+      ...seeded,
+      contentUrl: undefined,
+      content: '# Old inline README\n\nSynthetic text from an earlier seed.',
+      size: 44,
+      isSystem: false,
+      isReadOnly: false,
+    };
+    const repaired = mergeSeededTextAsset97(seeded, legacyInline);
+
+    expect(repaired).toMatchObject({
+      contentUrl: '/text/traveling_agency_readme.md',
+      content: '',
+      mimeType: 'text/markdown',
+      appId: 'notepad',
+      isSystem: true,
+      isReadOnly: true,
+    });
+    expect(repaired.content).not.toContain('Old inline README');
+
+    const cached = { ...seeded, content: '# Fetched README', size: 16 };
+    expect(mergeSeededTextAsset97(seeded, cached)).toMatchObject({
+      contentUrl: seeded.contentUrl,
+      content: '# Fetched README',
+      size: 16,
+    });
+
+    const staleCache = { ...cached, contentUrl: '/text/old-readme.md' };
+    expect(mergeSeededTextAsset97(seeded, staleCache)).toMatchObject({
+      contentUrl: seeded.contentUrl,
+      content: '',
+    });
   });
 
   it('seeds personal documents as links to public text assets, not inline manifest text', () => {

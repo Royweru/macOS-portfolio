@@ -6,11 +6,24 @@ The current completion work includes a dedicated visual-fidelity pass based on t
 
 The 1024×768 source composition is used only to reproduce Stitch-authored window/icon anchor positions; it is not the runtime viewport or a centered desktop frame. The production shell and taskbar fill the browser, while saved and new window rectangles are clamped to the current visible work area. Local pixel assets, the Bliss wallpaper, classic styling, and shared pointer controls are implemented. Raw Stitch HTML remains reference material and is not rendered through an iframe.
 
+> **Runtime status — 2026-09-25:** This document preserves the original architecture rationale and migration snapshot. Its initial “Current State vs. Target State” section is historical, not a current file inventory. The active runtime uses `src/shell/Shell97.tsx`, `src/wm/Window97.tsx`, `src/wm/WindowManager97.tsx`, and the apps under `src/apps/`. The active completion ledger is `plans/weru97-chapter-2-task-list.md`; remaining partial visual and live acceptance items must be resolved there.
+
+> **Chapter 2 Paint menus — 2026-09-26:** the six previously inert Paint menu captions now expose functional file/edit/view/image/options/help commands. The source provides the menu-strip geometry and headings, not the dropdown contents; live Paint interaction and matched-viewport verification remain open. See [`plans/weru97-paint-functional-menus-2026-09-26.md`](plans/weru97-paint-functional-menus-2026-09-26.md).
+> **Chapter 2 boot cascade cleanup — 2026-09-26:** duplicate base CSS declarations were consolidated without removing responsive BIOS styling; source-contract tests now guard the active boot cascade. Matched-stage visual/runtime QA remains open. See [`plans/weru97-boot-css-cascade-cleanup-2026-09-26.md`](plans/weru97-boot-css-cascade-cleanup-2026-09-26.md).
+
 Execution order: baseline and source audit, pixel assets, canonical canvas, wallpaper, desktop icons, taskbar, window interaction, window chrome, boot screen, application extraction, cursor polish, CSS cleanup, automated verification, manual visual QA, and history updates.
 
 ### Current execution checkpoint
 
 The asset and shell convergence slice is verified. The local asset manifest now covers all required icon/cursor categories and the boot/app buckets. The classic Start menu follows the Stitch 210px vertical-banner composition. Paint, Calculator, Minesweeper, Media Player, and Internet Explorer use shared Win97 chrome and Stitch-derived visual treatments while retaining real interactions. The active global stylesheet no longer imports the inactive modern taskbar, token, or Spotlight surfaces. Remaining work is explicitly tracked as partial in the active Chapter 2 checklist: exact per-source screenshot parity, full multi-window/touch evidence, missing independent source artifacts, and real media playback assets.
+
+> Chapter 2 verification infrastructure (2026-09-26): repository lint now runs in bounded ESLint batches to avoid full-tree Node memory exhaustion; all 216 configured TypeScript files pass. See [`plans/weru97-repository-lint-batching-2026-09-26.md`](plans/weru97-repository-lint-batching-2026-09-26.md).
+
+Current automated gate snapshot (2026-09-26): 69 test files / 325 tests, TypeScript, all 216 configured lint targets, and production build pass. The build retains the existing stale Browserslist database warning. Automated gates do not close the remaining matched-viewport Stitch, per-app live interaction, reduced-motion/touch, or deployed-bundle checks listed in the Chapter 2 task list.
+
+**Chapter 2 window resize hit areas (2026-09-26):** invisible edge targets are 8px and corner targets 12×12px, with regression checks for pointer layering and handler wiring. This improves usability without changing the visible Stitch window frame; the per-app live resize matrix remains open. See `plans/weru97-window-resize-hit-area-2026-09-26.md` and `achievements/chapter-2-window-resize-hit-area-2026-09-26.md`.
+
+**Chapter 2 production parity recheck (2026-09-26):** one browser-extension inspection of `weru97.vercel.app` measured the old 6px/10px resize zones and found a README window still showing a placeholder URL in a read-only text surface, with no rendered Markdown anchors. Current source is ahead of the deployment; no release or browser-storage mutation was performed. See `plans/weru97-public-deployment-recheck-2026-09-26.md`.
 
 > **This is NOT a code plan yet.** This is the creative and technical brain behind Weru 97 — every flow, every click, every sound, every easter egg. You (Roy) handle the UI/UX design on Stitch. I handle the logic, the architecture, and the soul.
 
@@ -46,7 +59,7 @@ graph TB
 
 ## 2. Current State vs. Target State
 
-### What exists now (Windows 11 Fluent — already migrated FROM macOS)
+### Historical initial migration snapshot (superseded by the current runtime)
 
 The codebase has **already completed** a migration from macOS to Windows 11. The active runtime is fully Windows 11 Fluent:
 
@@ -61,14 +74,9 @@ The codebase has **already completed** a migration from macOS to Windows 11. The
 | **State** | Zustand `os-store.ts` persisted to localStorage | → Same engine, retune for Win95 modes |
 | **Apps** | Explorer, Notepad, Media Player, Terminal (tabbed!), Settings, Recycle Bin, Projects, About, Contact, Photos | → Restyle as Win95 apps. Add: Calculator, Minesweeper, CD Player, Paint, IE4, MS-DOS Prompt, Control Panel |
 
-### Dormant macOS Remnants (to be deleted)
-- [Dock.tsx](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/components/Dock.tsx) + [dock.css](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/styles/dock.css)
-- [MenuBar.tsx](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/components/MenuBar.tsx) + [menubar.css](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/styles/menubar.css)
-- [Spotlight/](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/components/Spotlight) + [useSpotlight.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/hooks/useSpotlight.ts)
-- [Sidebar/index.tsx](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/components/Sidebar) — macOS Finder sidebar
-- [useParallax.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/hooks/useParallax.ts)
-- Legacy macOS strings in [constants/index.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/constants/index.ts)
-- [template.txt](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/template.txt), [context.txt](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/context.txt)
+### Legacy shell removal record (completed 2026-09-25)
+
+The disconnected Dock, MenuBar, Spotlight, Finder Sidebar, parallax, old Desktop/Window, ViewControls, Win11 taskbar, and snap-window modules were removed after confirming they had no active source imports. Their unimported styles and dead config/type/API surfaces were removed as well. The modern `Shell97` / `Window97` path remains the only active desktop/window implementation. Historical files such as `template.txt` and `context.txt` are retained as project history and are not runtime modules.
 
 ### What to KEEP (adapt, don't rewrite)
 1. **Zustand [os-store.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/features/os/os-store.ts)** — simplify for Win95
@@ -76,7 +84,7 @@ The codebase has **already completed** a migration from macOS to Windows 11. The
 3. **[open-target.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/features/os/open-target.ts)** — add Win95 extensions
 4. **[app-registry.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/features/apps/app-registry.ts)** — expand with new apps
 5. **[terminal-commands.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/features/terminal/terminal-commands.ts)** — restyle as MS-DOS Prompt
-6. **Window drag/resize logic** in [Window.tsx](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/components/Window.tsx) — strip snap, restyle chrome
+6. **Window drag/resize logic** now lives in `src/wm/Window97.tsx`, `src/wm/useDrag97.ts`, and `src/wm/useResize97.ts`; the original snap-capable adapter was removed after the final runtime import audit.
 7. **[ExplorerContent.tsx](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/windows/ExplorerContent.tsx)**, **[NotepadContent.tsx](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/windows/NotepadContent.tsx)**, **[RecycleBinContent.tsx](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/windows/RecycleBinContent.tsx)** — restyle
 8. **[profile-storage.ts](file:///c:/Users/Admin/OneDrive/Desktop/weru_os/src/features/os/profile-storage.ts)** — per-visitor isolation. Keep as-is!
 

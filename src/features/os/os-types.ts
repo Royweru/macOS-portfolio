@@ -2,20 +2,11 @@ export type OsPhase = 'bios' | 'starting' | 'logo' | 'desktop';
 
 export type WindowMode = 'normal' | 'minimized' | 'maximized';
 
-/** @deprecated Retained only for the legacy window adapter until Phase 4 is complete. */
-export type SnapSlot = string;
-
 export interface WindowRect {
   x: number;
   y: number;
   width: number;
   height: number;
-}
-
-export interface MenuBarConfig {
-  id: string;
-  label: string;
-  items: Array<{ id: string; label: string; disabled?: boolean }>;
 }
 
 export interface WindowInstance extends WindowRect {
@@ -33,10 +24,11 @@ export interface WindowInstance extends WindowRect {
   readOnly?: boolean;
   documentTitle?: string;
   restoreFocusTarget?: string;
-  menuBar?: MenuBarConfig[];
   canClose: boolean;
   canMinimize: boolean;
   canMaximize: boolean;
+  /** Hide the maximize control when the source window has no such button. */
+  showMaximize?: boolean;
 }
 
 export type OpenTarget =

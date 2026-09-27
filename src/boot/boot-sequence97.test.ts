@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import BootSequence97 from './BootSequence97';
-import { isBootSkipKey97 } from './boot-skip';
+import { isBootSkipKey97, shouldFadeBootExit97 } from './boot-skip';
 
 describe('BootSequence97 skip contract', () => {
   it('accepts the documented keyboard skip keys only', () => {
@@ -22,5 +22,11 @@ describe('BootSequence97 stage markup', () => {
 
     expect(markup).toContain('class="boot97 boot97-stage-bios "');
     expect(markup).toContain('class="boot97-bios"');
+  });
+
+  it('fades the logo splash on skip but immediately exits BIOS and starting stages', () => {
+    expect(shouldFadeBootExit97('logo')).toBe(true);
+    expect(shouldFadeBootExit97('bios')).toBe(false);
+    expect(shouldFadeBootExit97('starting')).toBe(false);
   });
 });

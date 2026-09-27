@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Paperclip, Trash2 } from 'lucide-react';
+import ExternalBrowserLink97 from '../components/ExternalBrowserLink97';
 
 const ContactContent: React.FC = () => {
   const [name, setName]       = useState('');
@@ -144,16 +145,14 @@ const ContactContent: React.FC = () => {
                 { label: 'LinkedIn', href: 'https://linkedin.com/in/weru',    color: '#0A66C2' },
                 { label: 'Twitter',  href: 'https://twitter.com/weru',        color: '#1DA1F2' },
               ].map(link => (
-                <a
+                <ExternalBrowserLink97
                   key={link.label}
                   href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
                   className="text-[11.5px] font-medium hover:underline"
                   style={{ color: link.color }}
                 >
                   {link.label}
-                </a>
+                </ExternalBrowserLink97>
               ))}
             </div>
           </motion.div>

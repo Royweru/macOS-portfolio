@@ -9,7 +9,9 @@ import { filesystemDb, legacyFilesystemDb } from './filesystem-db';
 import type { TrashEntry, VfsNode } from './filesystem-types';
 import { VIRTUAL_LAYOUT_VERSION, VIRTUAL_NODE_IDS, VIRTUAL_PATHS, normalizeVirtualPath } from './virtual-paths';
 import { isBundledMediaSource, isSupportedMediaMimeType } from '../media/media-types';
+import { mediaAssetFilename } from '../media/media-playlist';
 import { getBrowserProfileId } from '../os/profile-storage';
+import { resolveMarkdownTextLink97 } from './markdown-link97';
 
 const ROOT_ID = VIRTUAL_NODE_IDS.root;
 const now = () => new Date().toISOString();
@@ -174,8 +176,12 @@ const createProjectDemoNodes = (): VfsNode[] => PROJECTS.flatMap(project => {
   const demo = project.files?.demo;
   if (!demo) return [];
   const projectId = `project-${project.id}`;
+  const demoFilename = mediaAssetFilename({
+    source: demo.src,
+    title: demo.title ?? `${project.title} Demo`,
+  });
   return [{
-    ...createFile(`${projectId}-demo`, projectId, 'demo.avi', '', demo.mimeType ?? 'video/mp4', 'media-player'),
+    ...createFile(`${projectId}-demo`, projectId, demoFilename, '', demo.mimeType ?? 'video/mp4', 'media-player'),
     media: {
       mediaId: `${project.id}-demo`,
       projectId: project.legacyId ?? 0,
@@ -192,21 +198,33 @@ const createProjectDemoNodes = (): VfsNode[] => PROJECTS.flatMap(project => {
 // corrected public asset URL reaches already-seeded IndexedDB nodes safely.
 const createMediaNodes = () => [...createPersonalMediaNodes(), ...createProjectMediaNodes(), ...createProjectDemoNodes()];
 
+/** Upgrade the old generated label only; preserve any filename the visitor renamed themselves. */
+export const mergeSyncedMediaNode97 = (node: VfsNode, existing: VfsNode): VfsNode => {
+  const isLegacyGeneratedProjectDemo = existing.id === node.id
+    && existing.parentId === node.parentId
+    && node.id.startsWith('project-')
+    && node.id === `${node.parentId}-demo`
+    && existing.name === 'demo.avi'
+    && node.name !== existing.name;
+
+  return {
+    ...node,
+    name: isLegacyGeneratedProjectDemo ? node.name : existing.name,
+    content: existing.content,
+    size: existing.size,
+    createdAt: existing.createdAt,
+    isSystem: existing.isSystem,
+    isReadOnly: existing.isReadOnly,
+  };
+};
+
 const syncMediaNodes = async () => {
   const nodes = createMediaNodes();
   if (!nodes.length && !PROJECT_MEDIA_MANIFEST.length) return;
   await filesystemDb.transaction('rw', filesystemDb.nodes, async () => {
     for (const node of nodes) {
       const existing = await filesystemDb.nodes.get(node.id);
-      await filesystemDb.nodes.put(existing ? {
-        ...node,
-        name: existing.name,
-        content: existing.content,
-        size: existing.size,
-        createdAt: existing.createdAt,
-        isSystem: existing.isSystem,
-        isReadOnly: existing.isReadOnly,
-      } : node);
+      await filesystemDb.nodes.put(existing ? mergeSyncedMediaNode97(node, existing) : node);
     }
 
     for (const manifest of PROJECT_MEDIA_MANIFEST) {
@@ -383,6 +401,12 @@ export const createWin97Nodes = () => {
   return nodes;
 };
 
+/** Reconcile generated linked text assets without discarding an already-fetched cache for the same URL. */
+export const mergeSeededTextAsset97 = (node: VfsNode, existing?: VfsNode): VfsNode => {
+  if (!node.contentUrl || existing?.contentUrl !== node.contentUrl || !existing.content) return node;
+  return { ...node, content: existing.content, size: existing.size, createdAt: existing.createdAt };
+};
+
 /**
  * Plan a lossless repair for old media-library folders left inside My Documents.
  * Only the now-empty duplicate folder records are removed; all descendants are
@@ -471,9 +495,7 @@ async function migrateWin97Layout() {
     for (const node of nodes) {
       const existing = await filesystemDb.nodes.get(node.id);
       if (!existing || node.isSystem || node.kind === 'folder') {
-        const nextNode = node.contentUrl && existing?.contentUrl === node.contentUrl && existing.content
-          ? { ...node, content: existing.content, size: existing.size, createdAt: existing.createdAt }
-          : node;
+        const nextNode = mergeSeededTextAsset97(node, existing);
         await filesystemDb.nodes.put(nextNode);
       }
     }
@@ -704,6 +726,13 @@ export const listChildren = async (parentId: string) => {
 export const getNode = async (id: string) => {
   const node = await filesystemDb.nodes.get(id);
   return node ? withDynamicContent(node) : undefined;
+};
+
+export const getMarkdownLinkedTextFile = async (sourceNodeId: string, href: string) => {
+  const nodes = await filesystemDb.nodes.toArray();
+  const source = nodes.find(node => node.id === sourceNodeId);
+  if (!source) return undefined;
+  return resolveMarkdownTextLink97(source, href, nodes);
 };
 
 export const getCanonicalPath = async (id: string) => {

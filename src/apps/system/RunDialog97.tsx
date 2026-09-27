@@ -1,14 +1,51 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Button95 from '../../components/win95/Button95';
 import AppIcon from '../../components/AppIcon';
+import { parseRunCommand97, resolveRunFileTarget97 } from './run-command97';
+import type { OpenTarget } from '../../features/os/os-types';
 
-const aliases: Record<string, string> = { calc: 'calculator', winmine: 'minesweeper', iexplore: 'ie4', msdos: 'msdos', cdplayer: 'cd-player', mspaint: 'paint', explorer: 'explorer', notepad: 'notepad', control: 'control-panel' };
-
-export default function RunDialog97({ onOpenApp, onClose }: { onOpenApp: (appId: string) => void; onClose?: () => void }) {
+export default function RunDialog97({ onOpenApp, onOpenTarget, onClose }: { onOpenApp: (appId: string) => void; onOpenTarget: (target: OpenTarget) => void; onClose?: () => void }) {
   const [value, setValue] = useState('');
   const [message, setMessage] = useState('');
-  const run = () => { const command = value.trim().toLowerCase(); if (command === 'regedit' || command === 'format c:') { setMessage('Access denied. This protected Weru 97 runtime cannot modify system state.'); return; } const app = aliases[command]; if (!app) { setMessage(`Windows cannot find '${value}'. Check the spelling and try again.`); return; } onOpenApp(app); setValue(''); setMessage(''); onClose?.(); };
-  return <div className="win97-app win97-dialog-layout"><div className="win97-property-header"><div className="win95-icon32"><AppIcon appId="run" size={32} /></div><div><b>Run</b><p>Type the name of a program, folder, document, or Internet resource, and Weru 97 will open it for you.</p></div></div><label htmlFor="run-command">Open:</label><input id="run-command" autoFocus value={value} onChange={event => setValue(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') run(); }} />{message && <p role="alert" className="win97-muted">{message}</p>}<div className="win97-dialog-actions"><Button95 size="sm" onClick={run}>OK</Button95><Button95 size="sm" onClick={onClose}>Cancel</Button95></div></div>;
+  const requestId = useRef(0);
+
+  const close = () => { requestId.current += 1; onClose?.(); };
+  const finish = () => { requestId.current += 1; setValue(''); setMessage(''); onClose?.(); };
+  const run = () => {
+    const activeRequest = ++requestId.current;
+    const command = parseRunCommand97(value);
+    setMessage('');
+
+    // Preserve the browser's user-activation window for external navigation.
+    if (command.kind === 'external') {
+      onOpenTarget({ kind: 'external', url: command.url });
+      finish();
+      return;
+    }
+    if (command.kind === 'application') {
+      onOpenApp(command.appId);
+      finish();
+      return;
+    }
+    if (command.kind === 'error') {
+      setMessage(command.message);
+      return;
+    }
+
+    void resolveRunFileTarget97(command).then(result => {
+      if (activeRequest !== requestId.current) return;
+      if ('error' in result) {
+        setMessage(result.error);
+        return;
+      }
+      onOpenTarget(result.target);
+      finish();
+    }).catch(() => {
+      if (activeRequest === requestId.current) setMessage('The requested item could not be read from the Weru filesystem.');
+    });
+  };
+
+  return <div className="win97-app win97-dialog-layout"><div className="win97-property-header"><div className="win95-icon32"><AppIcon appId="run" size={32} /></div><div><b>Run</b><p>Type the name of a program, folder, document, or Internet resource, and Weru 97 will open it for you.</p></div></div><label htmlFor="run-command">Open:</label><input id="run-command" autoFocus value={value} onChange={event => setValue(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') run(); }} />{message && <p role="alert" className="win97-muted">{message}</p>}<div className="win97-dialog-actions"><Button95 size="sm" onClick={run}>OK</Button95><Button95 size="sm" onClick={close}>Cancel</Button95></div></div>;
 }

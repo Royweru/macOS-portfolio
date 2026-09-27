@@ -1,12 +1,20 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { RefObject, SyntheticEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import type { FormEvent, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, RefObject, SyntheticEvent } from 'react';
+import { createPortal } from 'react-dom';
 import Button95 from '../../components/win95/Button95';
 import type { MediaAsset } from '../../features/media/media-types';
 import { adjacentMediaAsset, buildPlayableMediaList, formatMediaDuration, mediaAssetFilename, mediaAssetKey } from '../../features/media/media-playlist';
 import { useReducedMotion97 } from '../../hooks/useReducedMotion97';
 import { useOsStore } from '../../features/os/os-store';
+import { hasDismissedCodecNotice97, rememberCodecNoticeDismissal97 } from './codec-notice-preference97';
+import { getServerShellDialogLayer97, getShellDialogLayer97, subscribeShellDialogLayer97 } from '../../shell/dialog-layer97';
+import MediaUnavailable97 from './MediaUnavailable97';
+import { describeMediaFailure97, type MediaFailure97, type MediaFailureLike97 } from './media-failure97';
+import { pauseMedia97 } from './media-player-lifecycle97';
+import { mediaAssetFromUrl97 } from './media-url97';
+import { toggleMediaFavorite97 } from './media-player-favorites97';
 
 const STITCH_PREVIEW_TRACKS = [
   { name: 'demo.avi', duration: '00:45', size: '14.3 MB' },
@@ -35,10 +43,13 @@ function WireframeViewport({ playing }: { playing: boolean }) {
 interface MediaPlayer97Props {
   asset?: MediaAsset;
   availableAssets?: MediaAsset[];
+  onClose?: () => void;
 }
 
-export default function MediaPlayer97({ asset, availableAssets = [] }: MediaPlayer97Props) {
+export default function MediaPlayer97({ asset, availableAssets = [], onClose }: MediaPlayer97Props) {
   const mediaRef = useRef<HTMLMediaElement>(null);
+  const compactWindowRef = useRef<HTMLElement>(null);
+  const compactDragRef = useRef<{ pointerId: number; startX: number; startY: number; offsetX: number; offsetY: number; left: number; right: number; top: number; bottom: number; host: DOMRect } | null>(null);
   const library = useMemo(() => buildPlayableMediaList(availableAssets), [availableAssets]);
   const [playlist, setPlaylist] = useState<MediaAsset[]>(() => buildPlayableMediaList([], asset));
   const [selectedKey, setSelectedKey] = useState<string | null>(() => {
@@ -50,20 +61,36 @@ export default function MediaPlayer97({ asset, availableAssets = [] }: MediaPlay
   const [duration, setDuration] = useState(() => playlist[0]?.durationSeconds ?? 0);
   const [volume, setVolume] = useState(1);
   const [muted, setMuted] = useState(false);
+  const [mediaFailure, setMediaFailure] = useState<MediaFailure97 | null>(null);
   const [bars, setBars] = useState([18, 42, 26, 58, 34, 48, 22, 48, 35, 24, 42]);
-  const [showCodec, setShowCodec] = useState(true);
+  const [showCodec, setShowCodec] = useState(() => !hasDismissedCodecNotice97());
+  const [rememberCodecDismissal, setRememberCodecDismissal] = useState(false);
   const [showCompact, setShowCompact] = useState(true);
+  const [compactOffset, setCompactOffset] = useState({ x: 0, y: 0 });
+  const overlayHost = useSyncExternalStore(subscribeShellDialogLayer97, getShellDialogLayer97, getServerShellDialogLayer97);
   const [showPlaylist, setShowPlaylist] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
+  const [openMenu, setOpenMenu] = useState<'File' | 'Favorites' | null>(null);
+  const [favoriteAssets, setFavoriteAssets] = useState<MediaAsset[]>([]);
+  const [showUrlDialog, setShowUrlDialog] = useState(false);
+  const [urlDraft, setUrlDraft] = useState('');
+  const [urlError, setUrlError] = useState<string | null>(null);
+  const [showProperties, setShowProperties] = useState(false);
   const [status, setStatus] = useState(() => playlist[0] ? 'Ready' : 'No media loaded');
   const appReducedMotion = useOsStore(state => state.settings.reducedMotion);
   const reducedMotion = useReducedMotion97(appReducedMotion);
 
   const activeAsset = playlist.find(item => mediaAssetKey(item) === selectedKey);
+  const activeIsFavorite = Boolean(activeAsset && favoriteAssets.some(item => mediaAssetKey(item) === mediaAssetKey(activeAsset)));
   const unqueuedAssets = library.filter(item => !playlist.some(queued => mediaAssetKey(queued) === mediaAssetKey(item)));
   const selectedIndex = playlist.findIndex(item => mediaAssetKey(item) === selectedKey);
   const displayName = activeAsset ? mediaAssetFilename(activeAsset) : 'No media loaded';
   const displayDuration = duration || activeAsset?.durationSeconds || 0;
+
+  useEffect(() => {
+    const media = mediaRef.current;
+    return () => pauseMedia97(media);
+  }, [activeAsset?.source]);
 
   useEffect(() => {
     if (!mediaRef.current) return;
@@ -99,6 +126,7 @@ export default function MediaPlayer97({ asset, availableAssets = [] }: MediaPlay
     setSelectedKey(nextAsset ? mediaAssetKey(nextAsset) : null);
     setCurrent(0);
     setDuration(nextAsset?.durationSeconds ?? 0);
+    setMediaFailure(null);
     setPlaying(false);
     setStatus(nextAsset ? `Ready: ${nextAsset.title}` : 'No media loaded');
   };
@@ -108,11 +136,14 @@ export default function MediaPlayer97({ asset, availableAssets = [] }: MediaPlay
     if (!activeAsset || !media) { setStatus('No media loaded'); return; }
     if (media.paused) {
       void media.play().then(() => {
+        setMediaFailure(null);
         setPlaying(true);
         setStatus(`Playing: ${activeAsset.title}`);
-      }).catch(() => {
+      }).catch((error: unknown) => {
         setPlaying(false);
-        setStatus('Media unavailable');
+        const failure = describeMediaFailure97(error && typeof error === 'object' ? error as MediaFailureLike97 : null);
+        setMediaFailure(failure);
+        setStatus(failure.status);
       });
     } else {
       media.pause();
@@ -143,6 +174,8 @@ export default function MediaPlayer97({ asset, availableAssets = [] }: MediaPlay
     setPlaylist(currentPlaylist => buildPlayableMediaList([...currentPlaylist, item], item));
     selectAsset(item);
     setShowLibrary(false);
+    setShowUrlDialog(false);
+    setUrlError(null);
   };
   const removeTrack = () => {
     if (!activeAsset) return;
@@ -153,25 +186,143 @@ export default function MediaPlayer97({ asset, availableAssets = [] }: MediaPlay
   };
 
   const onTimeUpdate = (event: SyntheticEvent<HTMLMediaElement>) => setCurrent(event.currentTarget.currentTime);
-  const onMetadata = (event: SyntheticEvent<HTMLMediaElement>) => setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0);
+  const onMetadata = (event: SyntheticEvent<HTMLMediaElement>) => {
+    setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0);
+    setMediaFailure(null);
+    setStatus(`Ready: ${activeAsset?.title ?? 'Media'}`);
+  };
   const onEnded = () => { setPlaying(false); setStatus('Playback complete'); };
-  const onMediaError = () => { setPlaying(false); setStatus('Media unavailable'); };
+  const onMediaError = (event: SyntheticEvent<HTMLMediaElement>) => {
+    const failure = describeMediaFailure97(event.currentTarget.error);
+    setPlaying(false);
+    setMediaFailure(failure);
+    setStatus(failure.status);
+  };
+  const dismissCodecNotice = () => {
+    if (rememberCodecDismissal) rememberCodecNoticeDismissal97();
+    setRememberCodecDismissal(false);
+    setShowCodec(false);
+  };
+  const openLibrary = () => { setOpenMenu(null); setShowLibrary(true); };
+  const openUrlPrompt = () => { setOpenMenu(null); setUrlDraft(''); setUrlError(null); setShowUrlDialog(true); };
+  const openMediaUrl = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const remoteAsset = mediaAssetFromUrl97(urlDraft);
+    if (!remoteAsset) {
+      setUrlError('Enter a direct HTTP(S) link to a supported audio or video file.');
+      return;
+    }
+    addTrack(remoteAsset);
+  };
+  const onPlayerKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape') {
+      setOpenMenu(null);
+      if (showLibrary) setShowLibrary(false);
+      if (showUrlDialog) setShowUrlDialog(false);
+      if (showProperties) setShowProperties(false);
+      return;
+    }
+    if (!event.ctrlKey && !event.metaKey) return;
+    const target = event.target as HTMLElement;
+    if (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+    const key = event.key.toLowerCase();
+    if (key === 'o') { event.preventDefault(); openLibrary(); }
+    else if (key === 'u') { event.preventDefault(); openUrlPrompt(); }
+    else if (key === 'p') { event.preventDefault(); toggle(); }
+    else if (key === 's') { event.preventDefault(); stop(); }
+    else if (key === 'a' && activeAsset) { event.preventDefault(); mediaRef.current?.pause(); setPlaying(false); setStatus('Paused'); }
+  };
+  const startCompactDrag = (event: ReactPointerEvent<HTMLElement>) => {
+    if ((event.target as HTMLElement).closest('button') || !overlayHost || !compactWindowRef.current) return;
+    const rect = compactWindowRef.current.getBoundingClientRect();
+    compactDragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      offsetX: compactOffset.x,
+      offsetY: compactOffset.y,
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      bottom: rect.bottom,
+      host: overlayHost.getBoundingClientRect(),
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const moveCompact = (event: ReactPointerEvent<HTMLElement>) => {
+    const drag = compactDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const dx = Math.max(drag.host.left - drag.left, Math.min(drag.host.right - drag.right, event.clientX - drag.startX));
+    const dy = Math.max(drag.host.top - drag.top, Math.min(drag.host.bottom - drag.bottom, event.clientY - drag.startY));
+    setCompactOffset({ x: drag.offsetX + dx, y: drag.offsetY + dy });
+  };
+  const stopCompactDrag = (event: ReactPointerEvent<HTMLElement>) => {
+    if (compactDragRef.current?.pointerId !== event.pointerId) return;
+    compactDragRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
 
-  return <div className="win97-app win97-media-player win97-media-surface">
+  const compactWindow = showCompact ? <aside ref={compactWindowRef} className="win97-media-compact" style={{ transform: `translate(${compactOffset.x}px, ${compactOffset.y}px)` }} aria-label="WMP Compact Mode">
+    <header onPointerDown={startCompactDrag} onPointerMove={moveCompact} onPointerUp={stopCompactDrag} onPointerCancel={stopCompactDrag}><span>▥ WMP COMPACT MODE</span><div>
+      <button type="button" aria-label="Minimize compact player" onClick={() => setShowCompact(false)}>_</button>
+      <button type="button" aria-label="Close compact player" onClick={() => setShowCompact(false)}>×</button>
+    </div></header>
+    <div className="win97-media-compact-body">
+      <div className="win97-media-compact-screen"><span>KBPS: 128</span><span>KHZ: 44.1</span><b>{activeAsset?.kind === 'video' ? 'VIDEO' : 'AUDIO'}</b><strong>*** {displayName.toUpperCase()} ***</strong><div>{bars.map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}</div></div>
+      <div className="win97-media-compact-controls"><Button95 size="sm" aria-label="Compact rewind" disabled={!activeAsset} onClick={() => seekBy(-10)}>◀◀</Button95><Button95 size="sm" aria-label="Compact play" disabled={!activeAsset} pressed={playing} onClick={toggle}>▶</Button95><Button95 size="sm" aria-label="Compact pause" disabled={!activeAsset} onClick={() => { mediaRef.current?.pause(); setPlaying(false); setStatus('Paused'); }}>❚❚</Button95><Button95 size="sm" aria-label="Compact stop" disabled={!activeAsset} onClick={stop}>■</Button95><Button95 size="sm" aria-label="Compact fast forward" disabled={!activeAsset} onClick={() => seekBy(10)}>▶▶</Button95></div>
+    </div>
+  </aside> : null;
+
+  const codecDialog = showCodec ? <div className="win97-media-codec" role="dialog" aria-label="Codec Notice">
+    <header><span>● Codec Notice</span><button type="button" aria-label="Close codec notice" onClick={dismissCodecNotice}>×</button></header>
+    <div className="win97-media-codec-body"><strong>⚠</strong><p>Rendering hardware video acceleration is active. Weru Media Player 6.4 is operating in 16-bit True Color mode.<label><input type="checkbox" checked={rememberCodecDismissal} onChange={event => setRememberCodecDismissal(event.target.checked)} /> Don't show this again</label></p></div>
+    <footer><Button95 size="sm" onClick={dismissCodecNotice}>OK</Button95></footer>
+  </div> : null;
+
+  return <>
+  <div className="win97-app win97-media-player win97-media-surface" onKeyDown={onPlayerKeyDown}>
     <div className="win95-menubar win97-media-menubar">
-      <button type="button" onClick={() => setShowLibrary(true)}><u>F</u>ile</button>
-      <button type="button" onClick={() => setShowPlaylist(value => !value)}><u>E</u>dit</button>
-      <button type="button" onClick={() => setShowCompact(value => !value)}><u>V</u>iew</button>
-      <button type="button" onClick={toggle}><u>P</u>lay</button>
-      <button type="button" disabled><u>F</u>avorites</button>
-      <button type="button" onClick={() => setShowCodec(true)}><u>H</u>elp</button>
+      <div className="win97-media-file-menu-wrap">
+        <button type="button" aria-haspopup="menu" aria-expanded={openMenu === 'File'} onClick={() => setOpenMenu(current => current === 'File' ? null : 'File')}><u>F</u>ile</button>
+        {openMenu === 'File' && <div className="win97-media-file-menu" role="menu" aria-label="Media Player File menu">
+          <button type="button" role="menuitem" onClick={openLibrary}><span><u>O</u>pen...</span><kbd>Ctrl+O</kbd></button>
+          <button type="button" role="menuitem" onClick={openUrlPrompt}><span>Open <u>U</u>RL...</span><kbd>Ctrl+U</kbd></button>
+          <hr />
+          <button type="button" role="menuitem" disabled={!activeAsset} onClick={() => { setOpenMenu(null); toggle(); }}><span>▶ <u>P</u>lay</span><kbd>Ctrl+P</kbd></button>
+          <button type="button" role="menuitem" disabled={!activeAsset} onClick={() => { setOpenMenu(null); stop(); }}><span><u>S</u>top</span><kbd>Ctrl+S</kbd></button>
+          <button type="button" role="menuitem" disabled={!activeAsset || !playing} onClick={() => { setOpenMenu(null); mediaRef.current?.pause(); setPlaying(false); setStatus('Paused'); }}><span>Pause</span><kbd>Ctrl+A</kbd></button>
+          <hr />
+          <button type="button" role="menuitem" disabled={!activeAsset} onClick={() => { setOpenMenu(null); setShowProperties(true); }}><span>P<u>r</u>operties</span></button>
+          <hr />
+          <button type="button" role="menuitem" onClick={() => { setOpenMenu(null); onClose?.(); }}><span>E<u>x</u>it</span></button>
+        </div>}
+      </div>
+      <button type="button" onClick={() => { setOpenMenu(null); setShowPlaylist(value => !value); }}><u>E</u>dit</button>
+      <button type="button" onClick={() => { setOpenMenu(null); setShowCompact(value => !value); }}><u>V</u>iew</button>
+      <button type="button" onClick={() => { setOpenMenu(null); toggle(); }}><u>P</u>lay</button>
+      <div className="win97-media-file-menu-wrap">
+        <button type="button" aria-haspopup="menu" aria-expanded={openMenu === 'Favorites'} onClick={() => setOpenMenu(current => current === 'Favorites' ? null : 'Favorites')}><u>F</u>avorites</button>
+        {openMenu === 'Favorites' && <div className="win97-media-file-menu" role="menu" aria-label="Media Player Favorites menu">
+          <button type="button" role="menuitem" disabled={!activeAsset} onClick={() => { if (activeAsset) setFavoriteAssets(current => toggleMediaFavorite97(current, activeAsset)); setOpenMenu(null); }}>
+            <span>{activeIsFavorite ? 'Remove from Favorites' : 'Add to Favorites'}</span>
+          </button>
+          <hr />
+          {favoriteAssets.length
+            ? favoriteAssets.map(item => <button key={mediaAssetKey(item)} type="button" role="menuitem" onClick={() => { addTrack(item); setOpenMenu(null); }}><span>{mediaAssetFilename(item)}</span></button>)
+            : <button type="button" role="menuitem" disabled><span>No favorites this session</span></button>}
+        </div>}
+      </div>
+      <button type="button" onClick={() => { setOpenMenu(null); setRememberCodecDismissal(false); setShowCodec(true); }}><u>H</u>elp</button>
     </div>
 
     <div className="win97-media-main win97-media-main-stitch">
       <div className="win97-media-primary">
         <div className="win97-media-screen win97-media-screen-stitch">
           {activeAsset?.kind === 'video'
-            ? <video ref={mediaRef as RefObject<HTMLVideoElement>} className="win97-media-video" src={activeAsset.source} poster={activeAsset.poster} aria-label={activeAsset.title} preload="metadata" playsInline onTimeUpdate={onTimeUpdate} onLoadedMetadata={onMetadata} onEnded={onEnded} onError={onMediaError}>{activeAsset.captionSource && <track kind="captions" src={activeAsset.captionSource} />}</video>
+            ? <>
+              <video ref={mediaRef as RefObject<HTMLVideoElement>} className="win97-media-video" src={activeAsset.source} poster={activeAsset.poster} aria-label={activeAsset.title} preload="metadata" playsInline onTimeUpdate={onTimeUpdate} onLoadedMetadata={onMetadata} onEnded={onEnded} onError={onMediaError}>{activeAsset.captionSource && <track kind="captions" src={activeAsset.captionSource} />}</video>
+              {mediaFailure && <MediaUnavailable97 asset={activeAsset} failure={mediaFailure} />}
+            </>
             : <WireframeViewport playing={playing && !reducedMotion} />}
           {activeAsset?.kind === 'audio' && <audio ref={mediaRef as RefObject<HTMLAudioElement>} src={activeAsset.source} preload="metadata" onTimeUpdate={onTimeUpdate} onLoadedMetadata={onMetadata} onEnded={onEnded} onError={onMediaError} />}
         </div>
@@ -212,19 +363,8 @@ export default function MediaPlayer97({ asset, availableAssets = [] }: MediaPlay
 
     <div className="win97-media-status-stitch"><span aria-live="polite"><i />{status}</span><b>{formatMediaDuration(current)}</b><b>{activeAsset?.mimeType ?? 'No media'}</b><b>{activeAsset ? 'Ready' : 'Stereo 22kHz'}</b></div>
 
-    {showCompact && <aside className="win97-media-compact" aria-label="WMP Compact Mode">
-      <header><span>▥ WMP COMPACT MODE</span><button type="button" aria-label="Close compact player" onClick={() => setShowCompact(false)}>×</button></header>
-      <div className="win97-media-compact-body">
-        <div className="win97-media-compact-screen"><span>KBPS: 128</span><span>KHZ: 44.1</span><b>{activeAsset?.kind === 'video' ? 'VIDEO' : 'AUDIO'}</b><strong>*** {displayName.toUpperCase()} ***</strong><div>{bars.map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}</div></div>
-        <div className="win97-media-compact-controls"><Button95 size="sm" aria-label="Compact rewind" disabled={!activeAsset} onClick={() => seekBy(-10)}>◀◀</Button95><Button95 size="sm" aria-label="Compact play" disabled={!activeAsset} pressed={playing} onClick={toggle}>▶</Button95><Button95 size="sm" aria-label="Compact pause" disabled={!activeAsset} onClick={() => { mediaRef.current?.pause(); setPlaying(false); setStatus('Paused'); }}>❚❚</Button95><Button95 size="sm" aria-label="Compact stop" disabled={!activeAsset} onClick={stop}>■</Button95><Button95 size="sm" aria-label="Compact fast forward" disabled={!activeAsset} onClick={() => seekBy(10)}>▶▶</Button95></div>
-      </div>
-    </aside>}
-
-    {showCodec && <div className="win97-media-codec" role="dialog" aria-label="Codec Notice">
-      <header><span>● Codec Notice</span><button type="button" aria-label="Close codec notice" onClick={() => setShowCodec(false)}>×</button></header>
-      <div className="win97-media-codec-body"><strong>⚠</strong><p>Rendering hardware video acceleration is active. Weru Media Player 6.4 is operating in 16-bit True Color mode.<label><input type="checkbox" /> Don't show this again</label></p></div>
-      <footer><Button95 size="sm" onClick={() => setShowCodec(false)}>OK</Button95></footer>
-    </div>}
+    {!overlayHost && compactWindow}
+    {!overlayHost && codecDialog}
 
     {showLibrary && <div className="win97-media-library-dialog" role="dialog" aria-modal="true" aria-label="Media Library">
       <header><span>Open Media</span><button type="button" aria-label="Close media library" onClick={() => setShowLibrary(false)}>×</button></header>
@@ -235,5 +375,19 @@ export default function MediaPlayer97({ asset, availableAssets = [] }: MediaPlay
       </div>
       <footer><Button95 size="sm" onClick={() => setShowLibrary(false)}>Cancel</Button95></footer>
     </div>}
-  </div>;
+    {showUrlDialog && <form className="win97-media-library-dialog win97-media-url-dialog" role="dialog" aria-modal="true" aria-label="Open Media URL" onSubmit={openMediaUrl}>
+      <header><span>Open URL</span><button type="button" aria-label="Close URL dialog" onClick={() => setShowUrlDialog(false)}>×</button></header>
+      <label>Media URL<input autoFocus value={urlDraft} onChange={event => { setUrlDraft(event.target.value); setUrlError(null); }} aria-invalid={Boolean(urlError)} aria-describedby={urlError ? 'win97-media-url-error' : 'win97-media-url-help'} /></label>
+      <small id={urlError ? 'win97-media-url-error' : 'win97-media-url-help'} role={urlError ? 'alert' : undefined}>{urlError ?? 'Enter a direct HTTP(S) link to an MP4, WebM, Ogg, AVI, MP3, WAV, or MIDI file.'}</small>
+      <footer><Button95 size="sm" type="button" onClick={() => setShowUrlDialog(false)}>Cancel</Button95><Button95 size="sm" type="submit">Open</Button95></footer>
+    </form>}
+    {showProperties && activeAsset && <div className="win97-media-library-dialog win97-media-properties-dialog" role="dialog" aria-modal="true" aria-label="Media Properties">
+      <header><span>Properties</span><button type="button" aria-label="Close properties" onClick={() => setShowProperties(false)}>×</button></header>
+      <dl><dt>Name</dt><dd>{mediaAssetFilename(activeAsset)}</dd><dt>Type</dt><dd>{activeAsset.mimeType}</dd><dt>Location</dt><dd title={activeAsset.source}>{activeAsset.source}</dd><dt>Duration</dt><dd>{formatMediaDuration(displayDuration)}</dd></dl>
+      <footer><Button95 size="sm" onClick={() => setShowProperties(false)}>OK</Button95></footer>
+    </div>}
+  </div>
+  {overlayHost && compactWindow ? createPortal(compactWindow, overlayHost) : null}
+  {overlayHost && codecDialog ? createPortal(codecDialog, overlayHost) : null}
+  </>;
 }

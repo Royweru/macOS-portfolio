@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { getDesktopPropertiesTarget97, getDesktopShortcutPosition97 } from './desktop-layout97';
+import { describe, expect, it, vi } from 'vitest';
+import { activateDesktopShortcutOnKey97, getDesktopPropertiesTarget97, getDesktopShortcutPosition97 } from './desktop-layout97';
 
 describe('Stitch desktop shortcut flow', () => {
   it('keeps the Stitch column-first order and uses a second column when the viewport is short', () => {
@@ -22,5 +22,19 @@ describe('Stitch desktop shortcut flow', () => {
     expect(getDesktopPropertiesTarget97()).toEqual({ kind: 'application', appId: 'control-panel' });
     expect(getDesktopPropertiesTarget97('shortcut-my-computer')).toEqual({ kind: 'application', appId: 'system-properties' });
     expect(getDesktopPropertiesTarget97('shortcut-my-documents')).toBeUndefined();
+  });
+
+  it('opens the focused desktop shortcut with Enter and leaves other keys alone', () => {
+    const open = vi.fn();
+    const enter = { key: 'Enter', preventDefault: vi.fn(), stopPropagation: vi.fn() } as unknown as KeyboardEvent;
+    expect(activateDesktopShortcutOnKey97(enter, open)).toBe(true);
+    expect(enter.preventDefault).toHaveBeenCalledOnce();
+    expect(enter.stopPropagation).toHaveBeenCalledOnce();
+    expect(open).toHaveBeenCalledOnce();
+
+    const arrow = { key: 'ArrowDown', preventDefault: vi.fn(), stopPropagation: vi.fn() } as unknown as KeyboardEvent;
+    expect(activateDesktopShortcutOnKey97(arrow, open)).toBe(false);
+    expect(arrow.preventDefault).not.toHaveBeenCalled();
+    expect(open).toHaveBeenCalledOnce();
   });
 });

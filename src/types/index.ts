@@ -3,10 +3,7 @@
 // Import from here — never redeclare inline in components.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type WindowId = 'about' | 'projects' | 'project-detail' | 'media-player' | 'experience' | 'skills' | 'contact' | 'explorer' | 'recycle-bin' | 'terminal' | 'notepad' | 'settings' | 'photos' | 'mail' | 'ie4' | 'paint' | 'cd-player' | 'calculator' | 'minesweeper' | 'msdos' | 'system-properties' | 'control-panel' | 'run' | 'find' | 'shutdown' | 'system-warning';
-export type ViewMode  = 'grid' | 'list';
-export type TagFilter = 'main' | 'recent' | 'starred' | 'design' | 'dev' | 'ai' | 'archived';
-
+export type WindowId = 'about' | 'projects' | 'project-detail' | 'media-player' | 'experience' | 'skills' | 'contact' | 'explorer' | 'recycle-bin' | 'terminal' | 'notepad' | 'settings' | 'photos' | 'mail' | 'ie4' | 'paint' | 'cd-player' | 'cd-equalizer' | 'calculator' | 'minesweeper' | 'msdos' | 'system-properties' | 'control-panel' | 'run' | 'find' | 'shutdown' | 'system-warning';
 // ── Window config ─────────────────────────────────────────────────────────────
 export interface WindowConfig {
   title: string;
@@ -17,27 +14,10 @@ export interface WindowConfig {
   oy?: number;   // y offset from center
   centered?: boolean;
   verticalBias?: number;
-  hasSidebar?: boolean;
-  hasViewControls?: boolean;
-}
-
-// ── Window manager state ──────────────────────────────────────────────────────
-export interface WindowState {
-  openWindows:  WindowId[];
-  minimized:    WindowId[];
-  focused:      WindowId | null;
-  sections:     Partial<Record<WindowId, TagFilter>>;
-  views:        Partial<Record<WindowId, ViewMode>>;
-}
-
-// ── Dock item ─────────────────────────────────────────────────────────────────
-export interface DockItem {
-  id: string;
-  label: string;
-  color: string;
-  icon: React.ReactNode;
-  isDivider?: boolean;
-  external?: string;
+  /** Source-defined window controls; omitted means enabled by the shared shell. */
+  canMinimize?: boolean;
+  canMaximize?: boolean;
+  showMaximize?: boolean;
 }
 
 // ── Project ───────────────────────────────────────────────────────────────────
@@ -77,34 +57,4 @@ export interface Job {
   icon: string;
   bullets: string[];
   current?: boolean;
-}
-
-// ── Sidebar item ──────────────────────────────────────────────────────────────
-export interface SidebarFavorite {
-  id: string;
-  label: string;
-  icon: string;
-}
-
-export interface SidebarTag {
-  id: string;
-  label: string;
-  color: string;
-}
-
-// ── Menu bar ───────────────────────────────────────────────────────────────
-export type MenuActionType = 'openWindow' | 'externalLink' | 'command' | 'none';
-
-export interface MenuAction {
-  type: MenuActionType;
-  target?: string;
-}
-
-export interface MenuEntry {
-  id: string;
-  label: string;
-  enabled: boolean;
-  shortcut?: string;
-  action: MenuAction;
-  disabledReason?: string;
 }

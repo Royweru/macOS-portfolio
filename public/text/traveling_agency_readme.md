@@ -9,8 +9,8 @@ between the visitor and the destination.
 
 LINKS
 -----
-Live site  : REPLACE_WITH_ADVENTURES_LIVE_URL
-Source code: https://github.com/Royweru/adventures-travel-luxury
+Live site  : [Open the Adventures website](https://travelicious-rose.vercel.app)
+Source code: [GitHub repository](https://github.com/Royweru/adventures-travel-luxury)
 Demo video : open the Adventures folder in Projects
 
 

@@ -3,6 +3,6 @@
 import NotepadContent from '../../windows/NotepadContent';
 import type { OpenTarget } from '../../features/os/os-types';
 
-export default function Notepad97(props: { fileId?: string; onOpenTarget?: (target: OpenTarget) => void }) {
+export default function Notepad97(props: { fileId?: string; onOpenTarget?: (target: OpenTarget) => void; onSaveAsDocument?: (fileId: string, title: string) => void }) {
   return <div className="win97-notepad"><NotepadContent {...props} /></div>;
 }

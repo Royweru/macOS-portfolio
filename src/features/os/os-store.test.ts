@@ -4,11 +4,61 @@ import { migrateOsState, useOsStore } from './os-store';
 const ACTIVE_WINDOW_APP_IDS = [
   'about', 'projects', 'project-detail', 'media-player', 'experience', 'skills', 'contact',
   'explorer', 'recycle-bin', 'terminal', 'notepad', 'settings', 'photos', 'mail', 'ie4',
-  'paint', 'cd-player', 'calculator', 'minesweeper', 'msdos', 'system-properties',
-  'control-panel', 'run', 'find', 'shutdown',
+  'paint', 'cd-player', 'cd-equalizer', 'calculator', 'minesweeper', 'msdos', 'system-properties',
+  'control-panel', 'run', 'find', 'shutdown', 'system-warning',
 ] as const;
 
 describe('Weru 97 persisted window repair', () => {
+  it('migrates old System Properties instances to their Stitch close-only normal state', () => {
+    const migrated = migrateOsState({
+      windows: {
+        'system-properties-old': {
+          id: 'system-properties-old', appId: 'system-properties', title: 'About Me — System Properties',
+          x: 100, y: 50, width: 460, height: 420, mode: 'maximized',
+          restoreRect: { x: 120, y: 70, width: 460, height: 420 },
+          canClose: true, canMinimize: true, canMaximize: true,
+        },
+      },
+    }, 23, { width: 1280, workAreaHeight: 680 }) as unknown as {
+      windows: Record<string, { x: number; y: number; width: number; height: number; mode: string; restoreRect?: unknown; canMinimize: boolean; canMaximize: boolean; showMaximize: boolean }>;
+    };
+
+    expect(migrated.windows['system-properties-old']).toMatchObject({
+      x: 120, y: 70, width: 460, height: 420, mode: 'normal',
+      canMinimize: false, canMaximize: false, showMaximize: false,
+    });
+    expect(migrated.windows['system-properties-old']?.restoreRect).toBeUndefined();
+  });
+
+  it('enforces the source control policy when opening and operating System Properties', () => {
+    const id = 'system-properties-control-policy';
+    useOsStore.getState().closeWindow(id);
+    useOsStore.getState().openWindow('system-properties', { id, title: 'System Properties' });
+
+    expect(useOsStore.getState().windows[id]).toMatchObject({ mode: 'normal', canMinimize: false, canMaximize: false, showMaximize: false });
+    useOsStore.getState().minimizeWindow(id);
+    useOsStore.getState().toggleMaximize(id);
+    expect(useOsStore.getState().windows[id]?.mode).toBe('normal');
+
+    useOsStore.getState().closeWindow(id);
+  });
+
+  it('stores the Stitch-specific missing/disabled maximize controls for CD sibling windows', () => {
+    const store = useOsStore.getState();
+    store.closeWindow('test-cd-player');
+    store.closeWindow('test-cd-equalizer');
+    store.openWindow('cd-player', { id: 'test-cd-player', title: 'CD Player', canMaximize: false });
+    useOsStore.getState().openWindow('cd-equalizer', { id: 'test-cd-equalizer', title: 'Graphic Equalizer', canMaximize: false, showMaximize: false });
+
+    expect(useOsStore.getState().windows['test-cd-player']).toMatchObject({ canMaximize: false, showMaximize: undefined });
+    expect(useOsStore.getState().windows['test-cd-equalizer']).toMatchObject({ canMaximize: false, showMaximize: false });
+    useOsStore.getState().toggleMaximize('test-cd-player');
+    expect(useOsStore.getState().windows['test-cd-player']?.mode).toBe('normal');
+
+    useOsStore.getState().closeWindow('test-cd-player');
+    useOsStore.getState().closeWindow('test-cd-equalizer');
+  });
+
   it('clamps invalid saved rectangles and preserves profile data', () => {
     const migrated = migrateOsState({
       windows: {
@@ -81,17 +131,54 @@ describe('Weru 97 persisted window repair', () => {
     expect(migrated.shortcuts.some(shortcut => shortcut.id === 'shortcut-outlook-express')).toBe(true);
   });
 
-  it('moves the generated Outlook Express collision into the responsive desktop flow without resetting custom positions', () => {
+  it('repairs the generated Outlook collision in v20 profiles and preserves other user positions', () => {
     const migrated = migrateOsState({
       shortcuts: [
         { id: 'shortcut-games', label: 'Games', icon: 'minesweeper', appId: 'minesweeper', x: 12, y: 628, isVisible: true },
         { id: 'shortcut-outlook-express', label: 'Outlook Express', icon: 'mail', appId: 'mail', x: 104, y: 12, isVisible: true },
         { id: 'shortcut-my-computer', label: 'My Computer', icon: 'computer', x: 40, y: 48, isVisible: true },
       ],
-    }, 19) as unknown as { shortcuts: Array<{ id: string; x: number; y: number }> };
+    }, 20) as unknown as { shortcuts: Array<{ id: string; x: number; y: number }> };
 
     expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-outlook-express')).toMatchObject({ x: 12, y: 804 });
     expect(migrated.shortcuts.find(shortcut => shortcut.id === 'shortcut-my-computer')).toMatchObject({ x: 40, y: 48 });
+
+    const customized = migrateOsState({
+      shortcuts: [{ id: 'shortcut-outlook-express', label: 'Outlook Express', icon: 'mail', appId: 'mail', x: 420, y: 220, isVisible: true }],
+    }, 20) as unknown as { shortcuts: Array<{ id: string; x: number; y: number }> };
+    expect(customized.shortcuts.find(shortcut => shortcut.id === 'shortcut-outlook-express')).toMatchObject({ x: 420, y: 220 });
+  });
+
+  it('migrates only old default-sized Media Player windows to the measured Stitch height', () => {
+    const migrated = migrateOsState({
+      windows: {
+        'media-player': {
+          id: 'media-player', appId: 'media-player', title: 'Weru Media Player 6.4',
+          x: 72, y: 44, width: 640, height: 520, mode: 'normal',
+          restoreRect: { x: 72, y: 44, width: 640, height: 520 },
+        },
+        'media-player-custom': {
+          id: 'media-player-custom', appId: 'media-player', title: 'Custom Media Player',
+          x: 140, y: 90, width: 720, height: 500, mode: 'normal',
+        },
+      },
+    }, 21, { width: 1280, workAreaHeight: 680 }) as unknown as {
+      windows: Record<string, { x: number; y: number; width: number; height: number; restoreRect?: { width: number; height: number } }>;
+    };
+
+    expect(migrated.windows['media-player']).toMatchObject({ x: 72, y: 44, width: 640, height: 396 });
+    expect(migrated.windows['media-player']?.restoreRect).toEqual({ x: 72, y: 44, width: 640, height: 396 });
+    expect(migrated.windows['media-player-custom']).toMatchObject({ x: 140, y: 90, width: 720, height: 500 });
+  });
+
+  it('does not resize Media Player windows already saved by the new geometry version', () => {
+    const migrated = migrateOsState({
+      windows: {
+        'media-player': { id: 'media-player', appId: 'media-player', title: 'Media Player', x: 72, y: 44, width: 640, height: 520 },
+      },
+    }, 22, { width: 1280, workAreaHeight: 680 }) as unknown as { windows: Record<string, { height: number }> };
+
+    expect(migrated.windows['media-player']?.height).toBe(520);
   });
 
   it('repairs a persisted generic File Explorer window back to the drive root', () => {
@@ -120,6 +207,55 @@ describe('Weru 97 persisted window repair', () => {
     useOsStore.getState().openWindow('explorer', { id, title: 'File Explorer', locationId: 'root' });
 
     expect(useOsStore.getState().windows[id]).toMatchObject({ locationId: 'root', title: 'File Explorer' });
+    useOsStore.getState().closeWindow(id);
+  });
+
+  it('refreshes file-derived title metadata when a keyed window is reopened', () => {
+    const id = 'notepad-project-readme';
+    useOsStore.getState().closeWindow(id);
+    useOsStore.getState().openWindow('notepad', { id, title: 'README.txt', fileId: 'project-readme' });
+
+    useOsStore.getState().openWindow('notepad', { id, title: 'README.md', fileId: 'project-readme', readOnly: true });
+
+    expect(useOsStore.getState().windows[id]).toMatchObject({ title: 'README.md', fileId: 'project-readme', readOnly: true });
+    useOsStore.getState().closeWindow(id);
+  });
+
+  it('retargets a Notepad window to its writable Save As document', () => {
+    const id = 'test-notepad-save-as';
+    useOsStore.getState().closeWindow(id);
+    useOsStore.getState().openWindow('notepad', { id, title: 'about_me.txt', fileId: 'file-about-me', readOnly: true });
+
+    useOsStore.getState().setWindowDocument(id, 'file-copy-123', 'about_me copy.txt');
+
+    expect(useOsStore.getState().windows[id]).toMatchObject({
+      fileId: 'file-copy-123',
+      title: 'about_me copy.txt',
+      readOnly: false,
+    });
+    useOsStore.getState().closeWindow(id);
+  });
+
+  it('allows Notepad-backed profile windows to retarget to a Save As copy', () => {
+    const id = 'test-about-save-as';
+    useOsStore.getState().closeWindow(id);
+    useOsStore.getState().openWindow('about', { id, title: 'About Me.txt', fileId: 'file-about-me', readOnly: true });
+
+    useOsStore.getState().setWindowDocument(id, 'file-copy-about', 'About Me copy.txt');
+
+    expect(useOsStore.getState().windows[id]).toMatchObject({ appId: 'about', fileId: 'file-copy-about', title: 'About Me copy.txt', readOnly: false });
+    useOsStore.getState().closeWindow(id);
+  });
+
+  it('does not attach a Notepad document to a non-Notepad window', () => {
+    const id = 'test-explorer-save-as-guard';
+    useOsStore.getState().closeWindow(id);
+    useOsStore.getState().openWindow('explorer', { id, title: 'File Explorer', locationId: 'root' });
+
+    useOsStore.getState().setWindowDocument(id, 'file-copy-123', 'notes.txt');
+
+    expect(useOsStore.getState().windows[id]).toMatchObject({ appId: 'explorer', title: 'File Explorer' });
+    expect(useOsStore.getState().windows[id]?.fileId).toBeUndefined();
     useOsStore.getState().closeWindow(id);
   });
 
@@ -212,15 +348,21 @@ describe('Weru 97 persisted window repair', () => {
     useOsStore.getState().resizeWindow(id, { width: 1, height: 1 });
     expect(useOsStore.getState().windows[id]).toMatchObject({ x: 746, y: 457, width: 240, height: 160 });
 
-    useOsStore.getState().toggleMaximize(id);
-    expect(useOsStore.getState().windows[id]?.mode).toBe('maximized');
-    useOsStore.getState().toggleMaximize(id);
-    expect(useOsStore.getState().windows[id]).toMatchObject({ mode: 'normal', x: 746, y: 457, width: 240, height: 160 });
+    if (appId === 'system-properties') {
+      useOsStore.getState().toggleMaximize(id);
+      useOsStore.getState().minimizeWindow(id);
+      expect(useOsStore.getState().windows[id]?.mode).toBe('normal');
+    } else {
+      useOsStore.getState().toggleMaximize(id);
+      expect(useOsStore.getState().windows[id]?.mode).toBe('maximized');
+      useOsStore.getState().toggleMaximize(id);
+      expect(useOsStore.getState().windows[id]).toMatchObject({ mode: 'normal', x: 746, y: 457, width: 240, height: 160 });
 
-    useOsStore.getState().minimizeWindow(id);
-    expect(useOsStore.getState().windows[id]?.mode).toBe('minimized');
-    useOsStore.getState().restoreWindow(id);
-    expect(useOsStore.getState().windows[id]?.mode).toBe('normal');
+      useOsStore.getState().minimizeWindow(id);
+      expect(useOsStore.getState().windows[id]?.mode).toBe('minimized');
+      useOsStore.getState().restoreWindow(id);
+      expect(useOsStore.getState().windows[id]?.mode).toBe('normal');
+    }
     expect(useOsStore.getState().focusedWindowId).toBe(id);
 
     useOsStore.getState().closeWindow(id);

@@ -36,7 +36,7 @@ export const formatMediaDuration = (seconds?: number) => {
   return `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
 };
 
-export const mediaAssetFilename = (asset: MediaAsset) => {
+export const mediaAssetFilename = (asset: Pick<MediaAsset, 'source' | 'title'>) => {
   const path = asset.source.split(/[?#]/, 1)[0];
   const encodedName = path.split('/').filter(Boolean).at(-1);
   if (!encodedName) return asset.title;

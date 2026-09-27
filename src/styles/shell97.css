@@ -12,6 +12,8 @@
 .desktop97 { position: absolute; inset: 0 0 var(--w95-taskbar-h); overflow: hidden; }
 .desktop97-icons { position: absolute; inset: 0; }
 .desktop97-icon { position: absolute; display: flex; width: 88px; height: 72px; flex-direction: column; align-items: center; justify-content: flex-start; gap: 0; padding: 2px; color: #fff; background: transparent; border: 1px solid transparent; text-shadow: 1px 1px #000; font: 10px/12px var(--w95-font-ui); cursor: var(--w95-cursor-pointer); }
+.shell97-boot-reveal .desktop97-icon { animation: boot97-icon-pop .25s cubic-bezier(.175,.885,.32,1.275) both; }
+@keyframes boot97-icon-pop { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
 .desktop97-icon:hover, .desktop97-icon.selected { outline: 1px dotted #fff; background: rgba(0, 0, 128, .4); }
 .desktop97-icon.selected > span:last-child { background: #000080; outline: 1px dotted #ffff80; }
 .desktop97-icon:focus-visible { outline: 1px dotted #fff; }
@@ -23,7 +25,11 @@
 .desktop97-context button:disabled:hover, .start97-programs button:disabled:hover { color: #808080; background: transparent; }
 .desktop97-context-arrow { float: right; margin-left: 24px; font-size: 9px; }
 .desktop97-context hr, .context97 hr { border: 0; border-top: 1px solid var(--w95-bevel-dark); border-bottom: 1px solid var(--w95-bevel-light); margin: 3px 2px; }
+.shell97-dialog-layer { position: absolute; inset: 0 0 var(--w95-taskbar-h); z-index: 850; overflow: hidden; pointer-events: none; }
+.shell97-dialog-layer > * { pointer-events: auto; }
 .taskbar97 { position: absolute; inset: auto 0 0; z-index: 600; display: flex; align-items: center; gap: 8px; height: var(--w95-taskbar-h); padding: 4px 8px; background: var(--w95-taskbar-bg); border-top: 2px solid var(--w95-bevel-light); }
+.shell97-boot-reveal .taskbar97 { animation: boot97-taskbar-rise .4s cubic-bezier(.1,.9,.2,1) var(--boot97-taskbar-delay, 300ms) both; }
+@keyframes boot97-taskbar-rise { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .start97-button { display: flex; align-items: center; gap: 7px; height: 36px; padding: 1px 14px 1px 5px; font: 12px var(--w95-font-ui); }
 .start97-logo { display: grid; width: 30px; height: 30px; place-items: center; color: #fff; background: #008000; font: bold 20px Arial; }
 .taskbar97-divider { width: 2px; height: 20px; margin: 0 1px; border-left: 1px solid var(--w95-bevel-dark); border-right: 1px solid var(--w95-bevel-light); }
@@ -39,6 +45,9 @@
 .taskbar97-tray { display: flex; flex: 0 0 auto; align-items: center; gap: 4px; white-space: nowrap; }
 .taskbar97-tray-icon { min-width: 16px; color: #000080; font: bold 10px var(--w95-font-mono); text-align: center; }
 .taskbar97-status { padding: 4px 6px; font: 10px var(--w95-font-ui); }
+@media (prefers-reduced-motion: reduce) {
+  .shell97-boot-reveal .desktop97-icon, .shell97-boot-reveal .taskbar97 { animation: none; opacity: 1; transform: none; }
+}
 .start97-backdrop { position: absolute; inset: 0 0 var(--w95-taskbar-h); z-index: 550; }
 .start97 { position: absolute; left: 0; bottom: var(--w95-taskbar-h); z-index: 700; display: flex; width: 210px; flex-direction: row; background: var(--w95-surface); box-shadow: 2px 2px 0 #000; }
 .start97-brand { display: flex; width: 28px; min-height: 220px; align-items: flex-end; justify-content: center; padding: 8px 3px; color: #fff; background: linear-gradient(180deg, #000080 0%, #1084d0 60%, #000020 100%); writing-mode: vertical-lr; transform: rotate(180deg); font: bold 16px Arial; letter-spacing: 1px; }

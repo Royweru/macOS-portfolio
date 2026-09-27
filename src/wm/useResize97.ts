@@ -22,6 +22,35 @@ export interface Resize97Options {
   onEnd?: () => void;
 }
 
+/**
+ * Apply a pointer delta in logical desktop coordinates. West/north resizing
+ * keeps the opposite edge anchored and stops at the desktop origin instead
+ * of letting a clamped position silently move that anchored edge.
+ */
+export function resizeRectFromPointer97(
+  startRect: WindowRect,
+  direction: ResizeDirection97,
+  dx: number,
+  dy: number,
+  minWidth: number,
+  minHeight: number,
+): WindowRect {
+  const next = { ...startRect };
+  if (direction.includes('e')) next.width = Math.max(minWidth, startRect.width + dx);
+  if (direction.includes('s')) next.height = Math.max(minHeight, startRect.height + dy);
+  if (direction.includes('w')) {
+    const boundedDelta = Math.max(-startRect.x, Math.min(startRect.width - minWidth, dx));
+    next.x = startRect.x + boundedDelta;
+    next.width = startRect.width - boundedDelta;
+  }
+  if (direction.includes('n')) {
+    const boundedDelta = Math.max(-startRect.y, Math.min(startRect.height - minHeight, dy));
+    next.y = startRect.y + boundedDelta;
+    next.height = startRect.height - boundedDelta;
+  }
+  return next;
+}
+
 export function useResize97({ rect, minWidth = 240, minHeight = 160, disabled = false, onResize, onStart, onEnd }: Resize97Options) {
   const session = useRef<ResizeSession | null>(null);
 
@@ -41,20 +70,7 @@ export function useResize97({ rect, minWidth = 240, minHeight = 160, disabled = 
     const scale = getStageScale97(stage);
     const dx = (event.clientX - active.startX) / scale;
     const dy = (event.clientY - active.startY) / scale;
-    const next = { ...active.startRect };
-    if (active.direction.includes('e')) next.width = Math.max(minWidth, active.startRect.width + dx);
-    if (active.direction.includes('s')) next.height = Math.max(minHeight, active.startRect.height + dy);
-    if (active.direction.includes('w')) {
-      const width = Math.max(minWidth, active.startRect.width - dx);
-      next.x = active.startRect.x + active.startRect.width - width;
-      next.width = width;
-    }
-    if (active.direction.includes('n')) {
-      const height = Math.max(minHeight, active.startRect.height - dy);
-      next.y = active.startRect.y + active.startRect.height - height;
-      next.height = height;
-    }
-    onResize(next);
+    onResize(resizeRectFromPointer97(active.startRect, active.direction, dx, dy, minWidth, minHeight));
   }, [minHeight, minWidth, onResize]);
 
   const finish = useCallback((event: React.PointerEvent<HTMLElement>) => {

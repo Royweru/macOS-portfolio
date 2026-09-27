@@ -1,97 +1,50 @@
-# OS Design Portfolio
+# Weru 97 Portfolio OS
 
-An interactive portfolio built as a desktop-style experience inspired by macOS.
-The UI includes a menu bar, desktop icons, draggable windows, dock behavior, and a Spotlight-like command palette.
+Weru 97 is a full-viewport portfolio presented as a retro desktop operating system. The active shell, windows, and applications are React components; the preserved Stitch HTML is reference material and is not rendered directly in production.
 
-## Tech Stack
+## Stack
 
-- React 19 + TypeScript
-- Vite
-- Framer Motion (animations)
-- react-rnd (draggable/resizable windows)
-- Tailwind CSS + custom CSS tokens
+- Next.js App Router, React, and TypeScript
+- Zustand for OS/window state
+- Dexie for the virtual filesystem
+- Scoped CSS and local Win97 assets
 
-## Run Locally
+## Run and verify
 
 ```bash
 npm install
 npm run dev
 ```
 
-Build and quality checks:
-
 ```bash
+npx tsc --noEmit --incremental false
 npm run lint
+npm test -- --run
 npm run build
 ```
 
-## Project Structure
+## Active architecture
 
-- `src/App.tsx`: root shell orchestration (boot screen, wallpaper, windows, dock, menu bar, spotlight)
-- `src/components/`: desktop shell primitives (`MenuBar`, `Window`, `Dock`, `Desktop`, `Spotlight`, etc.)
-- `src/windows/`: lazy-loaded content windows (`About`, `Projects`, `Skills`, `Experience`, `Contact`)
-- `src/constants/index.ts`: central configuration (window configs, menu definitions, skills/jobs data)
-- `src/hooks/useWindowManager.ts`: window state machine (open/close/minimize/focus + section/view state)
-- `src/data/projects_data.json`: projects content
-- `src/styles/`: shared visual system and shell styling
+- `src/app/`: Next.js route, root layout, and global stylesheet entry.
+- `src/App.tsx`: boot lifecycle, app routing, filesystem targets, and shell composition.
+- `src/shell/`: full-width desktop, Bliss wallpaper, Start menu, taskbar, shortcuts, and context menus.
+- `src/wm/`: shared draggable/resizable window frame and window manager.
+- `src/apps/`: Explorer, Notepad, IE4, media players, Paint, Calculator, Minesweeper, dialogs, and system tools.
+- `src/features/filesystem/`: virtual paths, IndexedDB/Dexie service, seeding, and migrations.
+- `src/features/os/`: window state, title/route policy, and safe target resolution.
+- `src/data/`: project, document, personal-media, and Stitch-screen manifests.
+- `public/assets/win97/`: local cursors, icons, wallpaper, and app artwork.
+- `Stitch Designs/html/`: unchanged source references for screen-by-screen extraction and comparison.
+- `plans/` and `achievements/`: active implementation tracking and dated evidence.
 
-## Menu Bar Architecture
+## Navigation behavior
 
-The menu bar is intentionally data-driven.
+Internal folders and linked Markdown documents stay inside Weru 97. Allowed HTTP(S) destinations—project links, links in rendered Markdown, Internet Explorer favorites/addresses, and `.url` files—open in a separate tab in the visitor's current browser. If scripted tab opening is blocked, Weru 97 shows a direct retry link. A website cannot force the operating system to launch a different installed browser.
 
-- Source of truth: `MENU_BAR_ITEMS` in `src/constants/index.ts`
-- Visual grouping: `MENU_BAR_SEPARATORS` in `src/constants/index.ts`
-- Render and dispatch: `src/components/MenuBar.tsx`
-- Runtime command handlers: `src/App.tsx`
+## Window behavior
 
-Each menu entry has typed metadata:
+All application windows use the shared `Window97` frame and OS store for focus, z-order, drag, resize, minimize, maximize, restore, and close policy. App content is routed centrally from `src/App.tsx`; application-specific chrome and interactions live under `src/apps/`.
 
-- `id`: stable key
-- `label`: displayed text
-- `enabled`: static enabled/disabled baseline
-- `shortcut`: optional shortcut label
-- `action`: `{ type, target }`
-- `disabledReason`: optional tooltip reason
+## Current work status
 
-Supported action types:
-
-- `openWindow`: opens a portfolio window (`about`, `projects`, etc.)
-- `externalLink`: opens external URLs in a new tab
-- `command`: routed to app-level command handlers
-- `none`: disabled/no-op entry
-
-## Maintaining Menu Items
-
-When adding or updating a menu item, follow this order:
-
-1. Add or update the item in `MENU_BAR_ITEMS`.
-2. Place separators via `MENU_BAR_SEPARATORS`.
-3. If `type: "command"`, implement handling in `handleMenuCommand` in `src/App.tsx`.
-4. If `type: "externalLink"`, ensure target URL is correct and safe.
-5. Run `npm run lint && npm run build`.
-
-Guidelines:
-
-- Do not leave enabled items as no-ops.
-- Keep unsupported system-like actions disabled with `disabledReason`.
-- Prefer explicit command IDs (for example: `close-focused`, `minimize-focused`).
-- Keep labels concise and consistent with desktop conventions.
-
-## Keyboard Shortcuts
-
-Current app-level shortcuts:
-
-- `Cmd/Ctrl + N`: open Projects window
-- `Cmd/Ctrl + W`: close focused window
-- `Cmd/Ctrl + M`: minimize focused window
-- `Cmd/Ctrl + Space` and `Cmd/Ctrl + K`: open Spotlight
-
-Shortcut behavior is guarded to avoid triggering while typing in inputs/textareas/contenteditable elements.
-
-## Release Checklist
-
-- `npm run lint` passes
-- `npm run build` passes
-- Enabled menu items are functional
-- Disabled items are visually muted and inert
-- Spotlight, dock, and window interactions still behave correctly
+The authoritative parity and verification ledger is `plans/weru97-chapter-2-task-list.md`. A checked item has evidence; `[~]` marks work that still needs runtime or visual verification. Stitch screenshot parity, the full per-app pointer/touch matrix, and deployment parity must not be inferred from unit tests alone.

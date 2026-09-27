@@ -31,22 +31,29 @@ import MsDosPrompt97 from './apps/msdos/MsDosPrompt97';
 import RetroBrowser97 from './apps/ie4/RetroBrowser97';
 import Paint97 from './apps/paint/Paint97';
 import CdPlayer97 from './apps/cd-player/CdPlayer97';
+import CdEqualizer97 from './apps/cd-player/CdEqualizer97';
+import { getCdPlayerCompanionCloseIds97, openCdPlayerPair97 } from './apps/cd-player/cd-window-layout97';
 import MediaPlayer97 from './apps/media-player/MediaPlayer97';
 import RunDialog97 from './apps/system/RunDialog97';
 import FindFiles97 from './apps/system/FindFiles97';
 import ShutDown97 from './apps/system/ShutDown97';
 import SystemWarning97 from './apps/system/SystemWarning97';
 import Contact97 from './apps/system/Contact97';
+import ExternalBrowserFallback97 from './components/ExternalBrowserFallback97';
+import { getBootWelcomeDelay97 } from './boot/boot-transition97';
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 import type { OsCommand } from './features/os/os-types';
 import type { OpenTarget } from './features/os/os-types';
 import { useOsStore } from './features/os/os-store';
-import { resolveTarget, isAllowedExternalUrl } from './features/os/open-target';
+import { planNotepadWindowTitleRepairs } from './features/os/window-title97';
+import { isAllowedExternalUrl, openExternalUrlInNewTab, resolveTarget } from './features/os/open-target';
 import { getNode } from './features/filesystem/filesystem-service';
 import { VIRTUAL_NODE_IDS } from './features/filesystem/virtual-paths';
-import { STITCH_DESKTOP_EXPLORER_RECT } from './wm/geometry97';
+import { getStitchExplorerRect97 } from './features/apps/explorer-window-geometry97';
+import { getProjectDocumentNotepadRect97, getProjectFolderExplorerRect97 } from './features/apps/project-window-geometry97';
 import { getPersonalMediaAssets } from './data/personal-media-manifest';
+import { selectWindowMediaAsset97 } from './features/media/window-media-asset97';
 
 // ── Lazy window content (separate JS chunks) ──────────────────────────────────
 const NotepadContent      = lazy(() => import('./apps/notepad/Notepad97'));
@@ -62,48 +69,41 @@ const WindowSpinner = () => (
   </div>
 );
 
-function WindowContent({ id, projectId, mediaAsset, fileId, locationId, terminalCwd, ieAddress, onOpenTarget, onTerminalEffect, onOpenApp, onClose }: { id: WindowId; projectId?: number; mediaAsset?: MediaAsset; fileId?: string; locationId?: string; terminalCwd?: string; ieAddress?: string; onOpenTarget: (target: OpenTarget) => void; onTerminalEffect: (effect: OsCommand) => void; onOpenApp: (appId: string) => void; onClose: () => void }) {
+function WindowContent({ id, windowInstanceId, projectId, mediaAsset, fileId, locationId, terminalCwd, onOpenTarget, onTerminalEffect, onOpenApp, onClose }: { id: WindowId; windowInstanceId: string; projectId?: number; mediaAsset?: MediaAsset; fileId?: string; locationId?: string; terminalCwd?: string; onOpenTarget: (target: OpenTarget) => void; onTerminalEffect: (effect: OsCommand) => void; onOpenApp: (appId: string) => void; onClose: () => void }) {
+  const setWindowDocument = useOsStore(state => state.setWindowDocument);
+  const handleSaveAsDocument = useCallback((nextFileId: string, title: string) => {
+    setWindowDocument(windowInstanceId, nextFileId, title);
+  }, [setWindowDocument, windowInstanceId]);
   const fileNode = useLiveQuery(() => fileId ? getNode(fileId) : undefined, [fileId]);
-  const fileMediaAsset = fileNode?.media ? {
-    id: fileNode.media.mediaId,
-    projectId: fileNode.media.projectId,
-    kind: fileNode.media.kind,
-    title: fileNode.media.title,
-    source: fileNode.media.source,
-    mimeType: fileNode.mimeType,
-    poster: fileNode.media.poster,
-    captionSource: fileNode.media.captionSource,
-    durationSeconds: fileNode.media.durationSeconds,
-    description: fileNode.media.description,
-  } satisfies MediaAsset : undefined;
-  const resolvedMediaAsset = fileMediaAsset ?? mediaAsset;
+  const resolvedMediaAsset = selectWindowMediaAsset97(fileId, fileNode, mediaAsset);
 
   return (
     <ErrorBoundary>
       <Suspense fallback={<WindowSpinner />}>
-        {id === 'about'      && <NotepadContent fileId={fileId ?? 'file-about-me'} onOpenTarget={onOpenTarget} />}
+        {id === 'about'      && <NotepadContent fileId={fileId ?? 'file-about-me'} onOpenTarget={onOpenTarget} onSaveAsDocument={handleSaveAsDocument} />}
         {id === 'projects'   && <Explorer97 initialFolderId={locationId ?? VIRTUAL_NODE_IDS.projects} onOpenTarget={onOpenTarget} />}
         {id === 'project-detail' && <Explorer97 initialFolderId={locationId ?? (projectId ? `project-${projectId}` : VIRTUAL_NODE_IDS.projects)} onOpenTarget={onOpenTarget} />}
-        {id === 'media-player' && <MediaPlayer97 key={resolvedMediaAsset ? `${resolvedMediaAsset.id}:${resolvedMediaAsset.source}` : 'media-player'} asset={resolvedMediaAsset} availableAssets={PERSONAL_VIDEO_ASSETS} />}
-        {id === 'skills'     && <NotepadContent fileId={fileId ?? 'file-skills'} onOpenTarget={onOpenTarget} />}
-        {id === 'experience' && <NotepadContent fileId={fileId ?? 'file-experience'} onOpenTarget={onOpenTarget} />}
+        {id === 'media-player' && <MediaPlayer97 key={resolvedMediaAsset ? `${resolvedMediaAsset.id}:${resolvedMediaAsset.source}` : 'media-player'} asset={resolvedMediaAsset} availableAssets={PERSONAL_VIDEO_ASSETS} onClose={onClose} />}
+        {id === 'skills'     && <NotepadContent fileId={fileId ?? 'file-skills'} onOpenTarget={onOpenTarget} onSaveAsDocument={handleSaveAsDocument} />}
+        {id === 'experience' && <NotepadContent fileId={fileId ?? 'file-experience'} onOpenTarget={onOpenTarget} onSaveAsDocument={handleSaveAsDocument} />}
         {id === 'contact'    && <Contact97 onClose={onClose} />}
         {id === 'mail'       && <Contact97 onClose={onClose} />}
-        {id === 'photos'     && <Paint97 asset={resolvedMediaAsset} />}
+        {id === 'photos'     && <Paint97 asset={resolvedMediaAsset} onClose={onClose} />}
         {id === 'explorer'   && <Explorer97 initialFolderId={locationId ?? VIRTUAL_NODE_IDS.root} onOpenTarget={onOpenTarget} />}
         {id === 'recycle-bin' && <RecycleBin97 />}
         {id === 'terminal'   && <MsDosPrompt97 initialCwd={terminalCwd} onEffect={onTerminalEffect} />}
-        {id === 'notepad'    && <NotepadContent fileId={fileId} onOpenTarget={onOpenTarget} />}
+        {id === 'notepad'    && <NotepadContent fileId={fileId} onOpenTarget={onOpenTarget} onSaveAsDocument={handleSaveAsDocument} />}
         {id === 'settings'   && <ControlPanel97 onClose={onClose} />}
         {id === 'calculator' && <Calculator97 />}
         {id === 'control-panel' && <ControlPanel97 onClose={onClose} />}
         {id === 'system-properties' && <SystemProperties97 onClose={onClose} />}
         {id === 'minesweeper' && <Minesweeper97 />}
         {id === 'msdos' && <MsDosPrompt97 initialCwd={terminalCwd} onEffect={onTerminalEffect} />}
-        {id === 'ie4' && <RetroBrowser97 key={ieAddress ?? 'weru-home'} initialAddress={ieAddress} onOpenApp={onOpenApp} />}
-        {id === 'paint' && <Paint97 asset={resolvedMediaAsset} />}
-        {id === 'cd-player' && <CdPlayer97 key={resolvedMediaAsset ? `${resolvedMediaAsset.id}:${resolvedMediaAsset.source}` : 'cd-player'} asset={resolvedMediaAsset} availableAssets={PERSONAL_AUDIO_ASSETS} />}
-        {id === 'run' && <RunDialog97 onOpenApp={onOpenApp} onClose={onClose} />}
+        {id === 'ie4' && <RetroBrowser97 onOpenApp={onOpenApp} />}
+        {id === 'paint' && <Paint97 asset={resolvedMediaAsset} onClose={onClose} />}
+        {id === 'cd-player' && <CdPlayer97 key={resolvedMediaAsset ? `${resolvedMediaAsset.id}:${resolvedMediaAsset.source}` : 'cd-player'} asset={resolvedMediaAsset} availableAssets={PERSONAL_AUDIO_ASSETS} onOpenApp={onOpenApp} />}
+        {id === 'cd-equalizer' && <CdEqualizer97 />}
+        {id === 'run' && <RunDialog97 onOpenApp={onOpenApp} onOpenTarget={onOpenTarget} onClose={onClose} />}
         {id === 'find' && <FindFiles97 onOpenTarget={onOpenTarget} onClose={onClose} />}
         {id === 'shutdown' && <ShutDown97 onClose={onClose} />}
         {id === 'system-warning' && <SystemWarning97 onOpenTarget={onOpenTarget} onClose={onClose} />}
@@ -117,48 +117,79 @@ function App() {
   const initialWindows = useMemo(() => [] as WindowId[], []);
   const wm       = useWindowManager(initialWindows);
   const openWindow = wm.openWindow;
+  const openCdPlayer = useCallback((fileId?: string) => {
+    const viewportWidth = document.querySelector<HTMLElement>('.window-manager97')?.clientWidth || window.innerWidth;
+    openCdPlayerPair97(wm.openWindow, fileId, viewportWidth);
+  }, [wm.openWindow]);
   const filesystem = useFilesystemBootstrap();
   const setSettings = useOsStore(state => state.setSettings);
   const setPhase = useOsStore(state => state.setPhase);
   const isStoreHydrated = useOsStore(state => state.isHydrated);
   const settings = useOsStore(state => state.settings);
+  const setWindowTitle = useOsStore(state => state.setWindowTitle);
   const [booted, setBooted] = React.useState(false);
   const [bootOverlayVisible, setBootOverlayVisible] = React.useState(true);
   const [showWizard, setShowWizard] = React.useState(false);
   const [screensaver, setScreensaver] = React.useState(false);
   const [blueScreen, setBlueScreen] = React.useState(false);
   const [mediaAsset, setMediaAsset] = React.useState<MediaAsset | undefined>();
+  const [blockedExternalLink, setBlockedExternalLink] = React.useState<{ href: string; label?: string } | null>(null);
   const [notepadFileId, setNotepadFileId] = React.useState<string | undefined>();
-  const [ieAddress, setIeAddress] = React.useState<string | undefined>();
   const terminalCwd = undefined;
   const previousWindowCount = useRef(0);
   const stitchDesktopSeeded = useRef(false);
+  const welcomeTimer = useRef<number | null>(null);
+  const exitScreensaver = useCallback(() => setScreensaver(false), []);
+
+  useEffect(() => {
+    if (!filesystem.ready) return;
+    const documentWindows = wm.activeWindows.filter(window => window.appId === 'notepad' && window.fileId);
+    if (!documentWindows.length) return;
+    let cancelled = false;
+    void Promise.all(documentWindows.map(async window => [window.fileId!, await getNode(window.fileId!)] as const))
+      .then(entries => {
+        if (cancelled) return;
+        const names = new Map(entries.flatMap(([fileId, node]) => node ? [[fileId, node.name] as const] : []));
+        for (const repair of planNotepadWindowTitleRepairs(documentWindows, names)) {
+          setWindowTitle(repair.windowId, repair.title);
+        }
+      })
+      .catch(() => { /* The Notepad content surface owns its existing read-error state. */ });
+    return () => { cancelled = true; };
+  }, [filesystem.ready, setWindowTitle, wm.activeWindows]);
 
   const handleOpenTarget = useCallback(async (target: OpenTarget) => {
+    // Handle external links before any async IndexedDB resolution so the new
+    // tab request remains inside the browser's user-activation window.
+    if (target.kind === 'external') {
+      if (!isAllowedExternalUrl(target.url)) {
+        setBlockedExternalLink(null);
+        return;
+      }
+      const opened = openExternalUrlInNewTab(target.url);
+      setBlockedExternalLink(opened ? null : { href: target.url, label: target.label });
+      return;
+    }
+    setBlockedExternalLink(null);
     const resolved = await resolveTarget(target);
     if (resolved.error) return;
     const effectiveTarget = resolved.target;
-    if (effectiveTarget.kind === 'external') {
-      if (isAllowedExternalUrl(effectiveTarget.url)) {
-        setIeAddress(effectiveTarget.url);
-        wm.openWindow('ie4', { title: `${effectiveTarget.label ?? 'case-study.url'} - Internet Explorer` });
-      }
-      return;
-    }
     if (effectiveTarget.kind === 'recycle-bin') {
       wm.openWindow('recycle-bin');
       return;
     }
     if (effectiveTarget.kind === 'application') {
       if (effectiveTarget.appId === 'projects') {
-        wm.openWindow('explorer', { instanceId: 'explorer-projects', locationId: VIRTUAL_NODE_IDS.projects, title: 'Projects', allowMultiple: false });
+        wm.openWindow('explorer', { instanceId: 'explorer-projects', locationId: VIRTUAL_NODE_IDS.projects, title: 'Projects', rect: getStitchExplorerRect97(VIRTUAL_NODE_IDS.projects), allowMultiple: false });
       } else if (effectiveTarget.appId === 'explorer') {
-        wm.openWindow('explorer', { locationId: VIRTUAL_NODE_IDS.root, title: effectiveTarget.title ?? 'File Explorer' });
+        wm.openWindow('explorer', { locationId: VIRTUAL_NODE_IDS.root, title: effectiveTarget.title ?? 'File Explorer', rect: getStitchExplorerRect97(VIRTUAL_NODE_IDS.root) });
       } else if (effectiveTarget.appId === 'notepad') {
         setNotepadFileId('file-about-me');
         wm.openWindow('notepad', { instanceId: 'notepad-file-about-me', fileId: 'file-about-me', title: 'About Me.txt', allowMultiple: true, readOnly: true });
       } else if (effectiveTarget.appId === 'msdos') {
         wm.openWindow('msdos');
+      } else if (effectiveTarget.appId === 'cd-player') {
+        openCdPlayer();
       } else if (effectiveTarget.appId in WINDOW_CONFIGS) {
         wm.openWindow(effectiveTarget.appId as WindowId);
       }
@@ -168,12 +199,15 @@ function App() {
     if (!node) return;
     if (node.kind === 'folder') {
       const isMyDocuments = node.id === 'folder-my-documents';
+      const sourceRect = getStitchExplorerRect97(node.id);
+      const projectExplorerRect = getProjectFolderExplorerRect97(node.id,
+        wm.activeWindows.filter(window => window.appId === 'explorer' && window.locationId?.startsWith('project-')).length);
       wm.openWindow('explorer', {
         instanceId: isMyDocuments ? 'explorer-my-documents' : `explorer-${node.id}`,
         locationId: node.id,
         title: node.name,
         allowMultiple: !isMyDocuments,
-        ...(isMyDocuments ? { rect: STITCH_DESKTOP_EXPLORER_RECT } : {}),
+        ...(sourceRect ? { rect: sourceRect } : projectExplorerRect ? { rect: projectExplorerRect } : {}),
       });
       return;
     }
@@ -191,16 +225,26 @@ function App() {
         description: node.media.description,
       });
       const mediaApp: 'paint' | 'media-player' | 'cd-player' = node.media.kind === 'image' ? 'paint' : node.media.kind === 'audio' ? 'cd-player' : 'media-player';
-      wm.openWindow(mediaApp, { instanceId: `${mediaApp}-${node.id}`, fileId: node.id, title: node.name, allowMultiple: true });
+      if (mediaApp === 'cd-player') openCdPlayer(node.id);
+      else wm.openWindow(mediaApp, { instanceId: `${mediaApp}-${node.id}`, fileId: node.id, title: node.name, allowMultiple: true });
       return;
     }
     setNotepadFileId(node.id);
-    wm.openWindow('notepad', { instanceId: `notepad-${node.id}`, fileId: node.id, title: node.name, readOnly: Boolean(node.isReadOnly), allowMultiple: true });
-  }, [wm]);
+    const projectNotepadRect = getProjectDocumentNotepadRect97(node,
+      wm.activeWindows.filter(window => window.appId === 'notepad' && window.fileId?.startsWith('project-')).length);
+    wm.openWindow('notepad', {
+      instanceId: `notepad-${node.id}`,
+      fileId: node.id,
+      title: node.name,
+      readOnly: Boolean(node.isReadOnly),
+      allowMultiple: true,
+      ...(projectNotepadRect ? { rect: projectNotepadRect } : {}),
+    });
+  }, [openCdPlayer, wm]);
 
   const handleOpen = useCallback((id: string) => {
     if (id === 'explorer') {
-      wm.openWindow('explorer', { locationId: VIRTUAL_NODE_IDS.root });
+      wm.openWindow('explorer', { locationId: VIRTUAL_NODE_IDS.root, rect: getStitchExplorerRect97(VIRTUAL_NODE_IDS.root) });
       return;
     }
     if (id === 'projects') {
@@ -211,6 +255,7 @@ function App() {
     if (id === 'skills') { void handleOpenTarget({ kind: 'file', nodeId: 'file-skills' }); return; }
     if (id === 'experience') { void handleOpenTarget({ kind: 'file', nodeId: 'file-experience' }); return; }
     if (id === 'contact') { void handleOpenTarget({ kind: 'application', appId: 'mail' }); return; }
+    if (id === 'cd-player') { void handleOpenTarget({ kind: 'application', appId: 'cd-player' }); return; }
     if (id in WINDOW_CONFIGS) wm.openWindow(id as WindowId);
   }, [handleOpenTarget, wm]);
 
@@ -218,28 +263,42 @@ function App() {
     void handleOpenTarget({ kind: 'application', appId });
   }, [handleOpenTarget]);
 
+  const managedWindows = wm.activeWindows;
+  const closeManagedWindow = wm.closeWindow;
+  const handleCloseWindow = useCallback((windowId: string) => {
+    const closing = managedWindows.find(window => window.id === windowId);
+    closeManagedWindow(windowId);
+    getCdPlayerCompanionCloseIds97(closing?.appId ?? '', managedWindows).forEach(closeManagedWindow);
+  }, [managedWindows, closeManagedWindow]);
+
   const handleTerminalEffect = useCallback((effect: OsCommand) => {
     if (effect.type === 'open-target' && effect.target) void handleOpenTarget(effect.target);
     if (effect.type === 'open-app' && effect.appId) void handleOpenTarget({ kind: 'application', appId: effect.appId });
     if (effect.type === 'set-theme' && effect.themeId) setSettings({ themeId: effect.themeId });
     if (effect.type === 'set-wallpaper' && effect.wallpaperId) setSettings({ wallpaperId: effect.wallpaperId });
-    if (effect.type === 'close-focused-window' && wm.focused) wm.closeWindow(wm.focused);
+    if (effect.type === 'close-focused-window' && wm.focused) handleCloseWindow(wm.focused);
     if (effect.type === 'minimize-focused-window' && wm.focused) wm.minimizeWindow(wm.focused);
-    if (effect.type === 'close-window' && effect.windowId) wm.closeWindow(effect.windowId);
+    if (effect.type === 'close-window' && effect.windowId) handleCloseWindow(effect.windowId);
     if (effect.type === 'minimize-window' && effect.windowId) wm.minimizeWindow(effect.windowId);
     if (effect.type === 'maximize-window' && effect.windowId) wm.toggleMaximize(effect.windowId as WindowId);
     if (effect.type === 'show-run-dialog') handleOpenApp('run');
     if (effect.type === 'show-find-dialog') handleOpenApp('find');
     if (effect.type === 'show-bsod') setBlueScreen(true);
-  }, [handleOpenApp, handleOpenTarget, setSettings, wm]);
+  }, [handleCloseWindow, handleOpenApp, handleOpenTarget, setSettings, wm]);
 
   const finishBoot = useCallback(() => {
     setBooted(true);
     setPhase('desktop');
     soundEngine.setEnabled(settings.soundEnabled);
     soundEngine.play('startup');
-    if (typeof window !== 'undefined' && !window.localStorage.getItem('weru97-visited')) setShowWizard(true);
-  }, [setPhase, settings.soundEnabled]);
+    if (typeof window !== 'undefined' && !window.localStorage.getItem('weru97-visited')) {
+      const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+      welcomeTimer.current = window.setTimeout(
+        () => setShowWizard(true),
+        getBootWelcomeDelay97(settings.reducedMotion || prefersReducedMotion),
+      );
+    }
+  }, [setPhase, settings.reducedMotion, settings.soundEnabled]);
 
   useEffect(() => {
     if (!booted || !isStoreHydrated || stitchDesktopSeeded.current) return;
@@ -253,11 +312,15 @@ function App() {
         instanceId: 'explorer-my-documents',
         title: 'My Documents',
         locationId: 'folder-my-documents',
-        rect: STITCH_DESKTOP_EXPLORER_RECT,
+        rect: getStitchExplorerRect97(VIRTUAL_NODE_IDS.myDocuments),
       });
     }
   }, [booted, isStoreHydrated, openWindow]);
   const hideBootOverlay = useCallback(() => setBootOverlayVisible(false), []);
+
+  useEffect(() => () => {
+    if (welcomeTimer.current !== null) window.clearTimeout(welcomeTimer.current);
+  }, []);
 
   useEffect(() => { soundEngine.setEnabled(settings.soundEnabled); }, [settings.soundEnabled]);
 
@@ -296,7 +359,7 @@ function App() {
       // Ctrl/Cmd+Space opens the portfolio explorer.
       if (e.code === 'Space') {
         e.preventDefault();
-        wm.openWindow('explorer', { locationId: VIRTUAL_NODE_IDS.root });
+        wm.openWindow('explorer', { locationId: VIRTUAL_NODE_IDS.root, rect: getStitchExplorerRect97(VIRTUAL_NODE_IDS.root) });
         return;
       }
 
@@ -306,16 +369,6 @@ function App() {
         return;
       }
 
-      if (key === 'w' && !e.shiftKey && wm.focused) {
-        e.preventDefault();
-        wm.closeWindow(wm.focused);
-        return;
-      }
-
-      if (key === 'm' && !e.shiftKey && wm.focused) {
-        e.preventDefault();
-        wm.minimizeWindow(wm.focused);
-      }
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -335,22 +388,24 @@ function App() {
 
       {/* ── Desktop icons ───────────────────────────────────────────────── */}
       {/* ── Windows ─────────────────────────────────────────────────────── */}
-      {booted && (filesystem.ready || Boolean(filesystem.error)) && <Shell97 openInstances={wm.activeWindows} focusedWindowId={wm.focusedWindowId} onOpenTarget={handleOpenTarget} onOpenWindow={handleOpen} onFocusWindow={wm.focusWindow}>
+      {booted && (filesystem.ready || Boolean(filesystem.error)) && <Shell97 openInstances={wm.activeWindows} focusedWindowId={wm.focusedWindowId} onOpenTarget={handleOpenTarget} onOpenWindow={handleOpen} onFocusWindow={wm.focusWindow} animateBootReveal={!settings.reducedMotion}>
         <WindowManager97
         windows={wm.activeWindows}
         focusedWindowId={wm.focusedWindowId}
-        onClose={wm.closeWindow}
+        keyboardShortcutsEnabled={!screensaver}
+        onClose={handleCloseWindow}
         onMinimize={wm.minimizeWindow}
         onMaximize={wm.toggleMaximize}
         onFocus={wm.focusWindow}
         onMove={(id, rect) => { const current = wm.getRect(id); if (current) wm.updateRect(id, { ...current, ...rect }); }}
         onResize={wm.updateRect}
         onRepairRect={wm.updateRect}
-        renderContent={(instance) => <WindowContent id={instance.appId as WindowId} projectId={instance.projectId} mediaAsset={mediaAsset} fileId={instance.fileId ?? notepadFileId} locationId={instance.locationId} terminalCwd={terminalCwd} ieAddress={ieAddress} onOpenTarget={handleOpenTarget} onTerminalEffect={handleTerminalEffect} onOpenApp={handleOpenApp} onClose={() => wm.closeWindow(instance.id)} />}
+        renderContent={(instance) => <WindowContent id={instance.appId as WindowId} windowInstanceId={instance.id} projectId={instance.projectId} mediaAsset={mediaAsset} fileId={instance.fileId ?? notepadFileId} locationId={instance.locationId} terminalCwd={terminalCwd} onOpenTarget={handleOpenTarget} onTerminalEffect={handleTerminalEffect} onOpenApp={handleOpenApp} onClose={() => handleCloseWindow(instance.id)} />}
         />
+        {blockedExternalLink && <ExternalBrowserFallback97 href={blockedExternalLink.href} label={blockedExternalLink.label} onDismiss={() => setBlockedExternalLink(null)} />}
       </Shell97>}
       {showWizard && <WelcomeWizard97 onFinish={() => setShowWizard(false)} />}
-      {screensaver && <Screensaver97 onExit={() => setScreensaver(false)} />}
+      {screensaver && <Screensaver97 onExit={exitScreensaver} reducedMotion={settings.reducedMotion} />}
       {blueScreen && <BlueScreen97 onRecover={() => setBlueScreen(false)} />}
     </div>
   );

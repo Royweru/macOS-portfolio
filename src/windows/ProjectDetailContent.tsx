@@ -6,6 +6,7 @@ import projectsData from '../data/projects_data.json';
 import { getProjectMedia } from '../data/project-media-manifest';
 import type { MediaAsset } from '../features/media/media-types';
 import { VIRTUAL_PATHS } from '../features/filesystem/virtual-paths';
+import ExternalBrowserLink97 from '../components/ExternalBrowserLink97';
 
 const projectPath = (title: string) => `${VIRTUAL_PATHS.projects}\\${title}`;
 
@@ -71,9 +72,10 @@ export default function ProjectDetailContent({ projectId, onOpenMedia, onOpenFol
 
         <section className="project-detail-section" aria-labelledby="project-links-heading">
           <h3 id="project-links-heading">Project links</h3>
+          <p>External links open outside Weru 97 in a new browser tab.</p>
           <div className="project-detail-links">
-            {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer"><ExternalLink size={15} />Repository</a>}
-            {project.live && <a href={project.live} target="_blank" rel="noopener noreferrer"><ExternalLink size={15} />Live project</a>}
+            {project.github && <ExternalBrowserLink97 href={project.github} aria-label="Open project repository outside Weru 97 in a new browser tab"><ExternalLink size={15} />Repository</ExternalBrowserLink97>}
+            {project.live && <ExternalBrowserLink97 href={project.live} aria-label="Open live project outside Weru 97 in a new browser tab"><ExternalLink size={15} />Live project</ExternalBrowserLink97>}
             {!project.github && !project.live && <span className="project-detail-muted">No external links have been configured.</span>}
           </div>
         </section>

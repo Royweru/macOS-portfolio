@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import { ChevronRight, ClipboardPaste, Copy, ExternalLink, FolderPlus, Pencil, Plus, RefreshCw, Scissors, Trash } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { copyNode, createFolderNode, createTextFileNode, deleteNodeToTrash, getCanonicalPath, getNode, listChildren, moveNode, renameNode } from '../features/filesystem/filesystem-service';
 import type { VfsNode } from '../features/filesystem/filesystem-types';
@@ -9,6 +8,7 @@ import { VIRTUAL_NODE_IDS } from '../features/filesystem/virtual-paths';
 import type { OpenTarget } from '../features/os/os-types';
 import { targetForNode } from '../features/os/open-target';
 import AppIcon from '../components/AppIcon';
+import ExplorerContextMenu97 from './ExplorerContextMenu97';
 
 const ROOT_ID: string = VIRTUAL_NODE_IDS.root;
 const QUICK_LOCATIONS = [
@@ -147,7 +147,7 @@ export default function ExplorerContent({ initialFolderId, onOpenTarget }: { ini
         <span className="win97-explorer-divider" aria-hidden="true" />
         <button type="button" onClick={() => setViewMode(viewMode === 'icons' ? 'list' : viewMode === 'list' ? 'details' : 'icons')} aria-label="Views"><span className="win97-explorer-views-icon">▦</span><span>Views</span></button>
       </div>
-      <div className="win97-explorer-address-row"><span>Address</span><div className="win97-explorer-address"><AppIcon appId={currentFolder?.kind === 'folder' ? 'folder' : 'computer'} size={14} /><ChevronRight size={11} aria-hidden="true" /><span className="truncate">{currentFolderId === ROOT_ID ? 'C:\\' : currentPath ?? currentFolder?.name ?? 'C:\\'}</span></div></div>
+      <div className="win97-explorer-address-row"><span>Address</span><div className="win97-explorer-address"><AppIcon appId={currentFolder?.kind === 'folder' ? 'folder' : 'computer'} size={14} /><span aria-hidden="true">›</span><span className="truncate">{currentFolderId === ROOT_ID ? 'C:\\' : currentPath ?? currentFolder?.name ?? 'C:\\'}</span></div></div>
       {searchOpen && <label className="win97-explorer-search"><span>Find:</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Type a file name" aria-label="Find files in this folder" /></label>}
       <div className="win97-explorer-body">
         {!isSourceDocumentsWindow && <nav className="win97-explorer-tree" aria-label="Explorer folders"><div className="win97-explorer-tree-heading">Folders</div>{QUICK_LOCATIONS.map((location, index) => <button type="button" key={`${location.label}-${location.id}`} className={`win97-explorer-tree-item level-${index === 0 ? 0 : 1}${currentFolderId === location.id ? ' selected' : ''}`} onClick={() => { setCurrentFolderId(location.id); setSelectedId(null); }}><span className="win97-explorer-tree-glyph" aria-hidden="true">{index === 0 ? '−' : '·'}</span><AppIcon appId={location.icon} size={16} /><span className="truncate">{location.label}</span></button>)}<button type="button" className={`win97-explorer-tree-item level-0${currentFolderId === VIRTUAL_NODE_IDS.recycled ? ' selected' : ''}`} onClick={() => setCurrentFolderId(VIRTUAL_NODE_IDS.recycled)}><span className="win97-explorer-tree-glyph">·</span><AppIcon appId="recycle-bin" size={16} /><span>Recycle Bin</span></button></nav>}
@@ -169,15 +169,29 @@ export default function ExplorerContent({ initialFolderId, onOpenTarget }: { ini
               </button>
             ))}
           </div>
-          {visibleNodes.length === 0 && <div className="flex h-full min-h-48 items-center justify-center text-sm text-slate-500">This folder is empty.</div>}
+          {visibleNodes.length === 0 && <div className="win97-explorer-empty">This folder is empty.</div>}
         </section>
       </div>
       <div className="win97-explorer-status"><span>{visibleNodes.length} object(s){selectedNode ? ` — ${selectedNode.name}` : ''}</span><span>{isSourceDocumentsWindow ? '14.2 KB (Free: 1.44 MB)' : `${currentPath ?? 'C:\\'} · ${visibleNodes.length} items`}</span></div>
-      {errorMessage && <div role="alert" className="absolute bottom-10 left-4 right-4 z-[90] flex items-center justify-between border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800 shadow"><span>{errorMessage}</span><button type="button" className="font-semibold" onClick={() => setErrorMessage(null)}>Dismiss</button></div>}
-      {contextMenu && <div role="menu" className="fixed z-[100] min-w-52 border border-slate-300 bg-white py-1 text-sm shadow-lg" style={{ left: contextMenu.x, top: contextMenu.y }} onClick={event => event.stopPropagation()}>{contextMenu.node ? <><button type="button" className={menuItem} onClick={() => { setContextMenu(null); void openNode(contextMenu.node!); }}><ExternalLink size={14} />Open</button><button type="button" className={menuItem} onClick={() => { setClipboard({ nodeId: contextMenu.node!.id, mode: 'copy' }); setContextMenu(null); }}><Copy size={14} />Copy</button><button type="button" className={menuItem} onClick={() => { setClipboard({ nodeId: contextMenu.node!.id, mode: 'cut' }); setContextMenu(null); }}><Scissors size={14} />Cut</button><button type="button" className={menuItem} onClick={() => { setContextMenu(null); setNameDialog({ mode: 'rename', nodeId: contextMenu.node!.id, value: contextMenu.node!.name }); }}><Pencil size={14} />Rename</button><button type="button" className={`${menuItem} text-red-700`} onClick={() => { setContextMenu(null); setDeleteDialog(contextMenu.node!); }}><Trash size={14} />Delete</button></> : <><button type="button" className={menuItem} onClick={() => void createItem('folder')}><FolderPlus size={14} />New folder</button><button type="button" className={menuItem} onClick={() => void createItem('file')}><Plus size={14} />New text document</button><button type="button" className={menuItem} disabled={!clipboard} onClick={() => void paste()}><ClipboardPaste size={14} />Paste</button><button type="button" className={menuItem} onClick={() => setContextMenu(null)}><RefreshCw size={14} />Refresh</button></>}</div>}
+      {errorMessage && <div role="alert" className="win97-explorer-error"><span>{errorMessage}</span><button type="button" onClick={() => setErrorMessage(null)}>Dismiss</button></div>}
+      {contextMenu && <ExplorerContextMenu97
+        x={contextMenu.x}
+        y={contextMenu.y}
+        node={contextMenu.node}
+        clipboardAvailable={Boolean(clipboard)}
+        onOpenNode={node => { setContextMenu(null); void openNode(node); }}
+        onCopy={node => { setClipboard({ nodeId: node.id, mode: 'copy' }); setContextMenu(null); }}
+        onCut={node => { setClipboard({ nodeId: node.id, mode: 'cut' }); setContextMenu(null); }}
+        onRename={node => { setContextMenu(null); setNameDialog({ mode: 'rename', nodeId: node.id, value: node.name }); }}
+        onDelete={node => { setContextMenu(null); setDeleteDialog(node); }}
+        onNewFolder={() => void createItem('folder')}
+        onNewFile={() => void createItem('file')}
+        onPaste={() => void paste()}
+        onRefresh={() => setContextMenu(null)}
+      />}
       {showHelp && <div className="win97-explorer-help" role="dialog" aria-modal="true" aria-label="About Weru Explorer"><div><b>About Weru Explorer</b><button type="button" aria-label="Close About Weru Explorer" onClick={() => setShowHelp(false)}>×</button></div><p>Weru 97 File Explorer</p><p>Browse folders and open portfolio files in their matching classic applications.</p><footer><button type="button" onClick={() => setShowHelp(false)}>OK</button></footer></div>}
-      {nameDialog && <div role="dialog" aria-modal="true" aria-label="Name item" className="fixed inset-0 z-[110] flex items-center justify-center bg-black/20 p-4" onClick={() => setNameDialog(null)}><form className="w-full max-w-sm border border-slate-300 bg-white p-4 shadow-xl" onClick={event => event.stopPropagation()} onSubmit={event => { event.preventDefault(); void submitName(); }}><h3 className="text-sm font-semibold text-slate-900">{nameDialog.mode === 'rename' ? 'Rename item' : nameDialog.mode === 'folder' ? 'Create folder' : 'Create text document'}</h3><label className="mt-3 block text-xs text-slate-600">Name<input autoFocus value={nameDialog.value} onChange={event => setNameDialog({ ...nameDialog, value: event.target.value })} className="mt-1 w-full border border-slate-300 px-2.5 py-2 text-sm outline-none focus:border-[#0067c0]" /></label><div className="mt-4 flex justify-end gap-2"><button type="button" className="border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-100" onClick={() => setNameDialog(null)}>Cancel</button><button type="submit" className="bg-[#0067c0] px-3 py-1.5 text-xs text-white hover:bg-[#005a9e]">Save</button></div></form></div>}
-      {deleteDialog && <div role="dialog" aria-modal="true" aria-label="Confirm delete" className="fixed inset-0 z-[110] flex items-center justify-center bg-black/20 p-4" onClick={() => setDeleteDialog(null)}><div className="w-full max-w-sm border border-slate-300 bg-white p-4 shadow-xl" onClick={event => event.stopPropagation()}><h3 className="text-sm font-semibold text-slate-900">Move to Recycle Bin?</h3><p className="mt-2 text-sm text-slate-600">{deleteDialog.name} will remain recoverable until the Recycle Bin is emptied.</p><div className="mt-4 flex justify-end gap-2"><button type="button" className="border border-slate-300 px-3 py-1.5 text-xs hover:bg-slate-100" onClick={() => setDeleteDialog(null)}>Cancel</button><button type="button" className="bg-red-700 px-3 py-1.5 text-xs text-white hover:bg-red-800" onClick={() => { const node = deleteDialog; setDeleteDialog(null); void perform(() => deleteNodeToTrash(node.id)); }}>Move to Recycle Bin</button></div></div></div>}
+      {nameDialog && <div role="dialog" aria-modal="true" aria-label="Name item" className="win97-explorer-dialog-shade" onClick={() => setNameDialog(null)}><form className="win97-explorer-dialog" onClick={event => event.stopPropagation()} onSubmit={event => { event.preventDefault(); void submitName(); }}><h3>{nameDialog.mode === 'rename' ? 'Rename item' : nameDialog.mode === 'folder' ? 'Create folder' : 'Create text document'}</h3><label className="win97-explorer-dialog-field">Name<input autoFocus value={nameDialog.value} onChange={event => setNameDialog({ ...nameDialog, value: event.target.value })} /></label><div className="win97-explorer-dialog-actions"><button type="button" onClick={() => setNameDialog(null)}>Cancel</button><button type="submit">Save</button></div></form></div>}
+      {deleteDialog && <div role="dialog" aria-modal="true" aria-label="Confirm delete" className="win97-explorer-dialog-shade" onClick={() => setDeleteDialog(null)}><div className="win97-explorer-dialog" onClick={event => event.stopPropagation()}><h3>Move to Recycle Bin?</h3><p>{deleteDialog.name} will remain recoverable until the Recycle Bin is emptied.</p><div className="win97-explorer-dialog-actions"><button type="button" onClick={() => setDeleteDialog(null)}>Cancel</button><button type="button" onClick={() => { const node = deleteDialog; setDeleteDialog(null); void perform(() => deleteNodeToTrash(node.id)); }}>Move to Recycle Bin</button></div></div></div>}
     </div>
   );
 }

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "eslint .",
+    "lint": "node scripts/lint-batched.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "next start"

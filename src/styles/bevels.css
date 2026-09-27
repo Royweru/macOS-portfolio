@@ -1,4 +1,4 @@
-/* Windows 97 bevel primitives. They deliberately use hard edges and no
+/* Weru 97 bevel primitives. They deliberately use hard edges and no
    rounded corners so controls remain recognisable at low logical resolutions. */
 .bevel-outset {
   border-top: 2px solid var(--win97-white);

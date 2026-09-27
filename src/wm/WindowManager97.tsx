@@ -4,6 +4,8 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import type { WindowInstance, WindowRect } from '../features/os/os-types';
 import Window97 from './Window97';
 import { clampWindowRect97, getDesktopBounds97 } from './geometry97';
+import { dispatchWindowShortcut97, hasUnsavedChangesInWindow97 } from './window-close97';
+import { getWindowControlPolicy97 } from './window-control-policy97';
 
 export interface WindowManager97Props {
   windows: WindowInstance[];
@@ -16,9 +18,10 @@ export interface WindowManager97Props {
   onResize: (id: string, rect: WindowRect) => void;
   onRepairRect: (id: string, rect: WindowRect) => void;
   renderContent: (instance: WindowInstance) => ReactNode;
+  keyboardShortcutsEnabled?: boolean;
 }
 
-export default function WindowManager97({ windows, focusedWindowId, onClose, onMinimize, onMaximize, onFocus, onMove, onResize, onRepairRect, renderContent }: WindowManager97Props) {
+export default function WindowManager97({ windows, focusedWindowId, onClose, onMinimize, onMaximize, onFocus, onMove, onResize, onRepairRect, renderContent, keyboardShortcutsEnabled = true }: WindowManager97Props) {
   const managerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,6 +46,26 @@ export default function WindowManager97({ windows, focusedWindowId, onClose, onM
     return () => observer.disconnect();
   }, [windows, onRepairRect]);
 
+  useEffect(() => {
+    if (!keyboardShortcutsEnabled) return;
+    const handleWindowShortcut = (event: KeyboardEvent) => {
+      const focusedWindow = windows.find(instance => instance.id === focusedWindowId);
+      if (!focusedWindow) return;
+      const element = [...(managerRef.current?.querySelectorAll<HTMLElement>('[data-window-instance]') ?? [])]
+        .find(candidate => candidate.dataset.windowInstance === focusedWindow.id);
+      const hasUnsavedChanges = hasUnsavedChangesInWindow97(element);
+      dispatchWindowShortcut97(event, { ...focusedWindow, ...getWindowControlPolicy97(focusedWindow) }, {
+        hasUnsavedChanges,
+        confirmDiscard: () => window.confirm('This document has unsaved changes. Close without saving?'),
+        close: onClose,
+        minimize: onMinimize,
+        shortcutsEnabled: keyboardShortcutsEnabled,
+      });
+    };
+    window.addEventListener('keydown', handleWindowShortcut);
+    return () => window.removeEventListener('keydown', handleWindowShortcut);
+  }, [focusedWindowId, keyboardShortcutsEnabled, onClose, onMinimize, windows]);
+
   const moveWithinStage = (id: string, next: Pick<WindowRect, 'x' | 'y'>) => {
     const instance = windows.find((window) => window.id === id);
     if (!instance) return;
@@ -52,5 +75,5 @@ export default function WindowManager97({ windows, focusedWindowId, onClose, onM
   const resizeWithinStage = (id: string, next: WindowRect) => {
     onResize(id, clampWindowRect97(next));
   };
-  return <div ref={managerRef} className="window-manager97" aria-label="Open windows">{windows.map((instance) => <Window97 key={instance.id} instance={instance} isFocused={instance.id === focusedWindowId} onClose={onClose} onMinimize={onMinimize} onMaximize={onMaximize} onFocus={onFocus} onMove={moveWithinStage} onResize={resizeWithinStage}>{renderContent(instance)}</Window97>)}</div>;
+  return <div ref={managerRef} className="window-manager97" aria-label="Open windows">{windows.map((instance) => <Window97 key={instance.id} instance={instance} isFocused={instance.id === focusedWindowId} onClose={onClose} onMinimize={onMinimize} onMaximize={onMaximize} onFocus={onFocus} onMove={moveWithinStage} onResize={resizeWithinStage} keyboardShortcutsEnabled={keyboardShortcutsEnabled}>{renderContent(instance)}</Window97>)}</div>;
 }

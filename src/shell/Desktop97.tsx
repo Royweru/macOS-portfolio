@@ -7,10 +7,11 @@ import { useOsStore } from '../features/os/os-store';
 import { createFolderNode, createTextFileNode } from '../features/filesystem/filesystem-service';
 import { VIRTUAL_NODE_IDS } from '../features/filesystem/virtual-paths';
 import DesktopIconArt97 from './DesktopIconArt97';
-import { DESKTOP97_ICON_ROW_PITCH, DESKTOP97_ICON_TOP, DESKTOP97_LEGACY_ICON_ROW_PITCH, getDesktopPropertiesTarget97, getDesktopShortcutPosition97 } from './desktop-layout97';
+import { activateDesktopShortcutOnKey97, DESKTOP97_ICON_ROW_PITCH, DESKTOP97_ICON_TOP, DESKTOP97_LEGACY_ICON_ROW_PITCH, getDesktopPropertiesTarget97, getDesktopShortcutPosition97 } from './desktop-layout97';
 import { getStageScale97 } from '../wm/geometry97';
+import { getBootIconRevealDelay97 } from '../boot/boot-transition97';
 
-const STITCH_SHORTCUT_ORDER = [
+export const STITCH_SHORTCUT_ORDER97 = [
   'shortcut-my-computer',
   'shortcut-my-documents',
   'shortcut-projects',
@@ -50,10 +51,10 @@ export default function Desktop97({ onOpenWindow, onOpenTarget }: Desktop97Props
   }, []);
 
   const shortcutsById = new Map(shortcuts.map((shortcut) => [shortcut.id, shortcut]));
-  const builtInShortcuts = STITCH_SHORTCUT_ORDER.map((id) => shortcutsById.get(id)).filter(
+  const builtInShortcuts = STITCH_SHORTCUT_ORDER97.map((id) => shortcutsById.get(id)).filter(
     (shortcut): shortcut is NonNullable<typeof shortcut> => Boolean(shortcut?.isVisible),
   );
-  const builtInIds = new Set<string>(STITCH_SHORTCUT_ORDER);
+  const builtInIds = new Set<string>(STITCH_SHORTCUT_ORDER97);
   const customShortcuts = shortcuts.filter((shortcut) => !builtInIds.has(shortcut.id) && shortcut.isVisible);
   const orderedShortcuts = [...builtInShortcuts, ...customShortcuts];
 
@@ -72,8 +73,8 @@ export default function Desktop97({ onOpenWindow, onOpenTarget }: Desktop97Props
   return (
     <main ref={desktopRef} className="desktop97" onClick={() => { setSelected(null); setMenu(null); }} onContextMenu={(event) => { event.preventDefault(); setMenu({ x: event.clientX, y: event.clientY }); }}>
       <div className="desktop97-icons">
-        {orderedShortcuts.map((item) => {
-          const stitchIndex = STITCH_SHORTCUT_ORDER.indexOf(item.id as typeof STITCH_SHORTCUT_ORDER[number]);
+        {orderedShortcuts.map((item, iconIndex) => {
+          const stitchIndex = STITCH_SHORTCUT_ORDER97.indexOf(item.id as typeof STITCH_SHORTCUT_ORDER97[number]);
           const usesStitchLayout = stitchIndex >= 0 && item.x === 12 && (
             item.y === DESKTOP97_ICON_TOP + stitchIndex * DESKTOP97_ICON_ROW_PITCH
             || item.y === DESKTOP97_ICON_TOP + stitchIndex * DESKTOP97_LEGACY_ICON_ROW_PITCH
@@ -86,8 +87,9 @@ export default function Desktop97({ onOpenWindow, onOpenTarget }: Desktop97Props
             type="button"
             key={item.id}
             className={`desktop97-icon ${selected === item.id ? 'selected' : ''}`}
-            style={{ left, top }}
+            style={{ left, top, animationDelay: `${getBootIconRevealDelay97(iconIndex)}ms` }}
             onClick={(event) => { event.stopPropagation(); setSelected(item.id); }}
+            onKeyDown={(event) => { activateDesktopShortcutOnKey97(event, () => openShortcut(item.id)); }}
             onDoubleClick={(event) => { event.stopPropagation(); openShortcut(item.id); }}
             onContextMenu={(event) => { event.preventDefault(); event.stopPropagation(); setSelected(item.id); setMenu({ x: event.clientX, y: event.clientY, shortcutId: item.id }); }}
             draggable

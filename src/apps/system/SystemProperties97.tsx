@@ -53,7 +53,7 @@ export default function SystemProperties97({ onClose }: { onClose?: () => void }
           <div className="win97-property-computer"><SystemComputerArt97 /></div>
           <div className="win97-property-copy">
             <section><b>System:</b><div className="win97-property-indent"><p>Weru 97</p><p className="win97-release">4.10.1997 Release C</p></div></section>
-            <section><b>Registered to:</b><div className="win97-property-indent"><p className="win97-owner">Alex Weru</p><p>Lead Portfolio Architect</p><p className="win97-hardware-text">Workstation ID: 9742-OEM-0021481</p></div></section>
+            <section><b>Registered to:</b><div className="win97-property-indent"><p className="win97-owner">Roy Weru</p><p>Lead Portfolio Architect</p><p className="win97-hardware-text">Workstation ID: 9742-OEM-0021481</p></div></section>
             <section><b>Computer:</b><div className="win97-property-indent win97-hardware-text"><p>GenuineIntel Pentium(r) II Processor</p><p>233 MHz</p><p>64.0 MB RAM</p></div></section>
           </div>
         </div>

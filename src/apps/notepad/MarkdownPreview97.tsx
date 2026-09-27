@@ -1,27 +1,28 @@
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import type { OpenTarget } from '../../features/os/os-types';
-import { isAllowedExternalUrl } from '../../features/os/open-target';
+import { isAllowedExternalUrl } from '../../features/os/external-url97';
+import ExternalBrowserLink97 from '../../components/ExternalBrowserLink97';
 
 interface MarkdownPreview97Props {
   source: string;
-  onOpenTarget?: (target: OpenTarget) => void;
+  onOpenDocument?: (href: string) => void;
 }
 
-export default function MarkdownPreview97({ source, onOpenTarget }: MarkdownPreview97Props) {
+const isLocalTextDocumentHref = (href: string) => {
+  if (!href || href.startsWith('#') || href.startsWith('//') || /^[a-z][a-z\d+.-]*:/i.test(href)) return false;
+  return /\.(?:md|txt)(?:[?#].*)?$/i.test(href);
+};
+
+export default function MarkdownPreview97({ source, onOpenDocument }: MarkdownPreview97Props) {
   const components: Components = {
     a: ({ href, children }) => {
       if (href?.startsWith('#')) return <a href={href}>{children}</a>;
-      if (!href || !isAllowedExternalUrl(href)) return <span>{children}</span>;
-      return <a
+      if (href && isLocalTextDocumentHref(href) && onOpenDocument) return <a
         href={href}
-        target={onOpenTarget ? undefined : '_blank'}
-        rel={onOpenTarget ? undefined : 'noopener noreferrer'}
-        onClick={onOpenTarget ? event => {
-          event.preventDefault();
-          onOpenTarget({ kind: 'external', url: href, label: 'README link' });
-        } : undefined}
+        onClick={event => { event.preventDefault(); onOpenDocument(href); }}
       >{children}</a>;
+      if (!href || !isAllowedExternalUrl(href)) return <span>{children}</span>;
+      return <ExternalBrowserLink97 href={href}>{children}</ExternalBrowserLink97>;
     },
     img: ({ src, alt }) => typeof src === 'string' && src.startsWith('/') && !src.startsWith('//')
       ? <img src={src} alt={alt ?? ''} loading="lazy" />

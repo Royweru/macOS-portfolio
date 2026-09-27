@@ -7,6 +7,7 @@ export const WIN97_ASSETS = {
     ie4: '/assets/win97/icons/ie4.svg',
     media: '/assets/win97/icons/media.svg',
     cd: '/assets/win97/icons/cd.svg',
+    equalizer: '/assets/win97/icons/equalizer.svg',
     paint: '/assets/win97/icons/paint.svg',
     calculator: '/assets/win97/icons/calculator.svg',
     minesweeper: '/assets/win97/icons/minesweeper.svg',
@@ -18,6 +19,7 @@ export const WIN97_ASSETS = {
     video: '/assets/win97/icons/video.svg',
     mail: '/assets/win97/icons/mail.svg',
     system: '/assets/win97/icons/system.svg',
+    systemProperties: '/assets/win97/icons/system-properties.svg',
   },
   cursors: {
     default: "/assets/win97/cursors/default.svg",
@@ -36,7 +38,7 @@ export const WIN97_ASSETS = {
 export const WIN97_ASSET_MANIFEST = {
   wallpaper: {
     path: WIN97_ASSETS.wallpaper,
-    source: 'Stitch desktop references and supplied Windows 97 icon sheet',
+    source: 'Stitch desktop references and supplied Weru 97 icon reference sheet',
     rendering: 'cover with CSS scanlines; never duplicated inside app windows',
   },
   icons: {

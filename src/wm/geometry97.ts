@@ -11,6 +11,10 @@ export const WIN97_MIN_WINDOW_HEIGHT = 160;
 /** Source-authored initial My Documents window from the Stitch desktop screen. */
 export const STITCH_DESKTOP_EXPLORER_RECT: WindowRect = { x: 240, y: 60, width: 560, height: 410 };
 
+/** Distinct source-authored states from the dual-Explorer Stitch screen. */
+export const STITCH_EXPLORER_COMPUTER_RECT: WindowRect = { x: 60, y: 40, width: 440, height: 320 };
+export const STITCH_EXPLORER_PROJECTS_RECT: WindowRect = { x: 240, y: 90, width: 660, height: 440 };
+
 export interface DesktopBounds97 {
   width: number;
   workAreaHeight: number;

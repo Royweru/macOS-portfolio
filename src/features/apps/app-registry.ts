@@ -1,7 +1,9 @@
 import type { OpenWindowOptions } from '../os/os-store';
+import { WINDOW_CONFIGS } from '../../constants';
+import type { WindowId } from '../../types';
 
 export interface RegisteredApp {
-  id: string;
+  id: WindowId;
   name: string;
   icon: string;
   description: string;
@@ -16,6 +18,11 @@ export interface RegisteredApp {
   supportsTargets?: string[];
 }
 
+const defaultWindowFor = (id: WindowId) => {
+  const { w, h } = WINDOW_CONFIGS[id];
+  return { width: w, height: h };
+};
+
 export const APP_REGISTRY: RegisteredApp[] = [
   {
     id: 'explorer',
@@ -24,7 +31,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Browse the Weru OS portfolio filesystem.',
     category: 'system',
     canOpenMultiple: true,
-    defaultWindow: { width: 900, height: 600 },
+    defaultWindow: defaultWindowFor('explorer'),
     keywords: ['files', 'folders', 'projects', 'documents'],
   },
   {
@@ -34,7 +41,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Explore shipped portfolio projects.',
     category: 'portfolio',
     canOpenMultiple: false,
-    defaultWindow: { width: 880, height: 580 },
+    defaultWindow: defaultWindowFor('projects'),
     keywords: ['portfolio', 'work', 'github', 'case studies'],
   },
   {
@@ -44,7 +51,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Play project videos and audio inside Weru 97.',
     category: 'utility',
     canOpenMultiple: false,
-    defaultWindow: { width: 820, height: 560 },
+    defaultWindow: defaultWindowFor('media-player'),
     keywords: ['video', 'audio', 'media', 'player', 'avi'],
     fileExtensions: ['.avi', '.mp4', '.webm', '.mp3', '.wav'],
   },
@@ -55,7 +62,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Read and edit portfolio text files.',
     category: 'utility',
     canOpenMultiple: true,
-    defaultWindow: { width: 680, height: 500 },
+    defaultWindow: defaultWindowFor('notepad'),
     keywords: ['text', 'readme', 'resume', 'notes'],
     fileExtensions: ['.txt', '.md', '.json', '.log', '.ini'],
   },
@@ -66,7 +73,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Open portfolio links and case studies in the Weru 97 browser.',
     category: 'system',
     canOpenMultiple: true,
-    defaultWindow: { width: 820, height: 560 },
+    defaultWindow: defaultWindowFor('ie4'),
     keywords: ['browser', 'internet', 'web', 'case study'],
     fileExtensions: ['.url', '.html', '.htm'],
   },
@@ -77,7 +84,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'View and annotate bitmap portfolio references.',
     category: 'utility',
     canOpenMultiple: true,
-    defaultWindow: { width: 760, height: 560 },
+    defaultWindow: defaultWindowFor('paint'),
     keywords: ['paint', 'bitmap', 'image', 'screenshots'],
     fileExtensions: ['.bmp', '.png', '.gif', '.jpg', '.jpeg'],
   },
@@ -88,9 +95,19 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Play the portfolio soundtrack and audio references.',
     category: 'utility',
     canOpenMultiple: false,
-    defaultWindow: { width: 420, height: 360 },
+    defaultWindow: defaultWindowFor('cd-player'),
     keywords: ['cd', 'music', 'audio', 'wav', 'midi'],
     fileExtensions: ['.wav', '.mid', '.midi'],
+  },
+  {
+    id: 'cd-equalizer',
+    name: 'Graphic Equalizer',
+    icon: 'cd-equalizer',
+    description: 'Adjust the CD Player spectrum and audio processing.',
+    category: 'utility',
+    canOpenMultiple: false,
+    defaultWindow: defaultWindowFor('cd-equalizer'),
+    keywords: ['equalizer', 'audio', 'bass', 'treble', 'spectrum'],
   },
   {
     id: 'calculator',
@@ -99,7 +116,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'A period-correct desktop calculator.',
     category: 'utility',
     canOpenMultiple: false,
-    defaultWindow: { width: 300, height: 380 },
+    defaultWindow: defaultWindowFor('calculator'),
     keywords: ['calculator', 'math'],
   },
   {
@@ -109,7 +126,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'The classic desktop game, rebuilt for Weru 97.',
     category: 'utility',
     canOpenMultiple: false,
-    defaultWindow: { width: 320, height: 420 },
+    defaultWindow: defaultWindowFor('minesweeper'),
     keywords: ['game', 'minesweeper'],
   },
   {
@@ -119,7 +136,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Explore the portfolio through a command prompt.',
     category: 'utility',
     canOpenMultiple: true,
-    defaultWindow: { width: 720, height: 460 },
+    defaultWindow: defaultWindowFor('msdos'),
     keywords: ['dos', 'command', 'shell', 'terminal'],
   },
   {
@@ -129,7 +146,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'View Weru 97 system information and profile details.',
     category: 'system',
     canOpenMultiple: false,
-    defaultWindow: { width: 460, height: 430 },
+    defaultWindow: defaultWindowFor('system-properties'),
     keywords: ['system', 'properties', 'about', 'version'],
     fileExtensions: ['.spec'],
   },
@@ -140,7 +157,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Configure the Weru 97 desktop experience.',
     category: 'system',
     canOpenMultiple: false,
-    defaultWindow: { width: 640, height: 480 },
+    defaultWindow: defaultWindowFor('control-panel'),
     keywords: ['settings', 'control panel', 'configuration'],
   },
   {
@@ -150,7 +167,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Personalize the portfolio operating system.',
     category: 'system',
     canOpenMultiple: false,
-    defaultWindow: { width: 820, height: 560 },
+    defaultWindow: defaultWindowFor('settings'),
     keywords: ['theme', 'wallpaper', 'appearance', 'personalization'],
   },
   {
@@ -160,7 +177,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Discover portfolio commands and Easter eggs.',
     category: 'utility',
     canOpenMultiple: true,
-    defaultWindow: { width: 720, height: 460 },
+    defaultWindow: defaultWindowFor('terminal'),
     keywords: ['shell', 'commands', 'cli', 'matrix'],
   },
   {
@@ -170,7 +187,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'View project imagery and visual work.',
     category: 'portfolio',
     canOpenMultiple: false,
-    defaultWindow: { width: 820, height: 560 },
+    defaultWindow: defaultWindowFor('photos'),
     keywords: ['images', 'screenshots', 'design'],
   },
   {
@@ -180,7 +197,7 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Send a message to Weru.',
     category: 'portfolio',
     canOpenMultiple: false,
-    defaultWindow: { width: 640, height: 480 },
+    defaultWindow: defaultWindowFor('mail'),
     keywords: ['contact', 'email', 'hire'],
   },
   {
@@ -190,13 +207,13 @@ export const APP_REGISTRY: RegisteredApp[] = [
     description: 'Restore or permanently remove deleted files.',
     category: 'system',
     canOpenMultiple: false,
-    defaultWindow: { width: 720, height: 500 },
+    defaultWindow: defaultWindowFor('recycle-bin'),
     keywords: ['trash', 'deleted', 'restore'],
   },
-  { id: 'run', name: 'Run', icon: 'run', description: 'Launch a Weru 97 program by name.', category: 'system', canOpenMultiple: false, defaultWindow: { width: 430, height: 230 }, keywords: ['run', 'launch', 'program'] },
-  { id: 'find', name: 'Find Files', icon: 'find', description: 'Search the virtual C: drive.', category: 'system', canOpenMultiple: false, defaultWindow: { width: 680, height: 460 }, keywords: ['find', 'search', 'files'] },
-  { id: 'shutdown', name: 'Shut Down', icon: 'shutdown', description: 'Close or restart the Weru 97 session.', category: 'system', canOpenMultiple: false, defaultWindow: { width: 320, height: 240 }, keywords: ['shutdown', 'restart', 'power'] },
-  { id: 'system-warning', name: 'System Warning', icon: 'system-properties', description: 'Confirm before exploring the portfolio projects.', category: 'system', canOpenMultiple: false, defaultWindow: { width: 340, height: 180 }, keywords: ['warning', 'projects', 'portfolio'] },
+  { id: 'run', name: 'Run', icon: 'run', description: 'Launch a Weru 97 program by name.', category: 'system', canOpenMultiple: false, defaultWindow: defaultWindowFor('run'), keywords: ['run', 'launch', 'program'] },
+  { id: 'find', name: 'Find Files', icon: 'find', description: 'Search the virtual C: drive.', category: 'system', canOpenMultiple: false, defaultWindow: defaultWindowFor('find'), keywords: ['find', 'search', 'files'] },
+  { id: 'shutdown', name: 'Shut Down', icon: 'shutdown', description: 'Close or restart the Weru 97 session.', category: 'system', canOpenMultiple: false, defaultWindow: defaultWindowFor('shutdown'), keywords: ['shutdown', 'restart', 'power'] },
+  { id: 'system-warning', name: 'System Warning', icon: 'system-properties', description: 'Confirm before exploring the portfolio projects.', category: 'system', canOpenMultiple: false, defaultWindow: defaultWindowFor('system-warning'), keywords: ['warning', 'projects', 'portfolio'] },
 ];
 
 export const getRegisteredApp = (appId: string) => APP_REGISTRY.find(app => app.id === appId);

@@ -1,6 +1,5 @@
 // ─── constants/index.ts ───────────────────────────────────────────────────────
-// Single source of truth for window configs, dock items, sidebar items,
-// menu bar menus, and skill/experience data.
+// Default logical window geometry plus canonical portfolio data exports.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type {
@@ -8,149 +7,39 @@ import type {
   WindowId,
   SkillGroup,
   Job,
-  SidebarFavorite,
-  SidebarTag,
-  MenuEntry,
 } from '../types';
+import { MEDIA_PLAYER_STITCH_WINDOW_SIZE97 } from '../apps/media-player/media-player-geometry97';
 
 // ── Window registry ───────────────────────────────────────────────────────────
 export const WINDOW_CONFIGS: Record<WindowId, WindowConfig> = {
-  about:      { title: 'About Me',   icon: '👤', w: 700,  h: 500,  hasSidebar: false, hasViewControls: false },
-  projects:   { title: 'Projects',   icon: '📁', w: 980,  h: 640,  ox: 20,  oy: 18,  hasSidebar: false, hasViewControls: false },
-  'project-detail': { title: 'Project details', icon: '📄', w: 900, h: 620, ox: 40, oy: 30, hasSidebar: false, hasViewControls: false },
-  'media-player': { title: 'Weru Media Player 6.4', icon: '▶', w: 640, h: 520, ox: 60, oy: 35, hasSidebar: false, hasViewControls: false },
-  experience: { title: 'Experience', icon: '💼', w: 740,  h: 540,  ox: 30,  oy: 40,  hasSidebar: true,  hasViewControls: false },
-  skills:     { title: 'Skills',     icon: '🛠️', w: 720,  h: 520,  ox: 90,  oy: 50,  hasSidebar: true,  hasViewControls: false },
-  contact:    { title: 'Contact',    icon: '✉️', w: 640,  h: 480,  ox: 50,  oy: 60,  hasSidebar: false, hasViewControls: false },
-  explorer:   { title: 'File Explorer', icon: '📂', w: 560, h: 410, ox: 0, oy: 0, hasSidebar: false, hasViewControls: false },
-  'recycle-bin': { title: 'Recycle Bin', icon: '🗑️', w: 760, h: 520, ox: 30, oy: 20, hasSidebar: false, hasViewControls: false },
-  terminal:   { title: 'Terminal', icon: '▣', w: 760, h: 500, ox: 0, oy: 20, hasSidebar: false, hasViewControls: false },
-  notepad:    { title: 'Notepad', icon: '📝', w: 580, h: 450, ox: 20, oy: 20, hasSidebar: false, hasViewControls: false },
-  settings:   { title: 'Settings', icon: '⚙', w: 820, h: 580, ox: 0, oy: 0, hasSidebar: false, hasViewControls: false },
-  photos:     { title: 'Photos', icon: '▧', w: 820, h: 560, ox: 20, oy: 20, hasSidebar: false, hasViewControls: false },
-  mail:       { title: 'Outlook Express - New Message', icon: 'mail', w: 680, h: 520, ox: 20, oy: 30, hasSidebar: false, hasViewControls: false },
-  ie4:        { title: 'case-study.url - Internet Explorer', icon: '🌐', w: 940, h: 680, ox: 0, oy: 0, hasSidebar: false, hasViewControls: false },
-  paint:      { title: 'Paint', icon: '🎨', w: 840, h: 478, ox: 20, oy: 20, hasSidebar: false, hasViewControls: false },
-  'cd-player': { title: 'CD Player', icon: '💿', w: 940, h: 420, ox: 20, oy: 20, hasSidebar: false, hasViewControls: false },
-  calculator: { title: 'Calculator', icon: '🧮', w: 278, h: 265, ox: -279, oy: -114, hasSidebar: false, hasViewControls: false },
-  minesweeper: { title: 'Minesweeper', icon: '💣', w: 242, h: 276, ox: -35, oy: -102, hasSidebar: false, hasViewControls: false },
-  msdos:      { title: 'MS-DOS Prompt', icon: '▣', w: 720, h: 460, ox: 0, oy: 20, hasSidebar: false, hasViewControls: false },
-  'system-properties': { title: 'About Me — System Properties', icon: '▣', w: 460, h: 420, centered: true, verticalBias: -21, hasSidebar: false, hasViewControls: false },
-  'control-panel': { title: 'Control Panel', icon: '⚙', w: 640, h: 480, ox: 40, oy: 30, hasSidebar: false, hasViewControls: false },
-  run:        { title: 'Run', icon: '▶', w: 430, h: 230, ox: 80, oy: 80, hasSidebar: false, hasViewControls: false },
-  find:       { title: 'Find: All Files', icon: '🔎', w: 680, h: 460, ox: 50, oy: 50, hasSidebar: false, hasViewControls: false },
-  shutdown:   { title: 'Shut Down Weru 97', icon: '⏻', w: 320, h: 240, ox: 90, oy: 80, hasSidebar: false, hasViewControls: false },
-  'system-warning': { title: 'System Warning', icon: '▣', w: 340, h: 180, ox: 120, oy: 100, hasSidebar: false, hasViewControls: false },
+  about:      { title: 'About Me', icon: '👤', w: 700, h: 500 },
+  projects:   { title: 'Projects', icon: '📁', w: 980, h: 640, ox: 20, oy: 18 },
+  'project-detail': { title: 'Project details', icon: '📄', w: 900, h: 620, ox: 40, oy: 30 },
+  'media-player': { title: 'Weru Media Player 6.4', icon: '▶', w: MEDIA_PLAYER_STITCH_WINDOW_SIZE97.width, h: MEDIA_PLAYER_STITCH_WINDOW_SIZE97.height },
+  experience: { title: 'Experience', icon: '💼', w: 740, h: 540, ox: 30, oy: 40 },
+  skills:     { title: 'Skills', icon: '🛠️', w: 720, h: 520, ox: 90, oy: 50 },
+  contact:    { title: 'Contact', icon: '✉️', w: 640, h: 480, ox: 50, oy: 60 },
+  explorer:   { title: 'File Explorer', icon: '📂', w: 620, h: 430 },
+  'recycle-bin': { title: 'Recycle Bin', icon: '🗑️', w: 760, h: 520, ox: 30, oy: 20 },
+  terminal:   { title: 'Terminal', icon: '▣', w: 760, h: 500, oy: 20 },
+  notepad:    { title: 'Notepad', icon: '📝', w: 580, h: 450, ox: 20, oy: 20 },
+  settings:   { title: 'Settings', icon: '⚙', w: 820, h: 580 },
+  photos:     { title: 'Photos', icon: '▧', w: 820, h: 560, ox: 20, oy: 20 },
+  mail:       { title: 'Outlook Express - New Message', icon: 'mail', w: 680, h: 520, ox: 20, oy: 30 },
+  ie4:        { title: 'case-study.url - Internet Explorer', icon: '🌐', w: 940, h: 680 },
+  paint:      { title: 'Paint', icon: '🎨', w: 840, h: 478, ox: 20, oy: 20 },
+  'cd-player': { title: 'CD Player', icon: 'cd-player', w: 540, h: 420, ox: 24, oy: 40 },
+  'cd-equalizer': { title: 'Now Playing - Graphic Equalizer', icon: 'cd-equalizer', w: 390, h: 360, ox: 580, oy: 40 },
+  calculator: { title: 'Calculator', icon: '🧮', w: 278, h: 265, ox: -279, oy: -114 },
+  minesweeper: { title: 'Minesweeper', icon: '💣', w: 242, h: 276, ox: -35, oy: -102 },
+  msdos:      { title: 'MS-DOS Prompt', icon: '▣', w: 720, h: 460, oy: 20 },
+  'system-properties': { title: 'About Me — System Properties', icon: '▣', w: 460, h: 420, centered: true, verticalBias: -21, canMinimize: false, canMaximize: false, showMaximize: false },
+  'control-panel': { title: 'Control Panel', icon: '⚙', w: 640, h: 480, ox: 40, oy: 30 },
+  run:        { title: 'Run', icon: '▶', w: 430, h: 230, ox: 80, oy: 80 },
+  find:       { title: 'Find: All Files', icon: '🔎', w: 680, h: 460, ox: 50, oy: 50 },
+  shutdown:   { title: 'Shut Down Weru 97', icon: '⏻', w: 320, h: 240, ox: 90, oy: 80 },
+  'system-warning': { title: 'System Warning', icon: '▣', w: 340, h: 180, ox: 120, oy: 100 },
 };
-
-// ── Menu bar dropdown content ─────────────────────────────────────────────────
-export const MENU_BAR_ITEMS: Record<string, MenuEntry[]> = {
-  '': [
-    { id: 'apple-about', label: 'About This Portfolio', enabled: true, action: { type: 'openWindow', target: 'about' } },
-    { id: 'apple-system-preferences', label: 'System Preferences…', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
-    { id: 'apple-app-store', label: 'App Store…', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
-    { id: 'apple-sleep', label: 'Sleep', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
-    { id: 'apple-restart', label: 'Restart…', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
-    { id: 'apple-shutdown', label: 'Shut Down…', enabled: false, action: { type: 'none' }, disabledReason: 'Demo only' },
-  ],
-  File: [
-    { id: 'file-new-window', label: 'New Window', enabled: true, shortcut: '⌘N', action: { type: 'openWindow', target: 'projects' } },
-    { id: 'file-new-tab', label: 'New Tab', enabled: false, shortcut: '⌘T', action: { type: 'none' }, disabledReason: 'Not implemented' },
-    { id: 'file-close-window', label: 'Close Window', enabled: true, shortcut: '⌘W', action: { type: 'command', target: 'close-focused' } },
-    { id: 'file-get-info', label: 'Get Info', enabled: true, shortcut: '⌘I', action: { type: 'openWindow', target: 'about' } },
-    { id: 'file-print', label: 'Print…', enabled: false, shortcut: '⌘P', action: { type: 'none' }, disabledReason: 'Demo only' },
-  ],
-  Edit: [
-    { id: 'edit-undo', label: 'Undo', enabled: false, shortcut: '⌘Z', action: { type: 'none' }, disabledReason: 'Context dependent' },
-    { id: 'edit-redo', label: 'Redo', enabled: false, shortcut: '⇧⌘Z', action: { type: 'none' }, disabledReason: 'Context dependent' },
-    { id: 'edit-cut', label: 'Cut', enabled: false, shortcut: '⌘X', action: { type: 'none' }, disabledReason: 'Context dependent' },
-    { id: 'edit-copy', label: 'Copy', enabled: false, shortcut: '⌘C', action: { type: 'none' }, disabledReason: 'Context dependent' },
-    { id: 'edit-paste', label: 'Paste', enabled: false, shortcut: '⌘V', action: { type: 'none' }, disabledReason: 'Context dependent' },
-    { id: 'edit-select-all', label: 'Select All', enabled: false, shortcut: '⌘A', action: { type: 'none' }, disabledReason: 'Context dependent' },
-    { id: 'edit-find', label: 'Find…', enabled: false, shortcut: '⌘F', action: { type: 'none' }, disabledReason: 'Phase 6' },
-  ],
-  View: [
-    { id: 'view-icons', label: 'as Icons', enabled: false, action: { type: 'command', target: 'view-grid' }, disabledReason: 'Phase 4' },
-    { id: 'view-list', label: 'as List', enabled: false, action: { type: 'command', target: 'view-list' }, disabledReason: 'Phase 4' },
-    { id: 'view-columns', label: 'as Columns', enabled: false, action: { type: 'none' }, disabledReason: 'Not used' },
-    { id: 'view-toolbar', label: 'Show Toolbar', enabled: false, shortcut: '⌥⌘T', action: { type: 'none' }, disabledReason: 'Not implemented' },
-    { id: 'view-sidebar', label: 'Show Sidebar', enabled: false, shortcut: '⌥⌘S', action: { type: 'none' }, disabledReason: 'Not implemented' },
-    { id: 'view-statusbar', label: 'Show Status Bar', enabled: false, action: { type: 'none' }, disabledReason: 'Not implemented' },
-  ],
-  Window: [
-    { id: 'window-minimize', label: 'Minimize', enabled: true, shortcut: '⌘M', action: { type: 'command', target: 'minimize-focused' } },
-    { id: 'window-zoom', label: 'Zoom', enabled: false, action: { type: 'command', target: 'zoom-focused' }, disabledReason: 'Not implemented' },
-    { id: 'window-bring-front', label: 'Bring All to Front', enabled: true, action: { type: 'command', target: 'bring-front' } },
-    { id: 'window-portfolio', label: 'Portfolio', enabled: true, action: { type: 'openWindow', target: 'projects' } },
-  ],
-  Help: [
-    { id: 'help-search', label: 'Search', enabled: true, shortcut: '⌘Space', action: { type: 'command', target: 'open-spotlight' } },
-    { id: 'help-view-github', label: 'View GitHub', enabled: true, action: { type: 'externalLink', target: 'https://github.com/Royweru' } },
-    { id: 'help-view-linkedin', label: 'View LinkedIn', enabled: true, action: { type: 'externalLink', target: 'https://www.linkedin.com/in/roy-matheri-59b8a5245' } },
-    { id: 'help-portfolio-help', label: 'Portfolio Help', enabled: true, action: { type: 'openWindow', target: 'about' } },
-    { id: 'help-send-feedback', label: 'Send Feedback…', enabled: true, action: { type: 'openWindow', target: 'contact' } },
-    { id: 'help-about', label: 'About', enabled: true, action: { type: 'openWindow', target: 'about' } },
-  ],
-};
-
-export const MENU_BAR_SEPARATORS: Record<string, string[]> = {
-  '': ['apple-about', 'apple-app-store'],
-  File: ['file-new-tab', 'file-close-window', 'file-get-info'],
-  Edit: ['edit-redo', 'edit-paste'],
-  View: ['view-columns', 'view-sidebar'],
-  Window: ['window-zoom', 'window-bring-front'],
-  Help: ['help-search', 'help-view-linkedin', 'help-send-feedback'],
-};
-
-export const MENU_BAR_MENUS: Record<string, string[]> = Object.fromEntries(
-  Object.entries(MENU_BAR_ITEMS).map(([menu, items]) => {
-    const separators = new Set(MENU_BAR_SEPARATORS[menu] ?? []);
-    const rows: string[] = [];
-
-    items.forEach((item) => {
-      rows.push(item.label);
-      if (separators.has(item.id)) rows.push('—');
-    });
-
-    return [menu, rows];
-  })
-);
-
-// ── Desktop folder icons ──────────────────────────────────────────────────────
-export const DESKTOP_ITEMS = [
-  { id: 'projects'   as WindowId, label: 'Projects',   color: '#1A73E8' },
-  { id: 'skills'     as WindowId, label: 'Skills',     color: '#2E7D32' },
-  { id: 'experience' as WindowId, label: 'Experience', color: '#E65100' },
-];
-
-// ── Sidebar favorites (per window) ────────────────────────────────────────────
-export const SIDEBAR_FAVORITES: SidebarFavorite[] = [
-  { id: 'main',    label: 'All',     icon: '📁' },
-  { id: 'recent',  label: 'Recent',  icon: '🕐' },
-  { id: 'starred', label: 'Starred', icon: '⭐' },
-];
-
-export const SIDEBAR_TAGS: SidebarTag[] = [
-  { id: 'design',   label: 'Design',      color: '#0066cc' },
-  { id: 'dev',      label: 'Development',  color: '#c0560a' },
-  { id: 'ai',       label: 'AI',           color: '#7c3aed' },
-  { id: 'archived', label: 'Archived',     color: '#888888' },
-];
-
-// ── Desktop context menu items ────────────────────────────────────────────────
-export const DESKTOP_CONTEXT_ITEMS = [
-  'New Folder',
-  'New Folder with Selection',
-  '—',
-  'Get Info',
-  'Change Desktop Background…',
-  '—',
-  'Use Stacks',
-  'Sort By',
-  'Clean Up',
-  '—',
-  'Import from iPhone…',
-];
 
 // ── Skills data ───────────────────────────────────────────────────────────────
 const LEGACY_SKILLS: SkillGroup[] = [
