@@ -3,19 +3,20 @@ import { activateDesktopShortcutOnKey97, getDesktopPropertiesTarget97, getDeskto
 
 describe('Stitch desktop shortcut flow', () => {
   it('keeps the Stitch column-first order and uses a second column when the viewport is short', () => {
-    expect(getDesktopShortcutPosition97(6, 596)).toEqual({ left: 12, top: 492 });
-    expect(getDesktopShortcutPosition97(7, 596)).toEqual({ left: 108, top: 12 });
-    expect(getDesktopShortcutPosition97(8, 596)).toEqual({ left: 108, top: 92 });
-    expect(getDesktopShortcutPosition97(9, 596)).toEqual({ left: 108, top: 172 });
+    expect(getDesktopShortcutPosition97(6, 530)).toEqual({ left: 12, top: 444 });
+    expect(getDesktopShortcutPosition97(7, 530)).toEqual({ left: 108, top: 12 });
+    expect(getDesktopShortcutPosition97(8, 530)).toEqual({ left: 108, top: 84 });
+    expect(getDesktopShortcutPosition97(9, 530)).toEqual({ left: 108, top: 156 });
   });
 
   it('keeps all nine icons in the first column when the available desktop height permits it', () => {
-    expect(getDesktopShortcutPosition97(8, 912)).toEqual({ left: 12, top: 652 });
+    expect(getDesktopShortcutPosition97(8, 912)).toEqual({ left: 12, top: 588 });
   });
 
   it('wraps earlier when the viewport is narrower or shorter without reordering shortcuts', () => {
-    expect(getDesktopShortcutPosition97(5, 524)).toEqual({ left: 12, top: 412 });
-    expect(getDesktopShortcutPosition97(6, 524)).toEqual({ left: 108, top: 12 });
+    expect(getDesktopShortcutPosition97(5, 524)).toEqual({ left: 12, top: 372 });
+    expect(getDesktopShortcutPosition97(6, 524)).toEqual({ left: 12, top: 444 });
+    expect(getDesktopShortcutPosition97(6, 452)).toEqual({ left: 108, top: 12 });
   });
 
   it('routes source-backed Properties actions to the relevant app and disables unsupported shortcut properties', () => {

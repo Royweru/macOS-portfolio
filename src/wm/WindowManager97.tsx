@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { WindowInstance, WindowRect } from '../features/os/os-types';
 import Window97 from './Window97';
+import UnsavedChangesDialog97 from './UnsavedChangesDialog97';
 import { clampWindowRect97, getDesktopBounds97 } from './geometry97';
 import { dispatchWindowShortcut97, hasUnsavedChangesInWindow97 } from './window-close97';
 import { getWindowControlPolicy97 } from './window-control-policy97';
@@ -23,6 +24,11 @@ export interface WindowManager97Props {
 
 export default function WindowManager97({ windows, focusedWindowId, onClose, onMinimize, onMaximize, onFocus, onMove, onResize, onRepairRect, renderContent, keyboardShortcutsEnabled = true }: WindowManager97Props) {
   const managerRef = useRef<HTMLDivElement>(null);
+  const [pendingCloseWindowId, setPendingCloseWindowId] = useState<string | null>(null);
+  const closeWindow = useCallback((id: string) => {
+    setPendingCloseWindowId(current => current === id ? null : current);
+    onClose(id);
+  }, [onClose]);
 
   useEffect(() => {
     const manager = managerRef.current;
@@ -50,21 +56,21 @@ export default function WindowManager97({ windows, focusedWindowId, onClose, onM
     if (!keyboardShortcutsEnabled) return;
     const handleWindowShortcut = (event: KeyboardEvent) => {
       const focusedWindow = windows.find(instance => instance.id === focusedWindowId);
-      if (!focusedWindow) return;
+      if (!focusedWindow || pendingCloseWindowId) return;
       const element = [...(managerRef.current?.querySelectorAll<HTMLElement>('[data-window-instance]') ?? [])]
         .find(candidate => candidate.dataset.windowInstance === focusedWindow.id);
       const hasUnsavedChanges = hasUnsavedChangesInWindow97(element);
       dispatchWindowShortcut97(event, { ...focusedWindow, ...getWindowControlPolicy97(focusedWindow) }, {
         hasUnsavedChanges,
-        confirmDiscard: () => window.confirm('This document has unsaved changes. Close without saving?'),
-        close: onClose,
+        requestDiscardConfirmation: setPendingCloseWindowId,
+        close: closeWindow,
         minimize: onMinimize,
         shortcutsEnabled: keyboardShortcutsEnabled,
       });
     };
     window.addEventListener('keydown', handleWindowShortcut);
     return () => window.removeEventListener('keydown', handleWindowShortcut);
-  }, [focusedWindowId, keyboardShortcutsEnabled, onClose, onMinimize, windows]);
+  }, [closeWindow, focusedWindowId, keyboardShortcutsEnabled, onMinimize, pendingCloseWindowId, windows]);
 
   const moveWithinStage = (id: string, next: Pick<WindowRect, 'x' | 'y'>) => {
     const instance = windows.find((window) => window.id === id);
@@ -75,5 +81,13 @@ export default function WindowManager97({ windows, focusedWindowId, onClose, onM
   const resizeWithinStage = (id: string, next: WindowRect) => {
     onResize(id, clampWindowRect97(next));
   };
-  return <div ref={managerRef} className="window-manager97" aria-label="Open windows">{windows.map((instance) => <Window97 key={instance.id} instance={instance} isFocused={instance.id === focusedWindowId} onClose={onClose} onMinimize={onMinimize} onMaximize={onMaximize} onFocus={onFocus} onMove={moveWithinStage} onResize={resizeWithinStage} keyboardShortcutsEnabled={keyboardShortcutsEnabled}>{renderContent(instance)}</Window97>)}</div>;
+  const pendingCloseWindow = windows.find(instance => instance.id === pendingCloseWindowId);
+  return <div ref={managerRef} className="window-manager97" aria-label="Open windows">
+    {windows.map((instance) => <Window97 key={instance.id} instance={instance} isFocused={instance.id === focusedWindowId} onClose={closeWindow} onRequestDiscardConfirmation={setPendingCloseWindowId} onMinimize={onMinimize} onMaximize={onMaximize} onFocus={onFocus} onMove={moveWithinStage} onResize={resizeWithinStage} keyboardShortcutsEnabled={keyboardShortcutsEnabled}>{renderContent(instance)}</Window97>)}
+    {pendingCloseWindow && <UnsavedChangesDialog97
+      title={pendingCloseWindow.title}
+      onDiscard={() => { setPendingCloseWindowId(null); closeWindow(pendingCloseWindow.id); }}
+      onCancel={() => setPendingCloseWindowId(null)}
+    />}
+  </div>;
 }

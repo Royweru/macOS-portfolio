@@ -1,10 +1,10 @@
 import type { OpenTarget } from '../features/os/os-types';
 
 export const DESKTOP97_ICON_TOP = 12;
-// Stitch uses a column-first vertical flow with a 16px row gap. The supplied
-// Weru icons are intentionally larger (40px art), so 80px preserves that gap
-// while letting the layout wrap naturally at shorter browser heights.
-export const DESKTOP97_ICON_ROW_PITCH = 80;
+// Stitch's source tiles occupy roughly 56px vertically, with a 16px row gap.
+// Weru keeps the requested 40px pixel art in a compact 60px hit cell, leaving
+// 12px between cells while preserving the source's 72px column-flow cadence.
+export const DESKTOP97_ICON_ROW_PITCH = 72;
 export const DESKTOP97_ICON_COLUMN_PITCH = 96;
 export const DESKTOP97_LEGACY_ICON_ROW_PITCH = 88;
 

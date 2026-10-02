@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { migrateOsState, useOsStore } from './os-store';
+import { createWindowInstanceId97, migrateOsState, useOsStore } from './os-store';
 
 const ACTIVE_WINDOW_APP_IDS = [
   'about', 'projects', 'project-detail', 'media-player', 'experience', 'skills', 'contact',
@@ -7,6 +7,17 @@ const ACTIVE_WINDOW_APP_IDS = [
   'paint', 'cd-player', 'cd-equalizer', 'calculator', 'minesweeper', 'msdos', 'system-properties',
   'control-panel', 'run', 'find', 'shutdown', 'system-warning',
 ] as const;
+
+describe('window instance identifiers', () => {
+  it('creates distinct IDs for independent windows of the same app', () => {
+    const first = createWindowInstanceId97('ie4');
+    const second = createWindowInstanceId97('ie4');
+
+    expect(first).toMatch(/^ie4-/);
+    expect(second).toMatch(/^ie4-/);
+    expect(second).not.toBe(first);
+  });
+});
 
 describe('Weru 97 persisted window repair', () => {
   it('migrates old System Properties instances to their Stitch close-only normal state', () => {

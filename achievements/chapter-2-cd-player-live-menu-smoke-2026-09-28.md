@@ -1,0 +1,5 @@
+# CD Player Live Menu Smoke — 2026-09-28
+
+Verified in one Chrome-extension QA tab that the CD Player ejects and closes its tray, restores the no-disc display, toggles Random Shuffle and Intro Scan back to their original states, and dismisses its Options menu with Escape while returning focus to the Options trigger. Continuous Repeat remained enabled. No audio was loaded, and no application code changed.
+
+The CD Player and Graphic Equalizer test windows were closed while pre-existing Explorer/Notepad windows were preserved. The port-3001 server was stopped; the extension would not close the QA tab, which was left loaded with no server listening. A later same-day pass verified View → Graphic Equalizer, Help → About CD Player, and the ArrowDown/End/Escape keyboard subset; see `plans/weru97-cd-player-view-help-keyboard-smoke-2026-09-28.md`. Outside-click dismissal, Home/left-right navigation, matched-viewport Stitch parity, audible playback, and full menu/window acceptance remain open. See also `plans/weru97-chapter-2-task-list.md`.

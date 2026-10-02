@@ -87,10 +87,14 @@ interface AppIconProps {
 }
 
 const PIXEL_ASSETS: Record<string, string> = {
+  about: WIN97_ASSETS.icons.document,
   computer: WIN97_ASSETS.icons.computer,
   explorer: WIN97_ASSETS.icons.folder,
   media: WIN97_ASSETS.icons.media,
   'internet-explorer': WIN97_ASSETS.icons.ie4,
+  experience: WIN97_ASSETS.icons.document,
+  skills: WIN97_ASSETS.icons.document,
+  contact: WIN97_ASSETS.icons.mail,
   folder: WIN97_ASSETS.icons.folder,
   'recycle-bin': WIN97_ASSETS.icons.recycle,
   recycle: WIN97_ASSETS.icons.recycle,
@@ -111,6 +115,7 @@ const PIXEL_ASSETS: Record<string, string> = {
   notepad: WIN97_ASSETS.icons.document,
   'system-properties-titlebar': WIN97_ASSETS.icons.systemProperties,
   'system-properties': WIN97_ASSETS.icons.system,
+  'system-warning': WIN97_ASSETS.icons.system,
   'control-panel': WIN97_ASSETS.icons.system,
   settings: WIN97_ASSETS.icons.system,
   run: WIN97_ASSETS.icons.executable,

@@ -7,7 +7,7 @@ import type { MediaAsset } from '../../features/media/media-types';
 import PaintScrollbars97 from './PaintScrollbars97';
 import { PAINT_MENU_ITEMS97, PAINT_MENU_NAMES97, isPaintMenuActionDisabled97, type PaintMenuAction97, type PaintMenuName97 } from './paint-menus97';
 import { PAINT_PALETTE97 } from './paint-palette97';
-import { boundsForPoints97, containedImageRect97, drawShape97, floodFill97, getPaintColorForTool97, selectPaintSwatch97, type PaintPoint97 } from './paint-geometry97';
+import { boundsForPoints97, containedImageRect97, drawShape97, floodFill97, getPaintColorForTool97, selectPaintSwatch97, shouldClosePaintPolygon97, tracePaintPolygon97, type PaintPoint97 } from './paint-geometry97';
 
 const PAINT_TOOLS = [
   ['free', '⌁', 'Free-Form Select'], ['select', '▧', 'Select'],
@@ -22,6 +22,7 @@ const PAINT_TOOLS = [
 const PAINT_SHAPE_TOOLS = new Set(['line', 'curve', 'rectangle', 'polygon', 'ellipse', 'roundrect']);
 interface PaintRect97 { x: number; y: number; width: number; height: number }
 interface FloatingSelection97 { bitmap: HTMLCanvasElement; base: ImageData; rect: PaintRect97; points?: PaintPoint97[] }
+interface PaintPolygonDraft97 { base: ImageData; points: PaintPoint97[]; color: string; strokeSize: number }
 type PaintPointerMode97 =
   | { kind: 'shape' | 'stroke' }
   | { kind: 'new-selection'; points: PaintPoint97[] }
@@ -79,6 +80,7 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
   const fileInputRef = useRef<HTMLInputElement>(null);
   const drawingRef = useRef(false);
   const pointerModeRef = useRef<PaintPointerMode97 | null>(null);
+  const polygonDraftRef = useRef<PaintPolygonDraft97 | null>(null);
   const floatingSelectionRef = useRef<FloatingSelection97 | null>(null);
   const selectionClipboardRef = useRef<HTMLCanvasElement | null>(null);
   const startPointRef = useRef<PaintPoint97 | null>(null);
@@ -136,6 +138,42 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
     setSelectionOutline(null);
     setSelectionMessage('Selection deleted');
   };
+  const renderPolygonPreview = (draft: PaintPolygonDraft97, cursor: PaintPoint97) => {
+    const context = canvasRef.current?.getContext('2d');
+    if (!context) return;
+    context.putImageData(draft.base, 0, 0);
+    context.strokeStyle = draft.color;
+    context.lineWidth = draft.strokeSize;
+    context.lineCap = 'square';
+    context.lineJoin = 'miter';
+    tracePaintPolygon97(context, [...draft.points, cursor], false);
+  };
+  const cancelPolygonDraft = () => {
+    const draft = polygonDraftRef.current;
+    const context = canvasRef.current?.getContext('2d');
+    if (!draft) return;
+    if (context) context.putImageData(draft.base, 0, 0);
+    polygonDraftRef.current = null;
+    setSelectionMessage('Polygon cancelled');
+  };
+  const finishPolygon = () => {
+    const draft = polygonDraftRef.current;
+    const context = canvasRef.current?.getContext('2d');
+    if (!draft || !context) return;
+    context.putImageData(draft.base, 0, 0);
+    polygonDraftRef.current = null;
+    if (draft.points.length < 2) {
+      setSelectionMessage('Add at least two points to draw a polygon');
+      return;
+    }
+    context.strokeStyle = draft.color;
+    context.lineWidth = draft.strokeSize;
+    context.lineCap = 'square';
+    context.lineJoin = 'miter';
+    tracePaintPolygon97(context, draft.points, true);
+    pushUndo(draft.base);
+    setSelectionMessage(`Polygon drawn with ${draft.points.length} points`);
+  };
   const pointFromEvent = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
@@ -169,6 +207,11 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
         y: Math.max(0, Math.min(canvasHeight - selection!.rect.height, point.y - mode.offsetY)),
       };
       renderFloatingSelection(rect);
+      return;
+    }
+    const polygonDraft = polygonDraftRef.current;
+    if (polygonDraft && tool === 'polygon') {
+      renderPolygonPreview(polygonDraft, point);
       return;
     }
     if (!drawingRef.current) return;
@@ -327,6 +370,7 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
     return true;
   };
   const createNewImage = () => {
+    if (polygonDraftRef.current) cancelPolygonDraft();
     const canvas = canvasRef.current;
     if (!canvas) return;
     pushUndo();
@@ -347,6 +391,7 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
     setSelectionMessage('New 580 × 340 bitmap');
   };
   const saveAsPng = () => {
+    finishPolygon();
     commitSelection();
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -378,6 +423,7 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
   });
   const runMenuAction = (action: PaintMenuAction97) => {
     if (actionDisabled(action)) return false;
+    if (action !== 'save' && polygonDraftRef.current) cancelPolygonDraft();
     switch (action) {
       case 'new': createNewImage(); break;
       case 'open': fileInputRef.current?.click(); break;
@@ -411,6 +457,7 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
     return true;
   };
   const handleImageFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (polygonDraftRef.current) cancelPolygonDraft();
     const file = event.currentTarget.files?.[0];
     event.currentTarget.value = '';
     if (!file || !file.type.startsWith('image/')) {
@@ -429,11 +476,17 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
     if (target instanceof HTMLElement && target.closest('input, textarea, select')) return;
     if (event.key === 'Escape') {
       if (paintDialog) setPaintDialog(null);
+      else if (polygonDraftRef.current) cancelPolygonDraft();
       else if (activeMenu) setActiveMenu(null);
       else if (floatingSelectionRef.current) {
         commitSelection();
         setSelectionMessage('Selection placed');
       }
+      return;
+    }
+    if (event.key === 'Enter' && polygonDraftRef.current) {
+      event.preventDefault();
+      finishPolygon();
       return;
     }
     if (event.altKey && !event.ctrlKey && !event.metaKey) {
@@ -578,6 +631,27 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
       }
       return;
     }
+    if (tool === 'polygon') {
+      const existing = polygonDraftRef.current;
+      if (existing) {
+        if (shouldClosePaintPolygon97(existing.points, point)) {
+          finishPolygon();
+          return;
+        }
+        existing.points.push(point);
+        renderPolygonPreview(existing, point);
+        setSelectionMessage(`${existing.points.length} polygon points — double-click or press Enter to finish; Esc cancels`);
+        return;
+      }
+      const base = snapshotCanvas();
+      if (!base) {
+        setSelectionMessage('This image is protected by the browser and cannot be drawn on. Open a local image or choose File → New.');
+        return;
+      }
+      polygonDraftRef.current = { base, points: [point], color: activePaintColorRef.current, strokeSize };
+      setSelectionMessage('Click to add polygon corners; double-click or press Enter to finish; Esc cancels');
+      return;
+    }
     drawingRef.current = true;
     pointerModeRef.current = PAINT_SHAPE_TOOLS.has(tool) ? { kind: 'shape' } : { kind: 'stroke' };
     startPointRef.current = point;
@@ -589,6 +663,7 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
     draw(event);
   };
   const endDraw = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+    if (polygonDraftRef.current) return;
     const canvas = canvasRef.current;
     const context = canvas?.getContext('2d');
     const mode = pointerModeRef.current;
@@ -689,7 +764,7 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
     <input ref={fileInputRef} className="win97-paint-file-input" type="file" accept="image/*" aria-label="Open image file" onChange={handleImageFileChange} />
     <div className="win97-paint-workspace">
       <aside className="win97-paint-toolbox" aria-label="Paint toolbox">
-        <div className="win97-paint-tools">{PAINT_TOOLS.map(([id, glyph, label]) => <Button95 key={id} size="sm" pressed={tool === id} title={label} aria-label={label} onClick={() => setTool(id)}>{glyph}</Button95>)}</div>
+        <div className="win97-paint-tools">{PAINT_TOOLS.map(([id, glyph, label]) => <Button95 key={id} size="sm" pressed={tool === id} title={label} aria-label={label} onClick={() => { if (polygonDraftRef.current) cancelPolygonDraft(); setTool(id); }}>{glyph}</Button95>)}</div>
         <div className="win97-paint-tool-options" role="group" aria-label="Brush size">
           {[1, 2, 3, 4].map(size => <button type="button" key={size} aria-label={`Brush size ${size} px`} aria-pressed={strokeSize === size} onClick={() => setStrokeSize(size)}><i style={{ height: size }} /></button>)}
         </div>
@@ -708,7 +783,7 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
           context.drawImage(image, rect.x, rect.y, rect.width, rect.height);
           setAssetPainted(true);
         }} onError={() => setSelectionMessage('The image could not be opened. Choose another image file.')} /> : <StitchPaintCanvas />}
-        <canvas ref={canvasRef} width={580} height={340} onPointerDown={beginDraw} onPointerMove={draw} onPointerUp={endDraw} onPointerCancel={cancelDraw} onContextMenu={event => event.preventDefault()} tabIndex={0} aria-label="Paint canvas" aria-description={`Primary color ${color}; background color ${backgroundColor}`} />
+        <canvas ref={canvasRef} width={580} height={340} onPointerDown={beginDraw} onPointerMove={draw} onPointerUp={endDraw} onPointerCancel={cancelDraw} onDoubleClick={event => { if (tool === 'polygon') { event.preventDefault(); finishPolygon(); } }} onContextMenu={event => event.preventDefault()} tabIndex={0} aria-label="Paint canvas" aria-description={`Primary color ${color}; background color ${backgroundColor}`} />
         {selectionOutline && <svg className="win97-paint-selection" viewBox="0 0 580 340" aria-hidden="true">{selectionOutline.points ? <><polygon points={selectionOutline.points.map(point => `${point.x},${point.y}`).join(' ')} fill="none" stroke="#fff" strokeDasharray="4 2" strokeDashoffset="4" /><polygon points={selectionOutline.points.map(point => `${point.x},${point.y}`).join(' ')} fill="none" stroke="#000" strokeDasharray="4 2" /></> : <><rect x={selectionOutline.rect.x} y={selectionOutline.rect.y} width={selectionOutline.rect.width} height={selectionOutline.rect.height} fill="none" stroke="#fff" strokeDasharray="4 2" strokeDashoffset="4" /><rect x={selectionOutline.rect.x} y={selectionOutline.rect.y} width={selectionOutline.rect.width} height={selectionOutline.rect.height} fill="none" stroke="#000" strokeDasharray="4 2" /></>}</svg>}
         {textEditor && <form className="win97-paint-text-editor" style={{ left: `${textEditor.point.x / 580 * 100}%`, top: `${textEditor.point.y / 340 * 100}%` }} onSubmit={event => { event.preventDefault(); finishText(); }} onPointerDown={event => event.stopPropagation()}><textarea autoFocus aria-label="Text to add to image" value={textEditor.value} onChange={event => setTextEditor(current => current ? { ...current, value: event.target.value } : current)} onKeyDown={event => { if (event.key === 'Escape') setTextEditor(null); }} /><div><Button95 size="sm" type="submit">OK</Button95><Button95 size="sm" type="button" onClick={() => setTextEditor(null)}>Cancel</Button95></div></form>}
       </div></div></div><PaintScrollbars97 viewportRef={paintViewportRef} /></div>
@@ -724,7 +799,7 @@ export default function Paint97({ asset, onClose }: { asset?: MediaAsset; onClos
     {paintDialog && <div className="win97-paint-dialog-scrim" role="presentation"><section className="win97-paint-dialog" role="dialog" aria-modal="true" aria-labelledby={`${instanceId}-dialog-title`} onKeyDown={event => { if (event.key === 'Escape') setPaintDialog(null); }}>
       <header><strong id={`${instanceId}-dialog-title`}>{paintDialog === 'help' ? 'Paint Help Topics' : 'About Paint'}</strong><button type="button" aria-label="Close dialog" onClick={() => setPaintDialog(null)}>×</button></header>
       <div>{paintDialog === 'help'
-        ? <><p>Choose a tool from the left toolbox and a foreground or background color, then draw on the bitmap.</p><p>Use Select to move an area. Press Escape to place it, Delete to remove it, or Ctrl+C / Ctrl+X / Ctrl+V to copy, cut, and paste.</p><p>File → Save As exports the canvas as a PNG image.</p></>
+        ? <><p>Choose a tool from the left toolbox and a foreground or background color, then draw on the bitmap. For Polygon, click each corner and press Enter or double-click to finish; Escape cancels.</p><p>Use Select to move an area. Press Escape to place it, Delete to remove it, or Ctrl+C / Ctrl+X / Ctrl+V to copy, cut, and paste.</p><p>File → Save As exports the canvas as a PNG image.</p></>
         : <><p><b>Weru Paint</b><br />Bitmap editor · 580 × 340 canvas</p><p>Classic Paint-style tools adapted for the Weru 97 portfolio desktop.</p></>}</div>
       <footer><Button95 size="sm" onClick={() => setPaintDialog(null)}>OK</Button95></footer>
     </section></div>}

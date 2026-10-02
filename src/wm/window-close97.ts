@@ -1,6 +1,7 @@
 import type { WindowInstance } from '../features/os/os-types';
 
 export type WindowClosePolicy97 = Pick<WindowInstance, 'id' | 'canClose' | 'canMinimize'>;
+export type WindowCloseAction97 = 'blocked' | 'confirm-discard' | 'close';
 
 export type WindowCloseShortcutEvent97 = Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'altKey' | 'shiftKey'>;
 
@@ -12,13 +13,9 @@ export function shouldHandleWindowCloseShortcut97(event: WindowCloseShortcutEven
   return enabled && (event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === 'w';
 }
 
-export function canRequestWindowClose97(
-  canClose: boolean,
-  hasUnsavedChanges: boolean,
-  confirmDiscard: () => boolean,
-): boolean {
-  if (!canClose) return false;
-  return !hasUnsavedChanges || confirmDiscard();
+export function getWindowCloseAction97(canClose: boolean, hasUnsavedChanges: boolean): WindowCloseAction97 {
+  if (!canClose) return 'blocked';
+  return hasUnsavedChanges ? 'confirm-discard' : 'close';
 }
 
 export function dispatchWindowShortcut97(
@@ -26,7 +23,7 @@ export function dispatchWindowShortcut97(
   focusedWindow: WindowClosePolicy97 | undefined,
   actions: {
     hasUnsavedChanges: boolean;
-    confirmDiscard: () => boolean;
+    requestDiscardConfirmation: (id: string) => void;
     close: (id: string) => void;
     minimize: (id: string) => void;
     shortcutsEnabled?: boolean;
@@ -38,9 +35,9 @@ export function dispatchWindowShortcut97(
   const key = event.key.toLowerCase();
   if (shouldHandleWindowCloseShortcut97(event, actions.shortcutsEnabled)) {
     event.preventDefault();
-    if (canRequestWindowClose97(focusedWindow.canClose, actions.hasUnsavedChanges, actions.confirmDiscard)) {
-      actions.close(focusedWindow.id);
-    }
+    const action = getWindowCloseAction97(focusedWindow.canClose, actions.hasUnsavedChanges);
+    if (action === 'confirm-discard') actions.requestDiscardConfirmation(focusedWindow.id);
+    else if (action === 'close') actions.close(focusedWindow.id);
     return true;
   }
 

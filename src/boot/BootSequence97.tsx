@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { isBootSkipKey97, shouldFadeBootExit97, type BootStage97 } from './boot-skip';
+import { getBootWaitingStage97, isBootSkipKey97, shouldFadeBootExit97, type BootStage97 } from './boot-skip';
 import {
   BIOS_LINES,
   BIOS_LINE_DELAYS,
@@ -32,18 +32,14 @@ function preloadResources() {
   }))).then(() => undefined);
 }
 
-export function WeruFlag97() {
-  return <svg className="boot97-flag" viewBox="0 0 100 90" fill="none" aria-hidden="true">
-    <path d="M12 18 Q26 12 44 20 Q46 38 43 56 Q24 48 10 56 Z" fill="#d32f2f" />
-    <path d="M48 21 Q66 29 86 20 Q88 38 84 56 Q66 64 47 57 Z" fill="#1976d2" />
-    <path d="M9 60 Q24 53 43 60 Q41 78 40 85 Q22 78 8 85 Z" fill="#388e3c" />
-    <path d="M46 61 Q66 68 83 60 Q82 78 80 85 Q64 91 44 85 Z" fill="#fbc02d" />
-    <path d="M13 19 Q26 14 43 21" stroke="#fff" strokeWidth="1.5" opacity=".6" />
-    <path d="M49 22 Q66 30 85 21" stroke="#fff" strokeWidth="1.5" opacity=".6" />
-    <rect x="88" y="24" width="3" height="3" fill="#1976d2" opacity=".7" />
-    <rect x="94" y="27" width="2" height="2" fill="#1976d2" opacity=".5" />
-    <rect x="85" y="64" width="3" height="3" fill="#fbc02d" opacity=".7" />
-    <rect x="91" y="66" width="2" height="2" fill="#fbc02d" opacity=".5" />
+export function WeruMark97() {
+  return <svg className="boot97-brand-mark" viewBox="0 0 100 90" shapeRendering="crispEdges" aria-hidden="true">
+    <path d="M18 9h62v62H18z" fill="#404040" />
+    <path d="M15 6h62v62H15z" fill="#c0c0c0" stroke="#fff" strokeWidth="3" />
+    <path d="M20 11h52v52H20z" fill="#008000" stroke="#808080" strokeWidth="2" />
+    <text x="46" y="51" fill="#fff" fontFamily="Arial, Helvetica, sans-serif" fontSize="43" fontWeight="900" textAnchor="middle">W</text>
+    <path d="M27 72h38v3H27z" fill="#d4d0c8" />
+    <path d="M34 77h24v4H34z" fill="#808080" />
   </svg>;
 }
 
@@ -65,6 +61,7 @@ export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion 
   const [fading, setFading] = useState(false);
   const didFinish = useRef(false);
   const finishWhenReady = useRef(false);
+  const animateWhenReady = useRef(false);
   const exitTimer = useRef<number | null>(null);
   const preloadPromise = useRef<Promise<void> | null>(null);
 
@@ -76,13 +73,15 @@ export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion 
     if (didFinish.current) return;
     if (!ready) {
       finishWhenReady.current = true;
+      animateWhenReady.current = animate;
       setProgress(BOOT_PROGRESS_SEGMENT_COUNT);
       setSkipped(true);
-      setStage('starting');
+      setStage(getBootWaitingStage97(stage, animate));
       return;
     }
     didFinish.current = true;
     finishWhenReady.current = false;
+    animateWhenReady.current = false;
     setSkipped(true);
     onRevealDesktop();
     if (animate && !reducedMotion) {
@@ -95,7 +94,7 @@ export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion 
     }
     setStage('done');
     onDone();
-  }, [onDone, onRevealDesktop, ready, reducedMotion]);
+  }, [onDone, onRevealDesktop, ready, reducedMotion, stage]);
 
   const skip = useCallback(() => finish(shouldFadeBootExit97(stage)), [finish, stage]);
 
@@ -107,7 +106,7 @@ export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion 
 
   useEffect(() => {
     if (!ready || !finishWhenReady.current || didFinish.current) return;
-    const timer = window.setTimeout(() => finish(false), 0);
+    const timer = window.setTimeout(() => finish(animateWhenReady.current), 0);
     return () => window.clearTimeout(timer);
   }, [finish, ready]);
 
@@ -211,7 +210,7 @@ export default function BootSequence97({ onDone, onRevealDesktop, reducedMotion 
       <div className="boot97-splash-cloud boot97-splash-cloud-one" />
       <div className="boot97-splash-cloud boot97-splash-cloud-two" />
       <div className="boot97-splash-content">
-        <div className="boot97-flag-wrap"><WeruFlag97 /></div>
+        <div className="boot97-brand-mark-wrap"><WeruMark97 /></div>
         <div className="boot97-brand-title"><span>Weru</span> <b>97</b></div>
         <div className="boot97-brand-subtext">Portfolio Edition</div>
         <SegmentedProgress97 active={progress} />

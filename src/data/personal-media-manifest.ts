@@ -35,9 +35,28 @@ export interface PersonalMediaEntry {
 // Add user-owned assets here after placing them in the matching public/media directory.
 // Keep these separate from PROJECT_MEDIA_MANIFEST so personal media never becomes
 // part of a project's folder or demo playlist by accident.
-export const PERSONAL_VIDEOS: PersonalVideo[] = [];
-export const PERSONAL_PICTURES: PersonalPicture[] = [];
-export const PERSONAL_MUSIC: PersonalMusicTrack[] = [];
+export const PERSONAL_VIDEOS: PersonalVideo[] = [
+  {
+    filename:"MoniePal video",
+    title:"Showing moniepal process from login to sale register",
+    src:"/videos/moniepal_update_1.mp4"
+  }
+];
+export const PERSONAL_PICTURES: PersonalPicture[] = [
+{
+  filename:"profile-pic",
+  title:"Weru profile picture",
+  src:"/pictures/profile_pic.png"
+}
+];
+export const PERSONAL_MUSIC: PersonalMusicTrack[] = [
+    {
+    filename:"music1",
+    title:"crsytal skies",
+    artist:"vxllain",
+    src:"/music/crystal_skies.mp3"
+  },
+];
 
 const MIME_BY_EXTENSION: Record<MediaKind, Record<string, string>> = {
   video: {

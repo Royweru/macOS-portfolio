@@ -37,7 +37,7 @@ export const WINDOW_CONFIGS: Record<WindowId, WindowConfig> = {
   'control-panel': { title: 'Control Panel', icon: '⚙', w: 640, h: 480, ox: 40, oy: 30 },
   run:        { title: 'Run', icon: '▶', w: 430, h: 230, ox: 80, oy: 80 },
   find:       { title: 'Find: All Files', icon: '🔎', w: 680, h: 460, ox: 50, oy: 50 },
-  shutdown:   { title: 'Shut Down Weru 97', icon: '⏻', w: 320, h: 240, ox: 90, oy: 80 },
+  shutdown:   { title: 'Shut Down Weru 97', icon: '⏻', w: 320, h: 196, ox: 56, oy: 64 },
   'system-warning': { title: 'System Warning', icon: '▣', w: 340, h: 180, ox: 120, oy: 100 },
 };
 

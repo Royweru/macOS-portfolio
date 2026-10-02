@@ -17,6 +17,6 @@ describe('Shutdown dialog Stitch surface', () => {
     expect(markup).toContain('>Yes</button>');
     expect(markup).toContain('>Cancel</button>');
     expect(markup).toContain('>Help</button>');
-    expect(getRegisteredApp('shutdown')?.defaultWindow).toEqual({ width: 320, height: 240 });
+    expect(getRegisteredApp('shutdown')?.defaultWindow).toEqual({ width: 320, height: 196 });
   });
 });

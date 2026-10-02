@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clampWindowRect97, getCenteredWindowPosition97, getLogicalWindowPosition, getLogicalWindowSize, WIN97_WORK_AREA_HEIGHT } from './geometry97';
+import { clampWindowRect97, getCenteredWindowPosition97, getLogicalWindowPosition, getLogicalWindowSize, positionWindowClearOfShortcuts97, WIN97_WORK_AREA_HEIGHT } from './geometry97';
 
 describe('Weru 97 logical window geometry', () => {
   const sourceBounds = { width: 1024, workAreaHeight: WIN97_WORK_AREA_HEIGHT };
@@ -18,12 +18,29 @@ describe('Weru 97 logical window geometry', () => {
     expect(rect.y + rect.height).toBeLessThanOrEqual(WIN97_WORK_AREA_HEIGHT);
   });
 
-  it('keeps Stitch window anchors while sizing to the measured work area', () => {
+  it('moves source-positioned windows past the desktop shortcut rail and adapts on narrow screens', () => {
+    expect(positionWindowClearOfShortcuts97({ x: 60, y: 40, width: 440, height: 320 }, { width: 1422, workAreaHeight: 656 }))
+      .toEqual({ x: 240, y: 40, width: 440, height: 320 });
+    expect(positionWindowClearOfShortcuts97({ x: 88, y: 26, width: 620, height: 430 }, { width: 800, workAreaHeight: 700 }))
+      .toEqual({ x: 240, y: 26, width: 560, height: 430 });
+    expect(positionWindowClearOfShortcuts97({ x: 60, y: 10, width: 620, height: 430 }, { width: 400, workAreaHeight: 700 }))
+      .toEqual({ x: 160, y: 10, width: 240, height: 430 });
+    expect(positionWindowClearOfShortcuts97({ x: 320, y: 90, width: 580, height: 450 }, { width: 1422, workAreaHeight: 656 }).x)
+      .toBe(320);
+  });
+
+  it('uses the full live viewport to position source-sized windows on wide displays', () => {
     const wideViewport = { width: 1422, workAreaHeight: 598 };
     expect(getLogicalWindowSize(900, 600, 0.9, 0.8, sourceBounds)).toEqual({ x: 0, y: 0, width: 900, height: 577 });
     expect(getLogicalWindowPosition(900, 590, 0, 0, sourceBounds)).toEqual({ x: 62, y: 44 });
     expect(getLogicalWindowSize(900, 600, 0.9, 0.8, wideViewport)).toEqual({ x: 0, y: 0, width: 900, height: 478 });
-    expect(getLogicalWindowPosition(900, 590, 0, 0, wideViewport)).toEqual({ x: 62, y: 2 });
+    expect(getLogicalWindowPosition(900, 590, 0, 0, wideViewport)).toEqual({ x: 261, y: 2 });
+    expect(getLogicalWindowPosition(680, 520, 20, 30, wideViewport)).toEqual({ x: 391, y: 56 });
+  });
+
+  it('positions tall-screen windows in the live work area instead of capping at the source composition', () => {
+    const tallWideViewport = { width: 1422, workAreaHeight: 854 };
+    expect(getLogicalWindowPosition(900, 590, 0, 0, tallWideViewport)).toEqual({ x: 261, y: 88 });
   });
 
   it('retains Stitch-authored app sizes until the live work area requires a clamp', () => {

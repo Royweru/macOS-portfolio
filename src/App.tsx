@@ -11,6 +11,7 @@ import { useFilesystemBootstrap } from './features/filesystem/use-filesystem-boo
 import { WINDOW_CONFIGS }               from './constants';
 import type { WindowId } from './types';
 import type { MediaAsset } from './features/media/media-types';
+import type { VfsNode } from './features/filesystem/filesystem-types';
 
 // ── Shell components (always loaded) ─────────────────────────────────────────
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -18,6 +19,7 @@ import Shell97 from './shell/Shell97';
 import BootSequence97 from './boot/BootSequence97';
 import WelcomeWizard97 from './apps/system/WelcomeWizard97';
 import Screensaver97 from './boot/Screensaver97';
+import { attachScreensaverIdleTimer97 } from './boot/screensaver-idle97';
 import BlueScreen97 from './apps/system/BlueScreen97';
 import WindowManager97 from './wm/WindowManager97';
 import { soundEngine } from './os/sound/synth';
@@ -45,13 +47,13 @@ import { getBootWelcomeDelay97 } from './boot/boot-transition97';
 // ── Utils ─────────────────────────────────────────────────────────────────────
 import type { OsCommand } from './features/os/os-types';
 import type { OpenTarget } from './features/os/os-types';
-import { useOsStore } from './features/os/os-store';
+import { createWindowInstanceId97, useOsStore } from './features/os/os-store';
 import { planNotepadWindowTitleRepairs } from './features/os/window-title97';
 import { isAllowedExternalUrl, openExternalUrlInNewTab, resolveTarget } from './features/os/open-target';
 import { getNode } from './features/filesystem/filesystem-service';
 import { VIRTUAL_NODE_IDS } from './features/filesystem/virtual-paths';
 import { getStitchExplorerRect97 } from './features/apps/explorer-window-geometry97';
-import { getProjectDocumentNotepadRect97, getProjectFolderExplorerRect97 } from './features/apps/project-window-geometry97';
+import { getExplorerNavigationRect97, getProjectDocumentNotepadRect97, getProjectFolderExplorerRect97 } from './features/apps/project-window-geometry97';
 import { getPersonalMediaAssets } from './data/personal-media-manifest';
 import { selectWindowMediaAsset97 } from './features/media/window-media-asset97';
 
@@ -69,7 +71,7 @@ const WindowSpinner = () => (
   </div>
 );
 
-function WindowContent({ id, windowInstanceId, projectId, mediaAsset, fileId, locationId, terminalCwd, onOpenTarget, onTerminalEffect, onOpenApp, onClose }: { id: WindowId; windowInstanceId: string; projectId?: number; mediaAsset?: MediaAsset; fileId?: string; locationId?: string; terminalCwd?: string; onOpenTarget: (target: OpenTarget) => void; onTerminalEffect: (effect: OsCommand) => void; onOpenApp: (appId: string) => void; onClose: () => void }) {
+function WindowContent({ id, windowInstanceId, projectId, mediaAsset, fileId, locationId, terminalCwd, onOpenTarget, onExplorerFolderChange, onTerminalEffect, onOpenApp, onClose }: { id: WindowId; windowInstanceId: string; projectId?: number; mediaAsset?: MediaAsset; fileId?: string; locationId?: string; terminalCwd?: string; onOpenTarget: (target: OpenTarget) => void; onExplorerFolderChange: (instanceId: string, folder: Pick<VfsNode, 'id' | 'name'>) => void; onTerminalEffect: (effect: OsCommand) => void; onOpenApp: (appId: string) => void; onClose: () => void }) {
   const setWindowDocument = useOsStore(state => state.setWindowDocument);
   const handleSaveAsDocument = useCallback((nextFileId: string, title: string) => {
     setWindowDocument(windowInstanceId, nextFileId, title);
@@ -81,15 +83,15 @@ function WindowContent({ id, windowInstanceId, projectId, mediaAsset, fileId, lo
     <ErrorBoundary>
       <Suspense fallback={<WindowSpinner />}>
         {id === 'about'      && <NotepadContent fileId={fileId ?? 'file-about-me'} onOpenTarget={onOpenTarget} onSaveAsDocument={handleSaveAsDocument} />}
-        {id === 'projects'   && <Explorer97 initialFolderId={locationId ?? VIRTUAL_NODE_IDS.projects} onOpenTarget={onOpenTarget} />}
-        {id === 'project-detail' && <Explorer97 initialFolderId={locationId ?? (projectId ? `project-${projectId}` : VIRTUAL_NODE_IDS.projects)} onOpenTarget={onOpenTarget} />}
+        {id === 'projects'   && <Explorer97 initialFolderId={locationId ?? VIRTUAL_NODE_IDS.projects} onOpenTarget={onOpenTarget} onFolderChange={folder => onExplorerFolderChange(windowInstanceId, folder)} />}
+        {id === 'project-detail' && <Explorer97 initialFolderId={locationId ?? (projectId ? `project-${projectId}` : VIRTUAL_NODE_IDS.projects)} onOpenTarget={onOpenTarget} onFolderChange={folder => onExplorerFolderChange(windowInstanceId, folder)} />}
         {id === 'media-player' && <MediaPlayer97 key={resolvedMediaAsset ? `${resolvedMediaAsset.id}:${resolvedMediaAsset.source}` : 'media-player'} asset={resolvedMediaAsset} availableAssets={PERSONAL_VIDEO_ASSETS} onClose={onClose} />}
         {id === 'skills'     && <NotepadContent fileId={fileId ?? 'file-skills'} onOpenTarget={onOpenTarget} onSaveAsDocument={handleSaveAsDocument} />}
         {id === 'experience' && <NotepadContent fileId={fileId ?? 'file-experience'} onOpenTarget={onOpenTarget} onSaveAsDocument={handleSaveAsDocument} />}
         {id === 'contact'    && <Contact97 onClose={onClose} />}
         {id === 'mail'       && <Contact97 onClose={onClose} />}
         {id === 'photos'     && <Paint97 asset={resolvedMediaAsset} onClose={onClose} />}
-        {id === 'explorer'   && <Explorer97 initialFolderId={locationId ?? VIRTUAL_NODE_IDS.root} onOpenTarget={onOpenTarget} />}
+        {id === 'explorer'   && <Explorer97 initialFolderId={locationId ?? VIRTUAL_NODE_IDS.root} onOpenTarget={onOpenTarget} onFolderChange={folder => onExplorerFolderChange(windowInstanceId, folder)} />}
         {id === 'recycle-bin' && <RecycleBin97 />}
         {id === 'terminal'   && <MsDosPrompt97 initialCwd={terminalCwd} onEffect={onTerminalEffect} />}
         {id === 'notepad'    && <NotepadContent fileId={fileId} onOpenTarget={onOpenTarget} onSaveAsDocument={handleSaveAsDocument} />}
@@ -242,6 +244,16 @@ function App() {
     });
   }, [openCdPlayer, wm]);
 
+  const handleExplorerFolderChange = (instanceId: string, folder: Pick<VfsNode, 'id' | 'name'>) => {
+    const state = useOsStore.getState();
+    const currentWindow = state.windows[instanceId];
+    if (!currentWindow || currentWindow.appId !== 'explorer') return;
+
+    const rect = getExplorerNavigationRect97(folder.id, Object.values(state.windows), instanceId);
+    wm.openWindow('explorer', { instanceId, locationId: folder.id, title: folder.name });
+    if (rect) wm.updateRect(instanceId, rect);
+  };
+
   const handleOpen = useCallback((id: string) => {
     if (id === 'explorer') {
       wm.openWindow('explorer', { locationId: VIRTUAL_NODE_IDS.root, rect: getStitchExplorerRect97(VIRTUAL_NODE_IDS.root) });
@@ -260,8 +272,12 @@ function App() {
   }, [handleOpenTarget, wm]);
 
   const handleOpenApp = useCallback((appId: string) => {
+    if (appId === 'ie4') {
+      wm.openWindow('ie4', { instanceId: createWindowInstanceId97('ie4'), allowMultiple: true });
+      return;
+    }
     void handleOpenTarget({ kind: 'application', appId });
-  }, [handleOpenTarget]);
+  }, [handleOpenTarget, wm]);
 
   const managedWindows = wm.activeWindows;
   const closeManagedWindow = wm.closeWindow;
@@ -333,10 +349,12 @@ function App() {
 
   useEffect(() => {
     if (!booted || !settings.screensaverEnabled) return;
-    let timer = window.setTimeout(() => setScreensaver(true), settings.screensaverTimeout * 1000);
-    const reset = () => { setScreensaver(false); window.clearTimeout(timer); timer = window.setTimeout(() => setScreensaver(true), settings.screensaverTimeout * 1000); };
-    window.addEventListener('mousemove', reset); window.addEventListener('keydown', reset); window.addEventListener('pointerdown', reset);
-    return () => { window.clearTimeout(timer); window.removeEventListener('mousemove', reset); window.removeEventListener('keydown', reset); window.removeEventListener('pointerdown', reset); };
+    return attachScreensaverIdleTimer97(
+      window,
+      settings.screensaverTimeout * 1000,
+      () => setScreensaver(true),
+      () => setScreensaver(false),
+    );
   }, [booted, settings.screensaverEnabled, settings.screensaverTimeout]);
 
   useEffect(() => {
@@ -400,7 +418,7 @@ function App() {
         onMove={(id, rect) => { const current = wm.getRect(id); if (current) wm.updateRect(id, { ...current, ...rect }); }}
         onResize={wm.updateRect}
         onRepairRect={wm.updateRect}
-        renderContent={(instance) => <WindowContent id={instance.appId as WindowId} windowInstanceId={instance.id} projectId={instance.projectId} mediaAsset={mediaAsset} fileId={instance.fileId ?? notepadFileId} locationId={instance.locationId} terminalCwd={terminalCwd} onOpenTarget={handleOpenTarget} onTerminalEffect={handleTerminalEffect} onOpenApp={handleOpenApp} onClose={() => handleCloseWindow(instance.id)} />}
+        renderContent={(instance) => <WindowContent id={instance.appId as WindowId} windowInstanceId={instance.id} projectId={instance.projectId} mediaAsset={mediaAsset} fileId={instance.fileId ?? notepadFileId} locationId={instance.locationId} terminalCwd={terminalCwd} onOpenTarget={handleOpenTarget} onExplorerFolderChange={handleExplorerFolderChange} onTerminalEffect={handleTerminalEffect} onOpenApp={handleOpenApp} onClose={() => handleCloseWindow(instance.id)} />}
         />
         {blockedExternalLink && <ExternalBrowserFallback97 href={blockedExternalLink.href} label={blockedExternalLink.label} onDismiss={() => setBlockedExternalLink(null)} />}
       </Shell97>}

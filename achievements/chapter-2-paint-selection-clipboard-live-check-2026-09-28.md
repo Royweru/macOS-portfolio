@@ -1,0 +1,3 @@
+# Paint Selection and Clipboard Live Check — 2026-09-28
+
+Reused the existing Chrome-extension tab and created only temporary blank Paint bitmaps. Rectangular selection movement, Escape placement, Edit-menu Copy/Cut/Paste, Delete, and Ctrl+A all produced the expected visible result. Ctrl+C/X showed no visible app result; the extension intercepted Ctrl+V as a virtual clipboard operation before sending input, so those shortcuts remain unverified rather than a confirmed application defect. Both temporary Paint windows closed without saving, and the local server was stopped and verified stopped. Free-form selection and imported-image behavior remain open. This advances the Paint acceptance without closing its partial status or claiming full Stitch parity.

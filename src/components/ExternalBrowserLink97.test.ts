@@ -1,7 +1,8 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import ExternalBrowserLink97 from './ExternalBrowserLink97';
+import { handleExternalBrowserLinkClick97 } from './external-browser-navigation97';
 
 describe('ExternalBrowserLink97', () => {
   it('opens safe web destinations outside Weru 97 in an isolated browser tab', () => {
@@ -25,5 +26,41 @@ describe('ExternalBrowserLink97', () => {
 
     expect(html).toContain('<span>Unsafe link</span>');
     expect(html).not.toContain('href=');
+  });
+
+  it('prevents in-shell navigation and reports a popup block for an external destination', () => {
+    const event = { defaultPrevented: false, preventDefault: vi.fn() };
+    const open = vi.fn(() => false);
+    const onBlocked = vi.fn();
+
+    handleExternalBrowserLinkClick97(event, 'https://example.com/project', onBlocked, open);
+
+    expect(event.preventDefault).toHaveBeenCalledOnce();
+    expect(open).toHaveBeenCalledWith('https://example.com/project');
+    expect(onBlocked).toHaveBeenCalledOnce();
+  });
+
+  it('keeps a successful new-tab handoff out of the Weru shell without showing the fallback', () => {
+    const event = { defaultPrevented: false, preventDefault: vi.fn() };
+    const open = vi.fn(() => true);
+    const onBlocked = vi.fn();
+
+    handleExternalBrowserLinkClick97(event, 'https://example.com/project', onBlocked, open);
+
+    expect(event.preventDefault).toHaveBeenCalledOnce();
+    expect(open).toHaveBeenCalledWith('https://example.com/project');
+    expect(onBlocked).not.toHaveBeenCalled();
+  });
+
+  it('does not override a caller that already prevented the anchor action', () => {
+    const event = { defaultPrevented: true, preventDefault: vi.fn() };
+    const open = vi.fn(() => true);
+    const onBlocked = vi.fn();
+
+    handleExternalBrowserLinkClick97(event, 'https://example.com/project', onBlocked, open);
+
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(open).not.toHaveBeenCalled();
+    expect(onBlocked).not.toHaveBeenCalled();
   });
 });

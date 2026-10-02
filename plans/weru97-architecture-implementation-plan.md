@@ -192,3 +192,10 @@ Shortcuts (`.lnk`) contain `shortcutTargetId` and `shortcutTargetPath`. Double-c
 - The canonical profile manifest owns the X destination (`https://x.com/RoyWeru`); the IE4 directory no longer presents the OS as a separate “Weru Portfolio” site. System Properties identifies the owner as Roy Weru.
 - System Properties follows the retained Stitch source's Close-only title bar. Store-level restrictions and OS state version 24 keep old persisted windows in a valid normal state; they remain draggable and resizable.
 - Outlook Express currently hands a composed `mailto:` draft to the visitor's own mail client. Actual inbox delivery requires a server-side contact endpoint and configured provider credentials / verified sender. The recommended route is documented in `plans/weru97-profile-and-window-control-policy-2026-09-26.md`; do not claim delivery until a provider is configured and accepts a message. Never commit provider secrets.
+
+## Chapter 2 implementation addendum — Shutdown Stitch geometry and action verification (2026-09-29)
+
+- The raw Stitch Shutdown frame measures 320×195.57 at (56,64) in a 1422×702 viewport. Weru now uses a clamped 320×196 first-open rect at that anchor, retains the source 18px title bar, and uses compact source-like content/footer spacing.
+- Unlike most app windows, Shutdown bypasses the generic icon-rail clearance because the retained source intentionally places this dialog over the desktop icon region. All window placement is still clamped to the live browser work area.
+- Live browser checks covered safe-power-off display and return through boot, Restart through boot, and the in-app Log on notice/return path. These only affect/reload the Weru page; they do not power down the host. See `plans/weru97-shutdown-stitch-geometry-and-live-actions-2026-09-29.md`.
+- The System Dialogs Stitch screen remains partial overall because Recycle Bin alert comparison and complete screen-level parity remain open.

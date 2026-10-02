@@ -9,6 +9,7 @@ import type { OpenTarget } from '../features/os/os-types';
 import { targetForNode } from '../features/os/open-target';
 import AppIcon from '../components/AppIcon';
 import ExplorerContextMenu97 from './ExplorerContextMenu97';
+import { getExplorerDetails97, getExplorerInitialView97, type ExplorerViewMode97 } from './explorer-presentation97';
 
 const ROOT_ID: string = VIRTUAL_NODE_IDS.root;
 const QUICK_LOCATIONS = [
@@ -25,17 +26,21 @@ const QUICK_LOCATIONS = [
 
 type ClipboardItem = { nodeId: string; mode: 'copy' | 'cut' };
 
-export default function ExplorerContent({ initialFolderId, onOpenTarget }: { initialFolderId?: string; onOpenTarget?: (target: OpenTarget) => void }) {
+export default function ExplorerContent({ initialFolderId, onOpenTarget, onFolderChange }: {
+  initialFolderId?: string;
+  onOpenTarget?: (target: OpenTarget) => void;
+  onFolderChange?: (folder: Pick<VfsNode, 'id' | 'name'>) => void;
+}) {
   const [currentFolderId, setCurrentFolderId] = useState(initialFolderId ?? ROOT_ID);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'icons' | 'list' | 'details'>('icons');
+  const [viewMode, setViewMode] = useState<ExplorerViewMode97>(() => getExplorerInitialView97(initialFolderId));
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; node?: VfsNode } | null>(null);
   const [clipboard, setClipboard] = useState<ClipboardItem | null>(null);
   const [nameDialog, setNameDialog] = useState<{ mode: 'folder' | 'file' | 'rename'; nodeId?: string; value: string } | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<VfsNode | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [openMenu, setOpenMenu] = useState<'File' | 'Edit' | 'View' | 'Help' | null>(null);
+  const [openMenu, setOpenMenu] = useState<'File' | 'Edit' | 'View' | 'Tools' | 'Help' | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const isSourceDocumentsWindow = initialFolderId === VIRTUAL_NODE_IDS.documents;
@@ -50,11 +55,22 @@ export default function ExplorerContent({ initialFolderId, onOpenTarget }: { ini
     return normalized ? uniqueNodes.filter(node => node.name.toLowerCase().includes(normalized)) : uniqueNodes;
   }, [nodes, query]);
 
+  const navigateToFolder = (folder: Pick<VfsNode, 'id' | 'name'>) => {
+    if (folder.id !== currentFolderId && folder.id === VIRTUAL_NODE_IDS.projects) setViewMode('details');
+    setCurrentFolderId(folder.id);
+    setQuery('');
+    setSelectedId(null);
+    onFolderChange?.(folder);
+  };
+
+  const navigateToFolderId = async (folderId: string) => {
+    const folder = await getNode(folderId);
+    if (folder?.kind === 'folder') navigateToFolder(folder);
+  };
+
   const openNode = async (node: VfsNode) => {
     if (node.kind === 'folder') {
-      setCurrentFolderId(node.id);
-      setQuery('');
-      setSelectedId(null);
+      navigateToFolder(node);
       return;
     }
     onOpenTarget?.(targetForNode(node));
@@ -127,19 +143,20 @@ export default function ExplorerContent({ initialFolderId, onOpenTarget }: { ini
       { label: 'Large Icons', action: 'view:icons' }, { label: 'List', action: 'view:list' }, { label: 'Details', action: 'view:details' },
       { label: '', separator: true }, { label: searchOpen ? 'Hide Find Bar' : 'Find', action: 'search' },
     ],
+    Tools: [{ label: searchOpen ? 'Hide Find Bar' : 'Find...', action: 'search' }],
     Help: [{ label: 'About Weru Explorer', action: 'help' }],
   };
 
   return (
     <div className={`win97-explorer${isSourceDocumentsWindow ? ' win97-explorer-source-documents' : ''}`} onClick={() => { setContextMenu(null); if (openMenu) setOpenMenu(null); }}>
       <div className="win97-explorer-menu" role="menubar" aria-label="Explorer menu">
-        {(['File', 'Edit', 'View', 'Help'] as const).map(label => <button key={label} type="button" aria-haspopup="menu" aria-expanded={openMenu === label} onClick={event => { event.stopPropagation(); setOpenMenu(openMenu === label ? null : label); }}>{label}</button>)}
+        {(['File', 'Edit', 'View', ...(currentFolderId === VIRTUAL_NODE_IDS.projects ? ['Tools' as const] : []), 'Help'] as const).map(label => <button key={label} type="button" aria-haspopup="menu" aria-expanded={openMenu === label} onClick={event => { event.stopPropagation(); setOpenMenu(openMenu === label ? null : label); }}>{label}</button>)}
         {openMenu && <div className="win97-explorer-menu-popup" role="menu" aria-label={`${openMenu} menu`} onClick={event => event.stopPropagation()}>{menus[openMenu].map((item, index) => item.separator ? <div key={`${openMenu}-separator-${index}`} className="win97-explorer-menu-separator" /> : <button key={`${openMenu}-${item.label}`} type="button" role="menuitem" disabled={item.disabled} className={menuItem} onClick={() => runMenuAction(item.action ?? '')}>{item.label}</button>)}</div>}
       </div>
       <div className="win97-explorer-toolbar" role="toolbar" aria-label="Explorer toolbar">
-        <button type="button" onClick={() => setCurrentFolderId(currentFolder?.parentId ?? ROOT_ID)} disabled={!currentFolder?.parentId} aria-label="Back"><span className="win97-explorer-back">←</span><span>Back</span></button>
+        <button type="button" onClick={() => void navigateToFolderId(currentFolder?.parentId ?? ROOT_ID)} disabled={!currentFolder?.parentId} aria-label="Back"><span className="win97-explorer-back">←</span><span>Back</span></button>
         <button type="button" disabled aria-label="Forward"><span>→</span><span>Forward</span></button>
-        <button type="button" onClick={() => setCurrentFolderId(currentFolder?.parentId ?? ROOT_ID)} disabled={!currentFolder?.parentId} aria-label="Up"><span className="win97-explorer-up">↑</span><span>Up</span></button>
+        <button type="button" onClick={() => void navigateToFolderId(currentFolder?.parentId ?? ROOT_ID)} disabled={!currentFolder?.parentId} aria-label="Up"><span className="win97-explorer-up">↑</span><span>Up</span></button>
         <span className="win97-explorer-divider" aria-hidden="true" />
         <button type="button" disabled={!selectedNode} onClick={() => selectedNode && setClipboard({ nodeId: selectedNode.id, mode: 'cut' })} aria-label="Cut">Cut</button>
         <button type="button" disabled={!selectedNode} onClick={() => selectedNode && setClipboard({ nodeId: selectedNode.id, mode: 'copy' })} aria-label="Copy">Copy</button>
@@ -150,12 +167,13 @@ export default function ExplorerContent({ initialFolderId, onOpenTarget }: { ini
       <div className="win97-explorer-address-row"><span>Address</span><div className="win97-explorer-address"><AppIcon appId={currentFolder?.kind === 'folder' ? 'folder' : 'computer'} size={14} /><span aria-hidden="true">›</span><span className="truncate">{currentFolderId === ROOT_ID ? 'C:\\' : currentPath ?? currentFolder?.name ?? 'C:\\'}</span></div></div>
       {searchOpen && <label className="win97-explorer-search"><span>Find:</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Type a file name" aria-label="Find files in this folder" /></label>}
       <div className="win97-explorer-body">
-        {!isSourceDocumentsWindow && <nav className="win97-explorer-tree" aria-label="Explorer folders"><div className="win97-explorer-tree-heading">Folders</div>{QUICK_LOCATIONS.map((location, index) => <button type="button" key={`${location.label}-${location.id}`} className={`win97-explorer-tree-item level-${index === 0 ? 0 : 1}${currentFolderId === location.id ? ' selected' : ''}`} onClick={() => { setCurrentFolderId(location.id); setSelectedId(null); }}><span className="win97-explorer-tree-glyph" aria-hidden="true">{index === 0 ? '−' : '·'}</span><AppIcon appId={location.icon} size={16} /><span className="truncate">{location.label}</span></button>)}<button type="button" className={`win97-explorer-tree-item level-0${currentFolderId === VIRTUAL_NODE_IDS.recycled ? ' selected' : ''}`} onClick={() => setCurrentFolderId(VIRTUAL_NODE_IDS.recycled)}><span className="win97-explorer-tree-glyph">·</span><AppIcon appId="recycle-bin" size={16} /><span>Recycle Bin</span></button></nav>}
+        {!isSourceDocumentsWindow && <nav className="win97-explorer-tree" aria-label="Explorer folders"><div className="win97-explorer-tree-heading">Folders</div>{QUICK_LOCATIONS.map((location, index) => <button type="button" key={`${location.label}-${location.id}`} className={`win97-explorer-tree-item level-${index === 0 ? 0 : 1}${currentFolderId === location.id ? ' selected' : ''}`} onClick={() => { void navigateToFolderId(location.id); }}><span className="win97-explorer-tree-glyph" aria-hidden="true">{index === 0 ? '−' : '·'}</span><AppIcon appId={location.icon} size={16} /><span className="truncate">{location.label}</span></button>)}<button type="button" className={`win97-explorer-tree-item level-0${currentFolderId === VIRTUAL_NODE_IDS.recycled ? ' selected' : ''}`} onClick={() => { void navigateToFolderId(VIRTUAL_NODE_IDS.recycled); }}><span className="win97-explorer-tree-glyph">·</span><AppIcon appId="recycle-bin" size={16} /><span>Recycle Bin</span></button></nav>}
         <section ref={contentRef} className="win97-explorer-folder" aria-label="Folder contents" tabIndex={0} onKeyDown={handleContentKeyDown} onContextMenu={event => showContextMenu(event)}>
           <div className={`win97-explorer-file-view ${viewMode}`}>
             {viewMode === 'details' && <div className="win97-explorer-details-head"><span>Name</span><span>Size</span><span>Type</span><span>Date Modified</span></div>}
-            {visibleNodes.map((node) => (
-              <button
+            {visibleNodes.map((node) => {
+              const details = viewMode === 'details' ? getExplorerDetails97(node) : null;
+              return <button
                 type="button"
                 key={node.id}
                 className={`win97-explorer-file ${selectedId === node.id ? 'selected' : ''}`}
@@ -163,11 +181,15 @@ export default function ExplorerContent({ initialFolderId, onOpenTarget }: { ini
                 onDoubleClick={(event) => { event.stopPropagation(); void openNode(node); }}
                 onContextMenu={(event) => showContextMenu(event, node)}
               >
-                <span className="text-[#3f4f5f]"><AppIcon appId={iconFor(node)} size={viewMode === 'icons' ? 32 : 22} /></span>
-                <span className="max-w-full truncate text-xs">{node.name}</span>
-                {viewMode === 'details' && <><span>{node.mimeType}</span><span>{node.size ?? 0} B</span></>}
-              </button>
-            ))}
+                {details ? <>
+                  <span className="win97-explorer-file-name"><AppIcon appId={iconFor(node)} size={16} /><span>{node.name}</span></span>
+                  <span>{details.size}</span><span>{details.type}</span><span>{details.modified}</span>
+                </> : <>
+                  <span className="text-[#3f4f5f]"><AppIcon appId={iconFor(node)} size={viewMode === 'icons' ? 32 : 22} /></span>
+                  <span className="max-w-full truncate text-xs">{node.name}</span>
+                </>}
+              </button>;
+            })}
           </div>
           {visibleNodes.length === 0 && <div className="win97-explorer-empty">This folder is empty.</div>}
         </section>

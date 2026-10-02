@@ -77,7 +77,6 @@
 .win97-browser-page p { max-width: 65ch; }
 .win97-canvas { display: grid; min-height: 380px; place-items: center; margin: 8px; overflow: auto; background: #fff; text-align: center; }
 .win97-canvas img { object-fit: contain; image-rendering: auto; }
-.win97-cd-player { display: flex; flex-direction: column; gap: 10px; padding: 12px; background: #000080; color: #fff; }
 .win97-lcd { padding: 9px; background: #001a00; color: #00ff66; font: 15px var(--w95-font-mono); }
 .win97-lcd small { display: block; margin-top: 5px; font-size: 10px; }
 .win97-empty-media { padding: 16px; background: var(--w95-window-bg); color: var(--w95-text); }
@@ -107,15 +106,15 @@
 .win97-result-row:hover small, .win97-result-row.selected small { color: #fff; }
 .win97-safe-shutdown { position: absolute; inset: 0; display: grid; place-content: center; gap: 14px; border: 0; background: #000; color: #ff8000; font: 16px var(--w95-font-mono); text-align: center; cursor: pointer; }
 .win97-safe-shutdown small { color: #c0c0c0; font: 11px var(--w95-font-ui); }
-.win97-shutdown-dialog { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 12px; overflow: visible; }
-.win97-shutdown-content { display: flex; align-items: flex-start; gap: 12px; }
+.win97-shutdown-dialog { position: relative; display: flex; flex-direction: column; justify-content: flex-start; padding: 12px; overflow: visible; }
+.win97-shutdown-content { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
 .win97-shutdown-computer { display: block; width: 40px; height: 40px; flex: 0 0 40px; }
 .win97-shutdown-options { min-width: 0; flex: 1; }
-.win97-shutdown-options > p { margin: 2px 0 10px; font-weight: bold; }
+.win97-shutdown-options > p { margin: 2px 0 8px; font-weight: bold; }
 .win97-shutdown-options fieldset { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; }
-.win97-shutdown-options label { display: flex; align-items: flex-start; gap: 7px; line-height: 1.25; cursor: pointer; }
+.win97-shutdown-options label { display: flex; align-items: center; gap: 8px; line-height: 1.5; cursor: pointer; }
 .win97-shutdown-options input { width: 13px; height: 13px; flex: 0 0 13px; margin: 0; accent-color: #000080; }
-.win97-shutdown-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: auto; padding-top: 10px; border-top: 1px solid #808080; }
+.win97-shutdown-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 0; padding-top: 8px; border-top: 1px solid #808080; }
 .win97-shutdown-actions > button { min-width: 68px; }
 .win97-shutdown-help { position: absolute; right: 8px; bottom: 47px; z-index: 10; max-width: calc(100% - 16px); padding: 8px 25px 8px 8px; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #ffffe1; color: #000; box-shadow: 2px 2px #000; font: 10px/1.35 var(--w95-font-ui); }
 .win97-shutdown-help button { position: absolute; top: 1px; right: 2px; width: 16px; height: 16px; border: 1px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0; font: bold 11px var(--w95-font-ui); line-height: 12px; }
@@ -127,7 +126,7 @@
 .win97-system-warning-message p { margin: 3px 0 0; font: 12px/1.25 var(--w95-font-ui); }
 .win97-system-warning-actions { display: flex; justify-content: center; gap: 16px; }
 .win97-system-warning-actions > button { min-width: 75px; text-transform: lowercase; letter-spacing: .08em; }
-.window-manager97 { position: absolute; inset: 0 0 var(--w95-taskbar-h, 30px); pointer-events: none; }
+.window-manager97 { position: absolute; inset: 0 0 auto; height: calc(100% - var(--w95-taskbar-h, 30px)); z-index: 500; pointer-events: none; }
 .window-manager97 > .window97 { pointer-events: auto; }
 .window97-drag-surface { touch-action: none; user-select: none; cursor: default; }
 .window97-drag-surface .win95-titlebar { cursor: move; }
@@ -137,6 +136,17 @@
 .window97-title-context button:hover { color: #fff; background: var(--w95-highlight); }
 .window97-title-context button:disabled, .window97-title-context button:disabled:hover { color: #808080; background: transparent; text-shadow: 1px 1px #fff; }
 .window97-title-context hr { margin: 2px 0; border: 0; border-top: 1px solid var(--w95-bevel-dark); }
+.window97-close-confirm-layer { position: absolute; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 12px; pointer-events: auto; background: rgb(0 0 0 / 16%); }
+.window97-close-confirm { width: min(360px, 100%); border: 2px solid; border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light); background: var(--w95-surface); color: var(--w95-text); box-shadow: 2px 2px 0 #000; font: 12px var(--w95-font-ui); }
+.window97-close-confirm-titlebar { display: flex; min-height: 24px; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 3px 2px 7px; color: #fff; background: linear-gradient(90deg, #000080, #1084d0); font-weight: bold; }
+.window97-close-confirm-titlebar button { width: 20px; height: 20px; padding: 0; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: var(--w95-surface); color: #000; font: bold 14px/14px var(--w95-font-ui); }
+.window97-close-confirm-body { display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 14px 16px; }
+.window97-close-confirm-body p { margin: 0; line-height: 1.4; }
+.window97-close-confirm-icon { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #000080; color: #fff; font: bold 22px Georgia, serif; }
+.window97-close-confirm-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 0 12px 12px; }
+.window97-close-confirm-actions button { min-width: 84px; min-height: 25px; padding: 2px 8px; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: var(--w95-surface); color: var(--w95-text); font: 11px var(--w95-font-ui); }
+.window97-close-confirm-actions button:active { border-color: #404040 #fff #fff #404040; }
+.window97-close-confirm-actions button:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
 .welcome97-backdrop { position: fixed; inset: 0; z-index: 1800; display: grid; place-items: center; background: rgba(0,0,0,.18); }
 .welcome97 { width: min(440px, calc(100vw - 24px)); background: var(--w95-surface); color: var(--w95-text); }
 .welcome97-titlebar { padding: 4px 6px; color: #fff; background: linear-gradient(90deg, #000080, #1084d0); font-weight: bold; }

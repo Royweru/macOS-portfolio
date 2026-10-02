@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 import Paint97 from './Paint97';
 import { PAINT_MENU_ITEMS97, PAINT_MENU_NAMES97 } from './paint-menus97';
 import { PAINT_PALETTE97 } from './paint-palette97';
-import { boundsForPoints97, containedImageRect97, drawShape97, floodFill97, getPaintColorForTool97, selectPaintSwatch97 } from './paint-geometry97';
+import { boundsForPoints97, containedImageRect97, drawShape97, floodFill97, getPaintColorForTool97, selectPaintSwatch97, shouldClosePaintPolygon97, tracePaintPolygon97 } from './paint-geometry97';
 
 const stitchPaintSource = readFileSync(join(process.cwd(), 'Stitch Designs', 'html', 'windows_97_paint.html'), 'utf8');
 const paintStyles = readFileSync(join(process.cwd(), 'src', 'styles', 'stitch97.css'), 'utf8');
@@ -115,6 +115,27 @@ describe('Paint97 Stitch toolbox and canvas controls', () => {
     expect(boundsForPoints97([{ x: 40, y: 80 }, { x: 15, y: 30 }, { x: 60, y: 55 }])).toEqual({ x: 15, y: 30, width: 46, height: 51 });
   });
 
+  it('traces user-defined polygon paths and detects an intentional return to the first corner', () => {
+    const context = {
+      beginPath: vi.fn(), moveTo: vi.fn(), lineTo: vi.fn(), closePath: vi.fn(), stroke: vi.fn(),
+    } as unknown as CanvasRenderingContext2D;
+    const points = [{ x: 10, y: 20 }, { x: 80, y: 25 }, { x: 60, y: 90 }, { x: 18, y: 70 }];
+
+    expect(tracePaintPolygon97(context, points, false)).toBe(true);
+    expect(context.moveTo).toHaveBeenCalledWith(10, 20);
+    expect(context.lineTo).toHaveBeenNthCalledWith(1, 80, 25);
+    expect(context.lineTo).toHaveBeenNthCalledWith(3, 18, 70);
+    expect(context.closePath).not.toHaveBeenCalled();
+    expect(tracePaintPolygon97(context, points, true)).toBe(true);
+    expect(context.closePath).toHaveBeenCalledOnce();
+    expect(context.stroke).toHaveBeenCalledTimes(2);
+
+    expect(shouldClosePaintPolygon97(points, { x: 14, y: 23 })).toBe(true);
+    expect(shouldClosePaintPolygon97(points, { x: 24, y: 31 })).toBe(false);
+    expect(shouldClosePaintPolygon97(points.slice(0, 2), { x: 10, y: 20 })).toBe(false);
+    expect(tracePaintPolygon97(context, points.slice(0, 1))).toBe(false);
+  });
+
   it('flood-fills a four-connected region without crossing color boundaries', () => {
     const pixels = new Uint8ClampedArray([
       0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255,
@@ -145,6 +166,21 @@ describe('Paint97 Stitch toolbox and canvas controls', () => {
 
     expect(context.beginPath).toHaveBeenCalledOnce();
     expect(context[expectedMethod as keyof CanvasRenderingContext2D]).toHaveBeenCalled();
+    expect(context.stroke).toHaveBeenCalledOnce();
+  });
+
+  it('keeps the Rounded Rectangle tool rounded when the browser has no native roundRect()', () => {
+    const context = {
+      beginPath: vi.fn(), moveTo: vi.fn(), lineTo: vi.fn(), quadraticCurveTo: vi.fn(),
+      ellipse: vi.fn(), closePath: vi.fn(), roundRect: undefined, rect: vi.fn(), stroke: vi.fn(),
+    } as unknown as CanvasRenderingContext2D;
+
+    drawShape97(context, 'roundrect', { x: 20, y: 30 }, { x: 30, y: 36 });
+
+    expect(context.moveTo).toHaveBeenCalledWith(23, 30);
+    expect(context.quadraticCurveTo).toHaveBeenCalledTimes(4);
+    expect(context.closePath).toHaveBeenCalledOnce();
+    expect(context.rect).not.toHaveBeenCalled();
     expect(context.stroke).toHaveBeenCalledOnce();
   });
 });

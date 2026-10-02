@@ -10,9 +10,10 @@ import { WIN97_ASSETS } from '../data/win97-assets';
 import Window97 from './Window97';
 
 const base: WindowInstance = { id: 'test', appId: 'explorer', mode: 'normal', x: 20, y: 30, width: 560, height: 410, zIndex: 1, title: 'Test', canClose: true, canMinimize: true, canMaximize: true };
-const renderWindow = (instance: WindowInstance = base) => renderToStaticMarkup(createElement(Window97, { instance, isFocused: true, onClose: vi.fn(), onMinimize: vi.fn(), onMaximize: vi.fn(), onFocus: vi.fn(), onMove: vi.fn(), onResize: vi.fn(), children: 'Window content' }));
+const renderWindow = (instance: WindowInstance = base) => renderToStaticMarkup(createElement(Window97, { instance, isFocused: true, onClose: vi.fn(), onRequestDiscardConfirmation: vi.fn(), onMinimize: vi.fn(), onMaximize: vi.fn(), onFocus: vi.fn(), onMove: vi.fn(), onResize: vi.fn(), children: 'Window content' }));
 const resizeStyles = readFileSync(join(process.cwd(), 'src', 'styles', 'window97.css'), 'utf8');
 const stitchStyles = readFileSync(join(process.cwd(), 'src', 'styles', 'stitch97.css'), 'utf8');
+const shellStyles = readFileSync(join(process.cwd(), 'src', 'styles', 'shell97.css'), 'utf8');
 const windowSource = readFileSync(join(process.cwd(), 'src', 'wm', 'Window97.tsx'), 'utf8');
 
 describe('Window97 common controls', () => {
@@ -21,6 +22,9 @@ describe('Window97 common controls', () => {
     expect(html).toContain('class="window97-drag-surface" style="touch-action:none"');
     for (const edge of ['n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw']) expect(html).toContain(`data-window-resize="${edge}"`);
     expect(html.match(/style="touch-action:none;user-select:none"/g)).toHaveLength(8);
+  });
+  it('does not let the parent window dismiss a title-context action before its click handler runs', () => {
+    expect(windowSource).toContain('className="window97-title-context" role="menu" onPointerDown={event => event.stopPropagation()}');
   });
   it('keeps the invisible resize hit zones reachable above content without changing the window frame', () => {
     expect(resizeStyles).toContain('.window97-resize-n, .window97-resize-s { left: 10px; right: 10px; height: 8px;');
@@ -31,6 +35,10 @@ describe('Window97 common controls', () => {
     expect(windowSource).toContain('onPointerMove={resize.onPointerMove} onPointerUp={resize.onPointerUp}');
   });
   it('removes resize zones when maximized', () => expect(renderWindow({ ...base, mode: 'maximized' })).not.toContain('data-window-resize='));
+  it('keeps maximized windows in a taskbar-safe, lower shell layer', () => {
+    expect(resizeStyles).toContain('.window-manager97 { position: absolute; inset: 0 0 auto; height: calc(100% - var(--w95-taskbar-h, 30px)); z-index: 500; pointer-events: none; }');
+    expect(shellStyles).toContain('.taskbar97 { position: absolute; inset: auto 0 0; z-index: 600;');
+  });
   it.each(Object.keys(WINDOW_CONFIGS) as WindowId[])('renders expected controls for %s', appId => {
     const html = renderWindow({ ...base, id: `${appId}-test`, appId, title: WINDOW_CONFIGS[appId].title,
       ...(['cd-player', 'cd-equalizer'].includes(appId) ? { canMaximize: false } : {}),

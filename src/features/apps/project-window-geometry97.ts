@@ -1,6 +1,7 @@
-import type { WindowRect } from '../os/os-types';
+import type { WindowInstance, WindowRect } from '../os/os-types';
 import type { VfsNode } from '../filesystem/filesystem-types';
 import { clampWindowRect97, getDesktopBounds97, type DesktopBounds97 } from '../../wm/geometry97';
+import { getStitchExplorerRect97 } from './explorer-window-geometry97';
 
 const projectExplorerBase: WindowRect = { x: 88, y: 26, width: 620, height: 430 };
 const projectNotepadBase: WindowRect = { x: 320, y: 90, width: 580, height: 450 };
@@ -30,6 +31,24 @@ export function getStitchProjectNotepadRect97(cascade = 0, bounds: DesktopBounds
 export function getProjectFolderExplorerRect97(locationId: string, existingProjectWindows = 0, bounds: DesktopBounds97 = getDesktopBounds97()): WindowRect | undefined {
   if (!locationId.startsWith('project-')) return undefined;
   return getStitchProjectExplorerRect97(Math.min(existingProjectWindows, 4) * 44, bounds);
+}
+
+/** Resolve source-authored placement when an existing Explorer navigates to a new folder. */
+export function getExplorerNavigationRect97(
+  locationId: string,
+  windows: Array<Pick<WindowInstance, 'id' | 'appId' | 'locationId'>>,
+  currentWindowId: string,
+  bounds: DesktopBounds97 = getDesktopBounds97(),
+): WindowRect | undefined {
+  const namedSourceRect = getStitchExplorerRect97(locationId);
+  if (namedSourceRect) return namedSourceRect;
+
+  const otherProjectWindows = windows.filter(window =>
+    window.id !== currentWindowId
+    && window.appId === 'explorer'
+    && window.locationId?.startsWith('project-'),
+  ).length;
+  return getProjectFolderExplorerRect97(locationId, otherProjectWindows, bounds);
 }
 
 /** Apply the screen-specific Notepad geometry only to documents owned by project folders. */

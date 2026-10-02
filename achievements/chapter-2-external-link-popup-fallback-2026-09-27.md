@@ -1,0 +1,3 @@
+# External Link Handoff — 2026-09-27
+
+External links now use the shared isolated new-tab helper and expose a classic retry strip when Chrome reports a blocked popup. Tests cover the success, block, and already-cancelled-event branches. The full suite passed (70 files / 346 tests), TypeScript passed, lint passed for 220 TypeScript files, and the production build passed with the existing stale Browserslist notice. Chrome showed the README's Adventures link opening outside Weru 97; repeated QA clicks created two destination tabs, so exact per-click tab cardinality remains unverified. The blocked UI was not triggered live. Port 3001 was stopped afterward; no email or deployment occurred. See `plans/weru97-external-link-popup-fallback-2026-09-27.md`.

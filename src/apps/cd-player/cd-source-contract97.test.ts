@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const source = readFileSync('Stitch Designs/html/windows_97_cd_player.html', 'utf8');
+const legacyWindowStyles = readFileSync('src/styles/window97.css', 'utf8');
 
 describe('CD Player Stitch source contract', () => {
   it('defines two sibling application windows with source-width and titlebar contracts', () => {
@@ -21,5 +22,9 @@ describe('CD Player Stitch source contract', () => {
     const equalizerWindow = source.slice(source.indexOf('id="eq-window"'));
     expect(playerWindow).toContain('title="Maximize (Disabled)"');
     expect(equalizerWindow).not.toContain('title="Maximize');
+  });
+
+  it('does not retain the overridden navy legacy skin for the Stitch gray player surface', () => {
+    expect(legacyWindowStyles).not.toMatch(/\.win97-cd-player\s*\{[^}]*background:\s*#000080/i);
   });
 });

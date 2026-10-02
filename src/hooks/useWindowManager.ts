@@ -4,8 +4,11 @@ import type { WindowId } from '../types';
 import type { WindowInstance, WindowRect } from '../features/os/os-types';
 import { useOsStore } from '../features/os/os-store';
 import { getResponsiveWindowSize, getWindowCenterPosition } from '../utils/layout';
-import { getCenteredWindowPosition97 } from '../wm/geometry97';
+import { getCenteredWindowPosition97, positionWindowClearOfShortcuts97 } from '../wm/geometry97';
 import { getMediaPlayerInitialRect97 } from '../apps/media-player/media-player-geometry97';
+import { getPaintInitialRect97 } from '../apps/paint/paint-window-geometry97';
+import { getIe4InitialRect97 } from '../apps/ie4/ie4-window-geometry97';
+import { getShutdownInitialRect97 } from '../apps/system/shutdown-window-geometry97';
 
 export interface WindowManagerActions {
   openWindow: (id: WindowId, options?: { instanceId?: string; projectId?: number; allowMultiple?: boolean; title?: string; fileId?: string; locationId?: string; readOnly?: boolean; rect?: WindowRect; canMinimize?: boolean; canMaximize?: boolean; showMaximize?: boolean }) => void;
@@ -71,13 +74,22 @@ export function useWindowManager(initial: WindowId[] = []): WindowManagerActions
     const cascade = options?.allowMultiple && existingInstances.length > 0
       ? Math.min(existingInstances.length * 44, 176)
       : 0;
-    const rect = options?.rect ?? (id === 'media-player' ? getMediaPlayerInitialRect97(cascade) : (() => {
+    const rect = options?.rect ?? (id === 'shutdown'
+      ? getShutdownInitialRect97()
+      : id === 'media-player'
+        ? getMediaPlayerInitialRect97(cascade)
+        : id === 'paint'
+          ? getPaintInitialRect97(cascade)
+          : id === 'ie4'
+            ? getIe4InitialRect97(cascade)
+        : (() => {
       const { x, y } = cfg.centered
         ? getCenteredWindowPosition97(width, height, cfg.verticalBias ?? 0)
         : getWindowCenterPosition(width, height, (cfg.ox ?? 0) + cascade, (cfg.oy ?? 0) + cascade);
       return { x, y, width, height };
     })());
-    open(id, { id: options?.instanceId ?? id, projectId: options?.projectId, allowMultiple: options?.allowMultiple, title: options?.title ?? cfg.title, icon: cfg.icon, rect, fileId: options?.fileId, locationId: options?.locationId, readOnly: options?.readOnly, canMinimize: options?.canMinimize ?? cfg.canMinimize, canMaximize: options?.canMaximize ?? cfg.canMaximize, showMaximize: options?.showMaximize ?? cfg.showMaximize });
+    const initialRect = id === 'shutdown' ? rect : positionWindowClearOfShortcuts97(rect);
+    open(id, { id: options?.instanceId ?? id, projectId: options?.projectId, allowMultiple: options?.allowMultiple, title: options?.title ?? cfg.title, icon: cfg.icon, rect: initialRect, fileId: options?.fileId, locationId: options?.locationId, readOnly: options?.readOnly, canMinimize: options?.canMinimize ?? cfg.canMinimize, canMaximize: options?.canMaximize ?? cfg.canMaximize, showMaximize: options?.showMaximize ?? cfg.showMaximize });
   }, [open]);
 
   const getRect = useCallback((id: string) => {

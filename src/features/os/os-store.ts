@@ -90,7 +90,7 @@ interface OsStore {
 const defaultRect: WindowRect = { x: 80, y: 48, width: 640, height: 440 };
 const NOTEPAD_WINDOW_APP_IDS97 = new Set(['notepad', 'about', 'skills', 'experience']);
 
-const createWindowId = (appId: string) => {
+export const createWindowInstanceId97 = (appId: string) => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${appId}-${crypto.randomUUID()}`;
   return `${appId}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 };
@@ -244,7 +244,7 @@ export const useOsStore = create<OsStore>()(
           set(focusState(nextState, existing.id));
           return existing.id;
         }
-        const id = options.id ?? createWindowId(appId);
+        const id = options.id ?? createWindowInstanceId97(appId);
         const rect = clampWindowRect97(options.rect ?? defaultRect);
         const zIndex = state.nextZIndex + 1;
         const window: WindowInstance = {

@@ -33,7 +33,7 @@
 .win97-explorer-search { display: flex; min-height: 24px; flex: 0 0 24px; align-items: center; gap: 5px; padding: 2px 6px; border-bottom: 1px solid #808080; background: #c0c0c0; font: 10px var(--w95-font-ui); }
 .win97-explorer-search input { min-width: 0; min-height: 18px; flex: 1; padding: 1px 4px; border: 2px solid !important; border-color: #404040 #fff #fff #404040 !important; background: #fff !important; font: 10px var(--w95-font-ui); }
 .win97-explorer-body { display: flex; min-width: 0; min-height: 0; flex: 1; overflow: hidden; padding: 4px; background: #c0c0c0; }
-.win97-explorer-tree { display: flex; width: 164px; min-width: 132px; flex: 0 0 164px; flex-direction: column; gap: 1px; overflow: auto; padding: 3px; border: 2px solid; border-color: #808080 #fff #fff #808080; background: #fff; font: 10px var(--w95-font-ui); }
+.win97-explorer-tree { display: flex; width: min(200px, 34%); min-width: 132px; flex: 0 0 min(200px, 34%); flex-direction: column; gap: 1px; overflow: auto; padding: 3px; border: 2px solid; border-color: #808080 #fff #fff #808080; background: #fff; font: 10px var(--w95-font-ui); }
 .win97-explorer-tree-heading { min-height: 20px; padding: 3px 4px; color: #000080; font-weight: bold; }
 .win97-explorer-tree-item { display: flex; min-height: 22px; align-items: center; gap: 4px; padding: 2px 4px; border: 1px solid transparent; background: #fff; color: #000; text-align: left; font: 10px var(--w95-font-ui); }
 .win97-explorer-tree-item.level-1 { padding-left: 16px; }
@@ -48,7 +48,9 @@
 .win97-explorer-file > span:nth-child(2) { overflow: visible; max-width: 100%; white-space: normal; overflow-wrap: anywhere; font-size: 10px; }
 .win97-explorer-file-view.list .win97-explorer-file, .win97-explorer-file-view.details .win97-explorer-file { min-height: 22px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 7px; padding: 1px 4px; text-align: left; }
 .win97-explorer-file-view.list .win97-explorer-file img, .win97-explorer-file-view.details .win97-explorer-file img { width: 16px; height: 16px; }
-.win97-explorer-file-view.details .win97-explorer-file, .win97-explorer-details-head { display: grid; grid-template-columns: minmax(120px, 1fr) 80px 150px 130px; align-items: center; }
+.win97-explorer-file-view.details .win97-explorer-file, .win97-explorer-details-head { display: grid; grid-template-columns: minmax(120px, 170px) 60px 85px minmax(120px, 1fr); align-items: center; }
+.win97-explorer-file-view.details .win97-explorer-file-name { display: flex; min-width: 0; align-items: center; gap: 7px; }
+.win97-explorer-file-view.details .win97-explorer-file-name > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .win97-explorer-details-head { min-height: 21px; padding: 2px 4px; border-bottom: 1px solid #808080; background: #c0c0c0; font: bold 9px var(--w95-font-ui); }
 .win97-explorer-file:hover, .win97-explorer-file.selected { outline: 1px dotted #000080; outline-offset: -2px; background: #cce5ff; color: #000; }
 .win97-explorer-status { display: flex; min-height: 20px; flex: 0 0 20px; align-items: center; gap: 4px; padding: 2px 4px; border-top: 1px solid #fff; background: #c0c0c0; color: #000; font: 9px var(--w95-font-ui); }
@@ -104,7 +106,7 @@
 .win97-recycle-confirm-title { display: flex; align-items: center; gap: 5px; padding: 3px 5px; color: #fff; background: linear-gradient(90deg, #000080, #1084d0); font-weight: bold; }
 .win97-recycle-confirm-body { display: flex; align-items: center; gap: 10px; padding: 14px 12px 4px; }
 .win97-recycle-confirm-body p { margin: 4px 0 0; }
-.win97-recycle-empty-alert { position: absolute; right: 16px; bottom: 16px; z-index: 12; width: min(288px, calc(100% - 24px)); border: 2px solid; border-color: #fff #000 #000 #fff; background: #c0c0c0; box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080, 2px 2px #000; color: #000; }
+.win97-recycle-empty-alert { position: absolute; right: 64px; bottom: 18px; z-index: 12; width: min(288px, calc(100% - 24px)); max-height: calc(100% - 12px); overflow: auto; border: 2px solid; border-color: #fff #000 #000 #fff; background: #c0c0c0; box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080, 2px 2px #000; color: #000; }
 .win97-recycle-alert-titlebar { display: flex; height: 18px; align-items: center; justify-content: space-between; padding: 1px 2px 1px 5px; background: linear-gradient(90deg, #000080, #1084d0); color: #fff; font: bold 11px var(--w95-font-ui); }
 .win97-recycle-alert-close { display: grid; width: 16px; height: 14px; place-items: center; padding: 0 0 1px; border: 1px solid; border-color: #fff #000 #000 #fff; background: #c0c0c0; color: #000; font: bold 11px/1 var(--w95-font-ui); }
 .win97-recycle-alert-body { padding: 16px; }
@@ -113,6 +115,8 @@
 .win97-recycle-alert-message p { margin: 0; font: 11px/1.25 var(--w95-font-ui); }
 .win97-recycle-alert-actions { display: flex; justify-content: center; }
 .win97-recycle-alert-actions .win95-button { min-width: 70px; }
+@media (max-width: 380px) { .win97-recycle-empty-alert { right: 12px; } }
+@media (max-height: 180px) { .win97-recycle-empty-alert { bottom: 0; } }
 .win97-explorer .win97-explorer-folder button { border-radius: 0 !important; }
 .win97-notepad { display: flex; width: 100%; height: 100%; min-width: 0; min-height: 0; flex: 1 1 0%; }
 .win97-notepad-menubar { position: relative; z-index: 5; display: flex; min-height: 18px; align-items: center; gap: 2px; padding: 0 4px; border-bottom: 1px solid #808080; background: #c0c0c0; font: 10px var(--w95-font-ui); }
@@ -344,12 +348,14 @@
 .win97-paint-status span { min-height: 17px; padding: 2px 5px; border: 2px solid; border-color: #808080 #fff #fff #808080; }
 .win97-paint-status span:first-child { flex: 1; }
 .win97-calculator { min-width: 278px; }
-.win97-calculator { overflow: hidden; }
+.win97-calculator { display: flex; justify-content: center; overflow: auto; background: #c0c0c0; }
+.win97-calculator-panel { width: min(100%, 320px); flex: 0 0 auto; }
 .win97-calculator .win97-display { height: 27px; box-sizing: border-box; margin: 3px 8px 2px; padding: 4px 7px; background: #fffce8; color: #000; font-size: 18px; }
 .win97-calculator .win97-toolbar { min-height: 23px; height: 23px; box-sizing: border-box; justify-content: space-between; padding: 2px 8px; }
 .win97-calculator .win97-calc-grid { grid-template-columns: repeat(4, minmax(48px, 1fr)); gap: 2px; padding: 4px 8px; }
 .win97-calculator .win95-button { min-width: 48px; min-height: 20px; padding: 1px 4px; }
-.win97-minesweeper { min-width: 242px; max-width: 278px; }
+.win97-minesweeper { display: flex; justify-content: center; box-sizing: border-box; min-width: 242px; background: #c0c0c0; }
+.win97-minesweeper-panel { width: min(100%, 262px); flex: 0 0 auto; }
 .win97-mine-cell.revealed { border: 1px solid var(--w95-bevel-dark); background: #c0c0c0; }
 .win97-mine-cell.mine-hit { color: #fff; background: #d40000; }
 .win97-mine-cell.mine-count-1 { color: #0000ff; }.win97-mine-cell.mine-count-2 { color: #008000; }.win97-mine-cell.mine-count-3 { color: #ff0000; }.win97-mine-cell.mine-count-4 { color: #000080; }
@@ -614,3 +620,6 @@
 .win97-external-browser-fallback > footer { display: flex; justify-content: flex-end; gap: 6px; padding: 2px 6px 6px; }
 .win97-external-browser-fallback > footer a, .win97-external-browser-fallback > footer button { display: inline-flex; min-height: 22px; align-items: center; justify-content: center; padding: 2px 8px; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0; color: #000; font: 11px var(--w95-font-ui); text-decoration: none; }
 .win97-external-browser-fallback > footer a:active, .win97-external-browser-fallback > footer button:active { border-color: #404040 #fff #fff #404040; }
+.win97-external-link-blocked { display: inline-flex; align-items: center; gap: 6px; margin: 3px; padding: 3px 5px; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #ffffe1; color: #000; font: 11px var(--w95-font-ui); }
+.win97-external-link-blocked > a, .win97-external-link-blocked > button { padding: 2px 5px; border: 2px solid; border-color: #fff #404040 #404040 #fff; background: #c0c0c0; color: #000; font: 11px var(--w95-font-ui); }
+.win97-external-link-blocked > button:active { border-color: #404040 #fff #fff #404040; }

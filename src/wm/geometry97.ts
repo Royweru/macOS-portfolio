@@ -7,6 +7,8 @@ export const WIN97_TASKBAR_HEIGHT = 46;
 export const WIN97_WORK_AREA_HEIGHT = WIN97_DESKTOP_HEIGHT - WIN97_TASKBAR_HEIGHT;
 export const WIN97_MIN_WINDOW_WIDTH = 240;
 export const WIN97_MIN_WINDOW_HEIGHT = 160;
+/** Two desktop shortcut columns occupy the left edge of the shell. */
+export const WIN97_SHORTCUT_RAIL_WIDTH = 240;
 
 /** Source-authored initial My Documents window from the Stitch desktop screen. */
 export const STITCH_DESKTOP_EXPLORER_RECT: WindowRect = { x: 240, y: 60, width: 560, height: 410 };
@@ -54,6 +56,17 @@ export function clampWindowRect97(
   return { x, y, width, height };
 }
 
+/** Keep newly opened windows clear of desktop shortcuts without scaling the source design. */
+export function positionWindowClearOfShortcuts97(
+  rect: WindowRect,
+  bounds = getDesktopBounds97(),
+): WindowRect {
+  const safeLeft = Math.min(WIN97_SHORTCUT_RAIL_WIDTH, Math.max(0, bounds.width - WIN97_MIN_WINDOW_WIDTH));
+  const x = Math.max(rect.x, safeLeft);
+  const maxSafeWidth = Math.max(Math.min(WIN97_MIN_WINDOW_WIDTH, bounds.width), bounds.width - x);
+  return clampWindowRect97({ ...rect, x, width: Math.min(rect.width, maxSafeWidth) }, WIN97_MIN_WINDOW_WIDTH, WIN97_MIN_WINDOW_HEIGHT, bounds);
+}
+
 export function getLogicalWindowSize(
   baseWidth: number,
   baseHeight: number,
@@ -76,8 +89,11 @@ export function getLogicalWindowPosition(
   offsetY = 0,
   bounds = getDesktopBounds97(),
 ) {
-  const layoutWidth = Math.min(WIN97_DESKTOP_WIDTH, bounds.width);
-  const layoutHeight = Math.min(WIN97_WORK_AREA_HEIGHT, bounds.workAreaHeight);
+  // The 1024×768 canvas is only a Stitch composition reference. Window
+  // positions must use the live browser work area so wide-screen users do not
+  // get a full-width desktop with every newly opened app clustered on the left.
+  const layoutWidth = bounds.width;
+  const layoutHeight = bounds.workAreaHeight;
   const rect = clampWindowRect97({
     x: Math.floor((layoutWidth - width) / 2) + offsetX,
     y: Math.floor((layoutHeight - height) / 3) + offsetY,

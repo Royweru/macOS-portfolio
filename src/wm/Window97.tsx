@@ -6,13 +6,14 @@ import TitleBar95 from '../components/win95/TitleBar95';
 import type { WindowInstance, WindowRect } from '../features/os/os-types';
 import { useDrag97 } from './useDrag97';
 import { useResize97, type ResizeDirection97 } from './useResize97';
-import { canRequestWindowClose97, hasUnsavedChangesInWindow97, shouldHandleWindowCloseShortcut97 } from './window-close97';
+import { getWindowCloseAction97, hasUnsavedChangesInWindow97, shouldHandleWindowCloseShortcut97 } from './window-close97';
 import { getWindowControlPolicy97 } from './window-control-policy97';
 
 export interface Window97Props {
   instance: WindowInstance;
   isFocused: boolean;
   onClose: (id: string) => void;
+  onRequestDiscardConfirmation: (id: string) => void;
   onMinimize: (id: string) => void;
   onMaximize: (id: string) => void;
   onFocus: (id: string) => void;
@@ -22,7 +23,7 @@ export interface Window97Props {
   children: ReactNode;
 }
 
-export default function Window97({ instance, isFocused, onClose, onMinimize, onMaximize, onFocus, onMove, onResize, keyboardShortcutsEnabled = true, children }: Window97Props) {
+export default function Window97({ instance, isFocused, onClose, onRequestDiscardConfirmation, onMinimize, onMaximize, onFocus, onMove, onResize, keyboardShortcutsEnabled = true, children }: Window97Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const isMaximized = instance.mode === 'maximized';
@@ -35,8 +36,10 @@ export default function Window97({ instance, isFocused, onClose, onMinimize, onM
   if (instance.mode === 'minimized') return null;
   const requestClose = () => {
     const isDirty = hasUnsavedChangesInWindow97(contentRef.current);
-    if (!canRequestWindowClose97(controls.canClose, isDirty, () => window.confirm('This document has unsaved changes. Close without saving?'))) return;
-    onClose(instance.id);
+    const action = getWindowCloseAction97(controls.canClose, isDirty);
+    if (action === 'blocked') return;
+    if (action === 'confirm-discard') onRequestDiscardConfirmation(instance.id);
+    else onClose(instance.id);
     setMenuOpen(false);
   };
   const onWindowKeyDownCapture = (event: React.KeyboardEvent<HTMLElement>) => {
@@ -67,7 +70,7 @@ export default function Window97({ instance, isFocused, onClose, onMinimize, onM
           onDoubleClick={controls.canMaximize && controls.showMaximize ? () => onMaximize(instance.id) : undefined}
         />
       </div>
-      {menuOpen && <div className="window97-title-context" role="menu">
+      {menuOpen && <div className="window97-title-context" role="menu" onPointerDown={event => event.stopPropagation()}>
         {isMaximized && controls.canMaximize && <button type="button" onClick={() => { onMaximize(instance.id); setMenuOpen(false); }}>Restore</button>}
         {controls.canMinimize && <button type="button" onClick={() => { onMinimize(instance.id); setMenuOpen(false); }}>Minimize</button>}
         {controls.canMaximize && controls.showMaximize && !isMaximized && <button type="button" onClick={() => { onMaximize(instance.id); setMenuOpen(false); }}>Maximize</button>}

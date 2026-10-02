@@ -4,11 +4,21 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import RetroBrowser97 from './RetroBrowser97';
+import { WINDOW_CONFIGS } from '../../constants';
 
 const stitchIeSource = readFileSync(join(process.cwd(), 'Stitch Designs', 'html', 'windows_97_internet_explorer.html'), 'utf8');
 const ieStyles = readFileSync(join(process.cwd(), 'src', 'styles', 'stitch97.css'), 'utf8');
 
 describe('Internet Explorer Stitch structure contract', () => {
+  it('keeps the active IE window at the Stitch-authored 940×680 dimensions', () => {
+    expect(stitchIeSource).toContain('w-[940px] max-w-[98%] h-[680px] max-h-[96%]');
+    expect(WINDOW_CONFIGS.ie4).toMatchObject({
+      title: 'case-study.url - Internet Explorer',
+      w: 940,
+      h: 680,
+    });
+  });
+
   it('keeps the source-sized toolbar and its 32px controls', () => {
     expect(stitchIeSource).toContain('class="h-10 bg-surface-container');
     expect(stitchIeSource).toContain('class="win95-raised h-8 px-1.5');

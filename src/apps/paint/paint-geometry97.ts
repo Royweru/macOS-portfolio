@@ -40,6 +40,22 @@ export function boundsForPoints97(points: PaintPoint97[]): PaintRect97 {
   return { x, y, width: Math.max(1, Math.max(...xs) - x + 1), height: Math.max(1, Math.max(...ys) - y + 1) };
 }
 
+export function shouldClosePaintPolygon97(points: PaintPoint97[], point: PaintPoint97, tolerance = 8) {
+  if (points.length < 3) return false;
+  const first = points[0];
+  return Math.hypot(point.x - first.x, point.y - first.y) <= tolerance;
+}
+
+export function tracePaintPolygon97(context: CanvasRenderingContext2D, points: PaintPoint97[], close = true) {
+  if (points.length < 2) return false;
+  context.beginPath();
+  context.moveTo(points[0].x, points[0].y);
+  points.slice(1).forEach(point => context.lineTo(point.x, point.y));
+  if (close) context.closePath();
+  context.stroke();
+  return true;
+}
+
 /** Fills only the 4-connected region whose pixels exactly match the seed color. */
 export function floodFill97(pixels: Uint8ClampedArray, width: number, height: number, x: number, y: number, color: [number, number, number, number]) {
   if (x < 0 || y < 0 || x >= width || y >= height || width < 1 || height < 1) return 0;
@@ -91,8 +107,26 @@ export function drawShape97(context: CanvasRenderingContext2D, tool: string, sta
     context.lineTo(left + width, top + height);
     context.lineTo(left, top + height);
     context.closePath();
-  } else if (tool === 'roundrect' && typeof context.roundRect === 'function') {
-    context.roundRect(left, top, Math.max(width, 1), Math.max(height, 1), 7);
+  } else if (tool === 'roundrect') {
+    const rectWidth = Math.max(width, 1);
+    const rectHeight = Math.max(height, 1);
+    const radius = Math.min(7, rectWidth / 2, rectHeight / 2);
+    if (typeof context.roundRect === 'function') {
+      context.roundRect(left, top, rectWidth, rectHeight, radius);
+    } else {
+      // Older canvas implementations lack roundRect(); keep this tool rounded
+      // instead of silently drawing a plain rectangle.
+      context.moveTo(left + radius, top);
+      context.lineTo(left + rectWidth - radius, top);
+      context.quadraticCurveTo(left + rectWidth, top, left + rectWidth, top + radius);
+      context.lineTo(left + rectWidth, top + rectHeight - radius);
+      context.quadraticCurveTo(left + rectWidth, top + rectHeight, left + rectWidth - radius, top + rectHeight);
+      context.lineTo(left + radius, top + rectHeight);
+      context.quadraticCurveTo(left, top + rectHeight, left, top + rectHeight - radius);
+      context.lineTo(left, top + radius);
+      context.quadraticCurveTo(left, top, left + radius, top);
+      context.closePath();
+    }
   } else {
     context.rect(left, top, Math.max(width, 1), Math.max(height, 1));
   }

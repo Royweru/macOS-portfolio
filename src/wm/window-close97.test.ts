@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { canRequestWindowClose97, dispatchWindowShortcut97, hasUnsavedChangesInWindow97, shouldHandleWindowCloseShortcut97 } from './window-close97';
+import { dispatchWindowShortcut97, getWindowCloseAction97, hasUnsavedChangesInWindow97, shouldHandleWindowCloseShortcut97 } from './window-close97';
 
 const closeableWindow = { id: 'notepad-1', canClose: true, canMinimize: true };
 const makeEvent = (overrides: Partial<KeyboardEvent> = {}) => ({
@@ -30,50 +30,42 @@ describe('shared Weru window close policy', () => {
     expect(shouldHandleWindowCloseShortcut97(event, true)).toBe(true);
   });
 
-  it('closes a clean, closeable window without prompting', () => {
-    const confirmDiscard = vi.fn(() => true);
-    expect(canRequestWindowClose97(true, false, confirmDiscard)).toBe(true);
-    expect(confirmDiscard).not.toHaveBeenCalled();
+  it('routes clean, dirty, and non-closeable windows to the proper close action', () => {
+    expect(getWindowCloseAction97(true, false)).toBe('close');
+    expect(getWindowCloseAction97(true, true)).toBe('confirm-discard');
+    expect(getWindowCloseAction97(false, true)).toBe('blocked');
   });
 
-  it('requires confirmation for dirty documents and respects non-closeable windows', () => {
-    expect(canRequestWindowClose97(true, true, () => false)).toBe(false);
-    expect(canRequestWindowClose97(true, true, () => true)).toBe(true);
-    const confirmDiscard = vi.fn(() => true);
-    expect(canRequestWindowClose97(false, true, confirmDiscard)).toBe(false);
-    expect(confirmDiscard).not.toHaveBeenCalled();
-  });
-
-  it('routes Ctrl/Cmd+W through dirty-state confirmation before closing', () => {
+  it('routes Ctrl/Cmd+W through the in-shell discard dialog before closing', () => {
     const event = makeEvent();
     const close = vi.fn();
-    const confirmDiscard = vi.fn(() => false);
+    const requestDiscardConfirmation = vi.fn();
     const handled = dispatchWindowShortcut97(event, closeableWindow, {
       hasUnsavedChanges: true,
-      confirmDiscard,
+      requestDiscardConfirmation,
       close,
       minimize: vi.fn(),
     });
 
     expect(handled).toBe(true);
     expect(event.preventDefault).toHaveBeenCalledOnce();
-    expect(confirmDiscard).toHaveBeenCalledOnce();
+    expect(requestDiscardConfirmation).toHaveBeenCalledWith(closeableWindow.id);
     expect(close).not.toHaveBeenCalled();
   });
 
   it('does not close a window whose close action is disabled', () => {
     const close = vi.fn();
-    const confirmDiscard = vi.fn(() => true);
+    const requestDiscardConfirmation = vi.fn();
     const event = makeEvent();
     dispatchWindowShortcut97(event, { ...closeableWindow, canClose: false }, {
       hasUnsavedChanges: false,
-      confirmDiscard,
+      requestDiscardConfirmation,
       close,
       minimize: vi.fn(),
     });
 
     expect(event.preventDefault).toHaveBeenCalledOnce();
-    expect(confirmDiscard).not.toHaveBeenCalled();
+    expect(requestDiscardConfirmation).not.toHaveBeenCalled();
     expect(close).not.toHaveBeenCalled();
   });
 
@@ -82,7 +74,7 @@ describe('shared Weru window close policy', () => {
     const event = makeEvent({ key: 'm' });
     dispatchWindowShortcut97(event, { ...closeableWindow, canMinimize: false }, {
       hasUnsavedChanges: false,
-      confirmDiscard: () => true,
+      requestDiscardConfirmation: vi.fn(),
       close: vi.fn(),
       minimize,
     });
@@ -95,17 +87,17 @@ describe('shared Weru window close policy', () => {
       const event = makeEvent({ key });
       const close = vi.fn();
       const minimize = vi.fn();
-      const confirmDiscard = vi.fn(() => true);
+      const requestDiscardConfirmation = vi.fn();
 
       expect(dispatchWindowShortcut97(event, closeableWindow, {
         hasUnsavedChanges: true,
-        confirmDiscard,
+        requestDiscardConfirmation,
         close,
         minimize,
         shortcutsEnabled: false,
       })).toBe(false);
       expect(event.preventDefault).not.toHaveBeenCalled();
-      expect(confirmDiscard).not.toHaveBeenCalled();
+      expect(requestDiscardConfirmation).not.toHaveBeenCalled();
       expect(close).not.toHaveBeenCalled();
       expect(minimize).not.toHaveBeenCalled();
     }

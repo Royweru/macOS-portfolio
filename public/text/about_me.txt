@@ -1,9 +1,8 @@
 ABOUT ME
 ================================================================
 
-I'm Roy Matheri Waweru, but most people call me Weru. I'm a
-full-stack developer and agentic AI engineer in Nairobi, Kenya,
-finishing a BSc in ICT at KCA University.
+I'm Roy Weru, a full-stack developer and agentic AI engineer in
+Nairobi, Kenya, finishing a BSc in ICT at KCA University.
 
 
 WHAT I LIKE BUILDING

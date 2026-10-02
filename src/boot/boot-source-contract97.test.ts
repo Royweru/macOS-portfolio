@@ -15,7 +15,7 @@ import {
   BOOT_SPLASH_FADE_MS,
   BOOT_STARTING_STAGE_MS,
 } from './boot-contract97';
-import { SegmentedProgress97, WeruFlag97 } from './BootSequence97';
+import { SegmentedProgress97, WeruMark97 } from './BootSequence97';
 
 const stitchBootSource = readFileSync(join(process.cwd(), 'Stitch Designs', 'html', 'windows_97_boot_screen.html'), 'utf8');
 const bootStyles = readFileSync(join(process.cwd(), 'src', 'styles', 'boot.css'), 'utf8');
@@ -157,12 +157,16 @@ describe('BootSequence97 Stitch source contract', () => {
     expect((progress.match(/<span class="(?:active)?"><\/span>/g) ?? [])).toHaveLength(sourceSegmentCount);
   });
 
-  it("renders the source flag's exact SVG primitives, including its unfilled highlight strokes", () => {
-    const sourceSvg = stitchBootSource.match(/<svg viewBox="0 0 100 90" fill="none"[^>]*>([\s\S]*?)<\/svg>/)?.[0] ?? '';
-    const appSvg = renderToStaticMarkup(createElement(WeruFlag97));
-    expect(sourceSvg).not.toBe('');
-    expect(appSvg).toContain('fill="none"');
-    expect(svgElements(appSvg)).toEqual(svgElements(sourceSvg));
+  it('uses the Weru pixel mark instead of carrying the Windows four-color flag into the branded boot screen', () => {
+    const sourceFlag = stitchBootSource.match(/<svg viewBox="0 0 100 90" fill="none"[^>]*>([\s\S]*?)<\/svg>/)?.[0] ?? '';
+    const appMark = renderToStaticMarkup(createElement(WeruMark97));
+    expect(sourceFlag.toLowerCase()).toContain('#d32f2f');
+    expect(appMark).toContain('class="boot97-brand-mark"');
+    expect(appMark).toContain('>W</text>');
+    expect(appMark).toContain('fill="#008000"');
+    expect(svgElements(appMark)).not.toEqual(svgElements(sourceFlag));
+    expect(appMark).not.toContain('#d32f2f');
+    expect(appMark).not.toContain('#1976d2');
   });
 
   it('retains source viewport, splash, cloud, flag, progress, and starting-text geometry', () => {
@@ -187,7 +191,7 @@ describe('BootSequence97 Stitch source contract', () => {
     const geometry = [
       ['.cloud-1', '.boot97-splash-cloud-one', ['width', 'height', 'top', 'left', 'opacity']],
       ['.cloud-2', '.boot97-splash-cloud-two', ['width', 'height', 'bottom', 'right', 'opacity']],
-      ['.win-flag-wrap', '.boot97-flag-wrap', ['width', 'height', 'margin-bottom', 'position', 'filter']],
+      ['.win-flag-wrap', '.boot97-brand-mark-wrap', ['width', 'height', 'margin-bottom', 'position', 'filter']],
       ['.progress-outer', '.boot97-progress-outer', ['width', 'height', 'padding', 'border', 'background']],
     ] as const;
     for (const [sourceSelector, appSelector, properties] of geometry) {
@@ -253,8 +257,14 @@ describe('BootSequence97 Stitch source contract', () => {
       }
     }
 
-    expect(bootComponentSource).toMatch(/className="boot97-flag-wrap">\s*<WeruFlag97\s*\/>/);
+    expect(bootComponentSource).toMatch(/className="boot97-brand-mark-wrap">\s*<WeruMark97\s*\/>/);
     expect(bootComponentSource).toMatch(/<div className="boot97-brand-title"><span>Weru<\/span>\s*<b>97<\/b><\/div>/);
     expect(bootComponentSource).not.toContain('Windows');
+  });
+
+  it('keeps an animated completed splash visible until filesystem readiness and carries its fade intent', () => {
+    expect(bootComponentSource).toContain('animateWhenReady.current = animate;');
+    expect(bootComponentSource).toContain('setStage(getBootWaitingStage97(stage, animate));');
+    expect(bootComponentSource).toContain('finish(animateWhenReady.current)');
   });
 });

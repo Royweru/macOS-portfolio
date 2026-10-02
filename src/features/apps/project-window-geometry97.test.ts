@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getProjectDocumentNotepadRect97,
   getProjectFolderExplorerRect97,
+  getExplorerNavigationRect97,
   getStitchProjectExplorerRect97,
   getStitchProjectNotepadRect97,
 } from './project-window-geometry97';
@@ -37,5 +38,20 @@ describe('project Explorer and Notepad geometry against Stitch', () => {
     expect(getProjectDocumentNotepadRect97({ id: 'project-adventures-readme', parentId: 'project-adventures' }, 0, wideViewport))
       .toEqual({ x: 320, y: 90, width: 580, height: 450 });
     expect(getProjectDocumentNotepadRect97({ id: 'file-about-me', parentId: 'folder-my-documents' }, 0, wideViewport)).toBeUndefined();
+  });
+
+  it('uses the correct Stitch layout as an Explorer navigates between system and project folders', () => {
+    const windows = [
+      { id: 'explorer-projects', appId: 'explorer', locationId: 'folder-projects' },
+      { id: 'explorer-other-project', appId: 'explorer', locationId: 'project-afyatrack' },
+      { id: 'notepad-readme', appId: 'notepad', locationId: 'project-adventures' },
+    ];
+
+    expect(getExplorerNavigationRect97('project-adventures', windows, 'explorer-projects', wideViewport))
+      .toEqual({ x: 132, y: 70, width: 620, height: 430 });
+    expect(getExplorerNavigationRect97('folder-projects', windows, 'explorer-other-project', wideViewport))
+      .toEqual({ x: 240, y: 90, width: 660, height: 440 });
+    expect(getExplorerNavigationRect97('folder-windows-system', windows, 'explorer-projects', wideViewport))
+      .toBeUndefined();
   });
 });
