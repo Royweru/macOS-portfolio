@@ -39,14 +39,14 @@ export const PERSONAL_VIDEOS: PersonalVideo[] = [
   {
     filename:"MoniePal video",
     title:"Showing moniepal process from login to sale register",
-    src:"/videos/moniepal_update_1.mp4"
+    src:"/media/videos/moniepal_update_1.mp4"
   }
 ];
 export const PERSONAL_PICTURES: PersonalPicture[] = [
 {
   filename:"profile-pic",
   title:"Weru profile picture",
-  src:"/pictures/profile_pic.png"
+  src:"/media/pictures/profile_pic.png"
 }
 ];
 export const PERSONAL_MUSIC: PersonalMusicTrack[] = [
@@ -54,7 +54,7 @@ export const PERSONAL_MUSIC: PersonalMusicTrack[] = [
     filename:"music1",
     title:"crsytal skies",
     artist:"vxllain",
-    src:"/music/crystal_skies.mp3"
+    src:"/media/music/crystal_skies.mp3"
   },
 ];
 
