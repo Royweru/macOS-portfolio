@@ -42,6 +42,7 @@ import ShutDown97 from './apps/system/ShutDown97';
 import SystemWarning97 from './apps/system/SystemWarning97';
 import Contact97 from './apps/system/Contact97';
 import ExternalBrowserFallback97 from './components/ExternalBrowserFallback97';
+import MobileDisplayGate97 from './components/mobile/MobileDisplayGate97';
 import { getBootWelcomeDelay97 } from './boot/boot-transition97';
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
@@ -349,6 +350,7 @@ function App() {
 
   useEffect(() => {
     if (!booted || !settings.screensaverEnabled) return;
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return;
     return attachScreensaverIdleTimer97(
       window,
       settings.screensaverTimeout * 1000,
@@ -365,10 +367,11 @@ function App() {
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-      // Do not dispatch desktop shortcuts while the screensaver is covering the shell.
+      // Do not dispatch desktop shortcuts while the screensaver is covering the shell,
+      // or when viewing on handheld/mobile screens (< 768px).
       // Escape is reserved for the active overlay (for example, screensaver or menu),
       // never for closing whichever application happens to have focus.
-      if (!booted || screensaver) return;
+      if (!booted || screensaver || (typeof window !== 'undefined' && window.innerWidth < 768)) return;
 
       if (!(e.metaKey || e.ctrlKey) || e.altKey || isTypingTarget(e.target)) return;
 
@@ -395,36 +398,42 @@ function App() {
 
   return (
     <div className="weru-app-root">
-      {/* ── Boot ────────────────────────────────────────────────────────── */}
-      {bootOverlayVisible && <BootSequence97 onRevealDesktop={finishBoot} onDone={hideBootOverlay} reducedMotion={settings.reducedMotion} ready={filesystem.ready || Boolean(filesystem.error)} />}
+      {/* ── Mobile Workstation Notice Gate (< 768px) ────────────────── */}
+      <MobileDisplayGate97 />
 
-      {filesystem.error && (
-        <div className="sr-only" role="status">
-          Portfolio filesystem unavailable: {filesystem.error.message}
-        </div>
-      )}
+      {/* ── Desktop Workstation Shell (>= 768px) ────────────────────── */}
+      <div className="weru-desktop-workstation">
+        {/* ── Boot ────────────────────────────────────────────────────────── */}
+        {bootOverlayVisible && <BootSequence97 onRevealDesktop={finishBoot} onDone={hideBootOverlay} reducedMotion={settings.reducedMotion} ready={filesystem.ready || Boolean(filesystem.error)} />}
 
-      {/* ── Desktop icons ───────────────────────────────────────────────── */}
-      {/* ── Windows ─────────────────────────────────────────────────────── */}
-      {booted && (filesystem.ready || Boolean(filesystem.error)) && <Shell97 openInstances={wm.activeWindows} focusedWindowId={wm.focusedWindowId} onOpenTarget={handleOpenTarget} onOpenWindow={handleOpen} onFocusWindow={wm.focusWindow} animateBootReveal={!settings.reducedMotion}>
-        <WindowManager97
-        windows={wm.activeWindows}
-        focusedWindowId={wm.focusedWindowId}
-        keyboardShortcutsEnabled={!screensaver}
-        onClose={handleCloseWindow}
-        onMinimize={wm.minimizeWindow}
-        onMaximize={wm.toggleMaximize}
-        onFocus={wm.focusWindow}
-        onMove={(id, rect) => { const current = wm.getRect(id); if (current) wm.updateRect(id, { ...current, ...rect }); }}
-        onResize={wm.updateRect}
-        onRepairRect={wm.updateRect}
-        renderContent={(instance) => <WindowContent id={instance.appId as WindowId} windowInstanceId={instance.id} projectId={instance.projectId} mediaAsset={mediaAsset} fileId={instance.fileId ?? notepadFileId} locationId={instance.locationId} terminalCwd={terminalCwd} onOpenTarget={handleOpenTarget} onExplorerFolderChange={handleExplorerFolderChange} onTerminalEffect={handleTerminalEffect} onOpenApp={handleOpenApp} onClose={() => handleCloseWindow(instance.id)} />}
-        />
-        {blockedExternalLink && <ExternalBrowserFallback97 href={blockedExternalLink.href} label={blockedExternalLink.label} onDismiss={() => setBlockedExternalLink(null)} />}
-      </Shell97>}
-      {showWizard && <WelcomeWizard97 onFinish={() => setShowWizard(false)} />}
-      {screensaver && <Screensaver97 onExit={exitScreensaver} reducedMotion={settings.reducedMotion} />}
-      {blueScreen && <BlueScreen97 onRecover={() => setBlueScreen(false)} />}
+        {filesystem.error && (
+          <div className="sr-only" role="status">
+            Portfolio filesystem unavailable: {filesystem.error.message}
+          </div>
+        )}
+
+        {/* ── Desktop icons ───────────────────────────────────────────────── */}
+        {/* ── Windows ─────────────────────────────────────────────────────── */}
+        {booted && (filesystem.ready || Boolean(filesystem.error)) && <Shell97 openInstances={wm.activeWindows} focusedWindowId={wm.focusedWindowId} onOpenTarget={handleOpenTarget} onOpenWindow={handleOpen} onFocusWindow={wm.focusWindow} animateBootReveal={!settings.reducedMotion}>
+          <WindowManager97
+          windows={wm.activeWindows}
+          focusedWindowId={wm.focusedWindowId}
+          keyboardShortcutsEnabled={!screensaver}
+          onClose={handleCloseWindow}
+          onMinimize={wm.minimizeWindow}
+          onMaximize={wm.toggleMaximize}
+          onFocus={wm.focusWindow}
+          onMove={(id, rect) => { const current = wm.getRect(id); if (current) wm.updateRect(id, { ...current, ...rect }); }}
+          onResize={wm.updateRect}
+          onRepairRect={wm.updateRect}
+          renderContent={(instance) => <WindowContent id={instance.appId as WindowId} windowInstanceId={instance.id} projectId={instance.projectId} mediaAsset={mediaAsset} fileId={instance.fileId ?? notepadFileId} locationId={instance.locationId} terminalCwd={terminalCwd} onOpenTarget={handleOpenTarget} onExplorerFolderChange={handleExplorerFolderChange} onTerminalEffect={handleTerminalEffect} onOpenApp={handleOpenApp} onClose={() => handleCloseWindow(instance.id)} />}
+          />
+          {blockedExternalLink && <ExternalBrowserFallback97 href={blockedExternalLink.href} label={blockedExternalLink.label} onDismiss={() => setBlockedExternalLink(null)} />}
+        </Shell97>}
+        {showWizard && <WelcomeWizard97 onFinish={() => setShowWizard(false)} />}
+        {screensaver && <Screensaver97 onExit={exitScreensaver} reducedMotion={settings.reducedMotion} />}
+        {blueScreen && <BlueScreen97 onRecover={() => setBlueScreen(false)} />}
+      </div>
     </div>
   );
 }

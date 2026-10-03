@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Weru 97 — Hardware Requirements Notice</title>
+<style>
+  /* Reset and base retro styles */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  :root {
+    --win-teal: #008080;
+    --win-gray: #c0c0c0;
+    --win-dark-gray: #808080;
+    --win-deep-shadow: #404040;
+    --win-light: #ffffff;
+    --win-navy-start: #000080;
+    --win-navy-end: #1084d0;
+    --win-blue-link: #000080;
+    --win-blue-visited: #551a8b;
+  }
+
+  html, body {
+    width: 100vw;
+    height: 100vh;
+    min-height: 100%;
+    overflow: hidden;
+    background-color: var(--win-teal);
+    font-family: "MS Sans Serif", Tahoma, Geneva, "Segoe UI", sans-serif;
+    font-size: 11px;
+    color: #000000;
+    image-rendering: pixelated;
+    cursor: default;
+  }
+
+  /* Authentic horizontal CRT scanline texture overlay */
+  .crt-scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.15) 50%
+    );
+    background-size: 100% 2px;
+  }
+
+  /* Viewport wrapper centered horizontally and vertically */
+  .desktop-viewport {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 14px;
+    z-index: 10;
+  }
+
+  /* Retro Beveled Window Container */
+  .win95-window {
+    width: 100%;
+    max-width: 380px;
+    background-color: var(--win-gray);
+    /* 3D double border: light top/left, dark bottom/right */
+    border: 2px solid;
+    border-color: var(--win-light) #000000 #000000 var(--win-light);
+    box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px var(--win-dark-gray);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* Active Titlebar */
+  .titlebar {
+    height: 24px;
+    margin: 2px 2px 0 2px;
+    padding: 0 4px 0 3px;
+    background: linear-gradient(90deg, var(--win-navy-start) 0%, var(--win-navy-end) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 11px;
+    letter-spacing: 0.2px;
+  }
+
+  .titlebar-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* Pixel CRT monitor icon inside titlebar (16x16) */
+  .title-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .titlebar-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* Close [X] Button */
+  .titlebar-close-btn {
+    width: 16px;
+    height: 14px;
+    background-color: var(--win-gray);
+    border: 1px solid;
+    border-color: var(--win-light) #000000 #000000 var(--win-light);
+    box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px var(--win-dark-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    font-family: Tahoma, sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    color: #000000;
+    padding: 0;
+  }
+
+  .titlebar-close-btn:active {
+    border-color: #000000 var(--win-light) var(--win-light) #000000;
+    box-shadow: inset 1px 1px 0px var(--win-dark-gray);
+    padding: 1px 0 0 1px;
+  }
+
+  /* Dialog Inner Content Body */
+  .dialog-body {
+    padding: 14px 12px 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: var(--win-gray);
+  }
+
+  /* Notice Header */
+  .notice-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .alert-icon-box {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .header-content {
+    flex: 1;
+  }
+
+  .dialog-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .dialog-desc {
+    font-size: 11px;
+    line-height: 1.35;
+    color: #000000;
+    margin-bottom: 5px;
+  }
+
+  .dialog-desc.secondary {
+    margin-bottom: 0;
+  }
+
+  /* Recessed Sunken Hardware Diagnostic Panel */
+  .sunken-panel {
+    background-color: #ffffff;
+    border: 2px solid;
+    border-color: var(--win-dark-gray) var(--win-light) var(--win-light) var(--win-dark-gray);
+    box-shadow: inset 1px 1px 0px #000000;
+    padding: 8px 10px;
+    font-family: "Courier New", Courier, Lucida Console, monospace;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #000000;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .sunken-panel .diagnostic-header {
+    font-weight: bold;
+    color: #000080;
+  }
+
+  .sunken-panel .diagnostic-alert {
+    font-weight: bold;
+    color: #b00000;
+  }
+
+  /* Windows 95 Action Button */
+  .action-row {
+    display: flex;
+    justify-content: center;
+    padding-top: 2px;
+  }
+
+  .win95-btn {
+    min-height: 28px;
+    background-color: var(--win-gray);
+    border: 2px solid;
+    border-color: var(--win-light) #000000 #000000 var(--win-light);
+    box-shadow: inset 1px 1px 0px #dfdfdf, inset -1px -1px 0px var(--win-dark-gray);
+    font-family: "MS Sans Serif", Tahoma, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000000;
+    padding: 4px 18px;
+    cursor: pointer;
+    outline: 1px dotted transparent;
+    outline-offset: -4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .win95-btn:focus {
+    outline-color: #000000;
+  }
+
+  .win95-btn:active, .win95-btn.clicked {
+    border-color: #000000 var(--win-light) var(--win-light) #000000;
+    box-shadow: inset 1px 1px 0px var(--win-dark-gray);
+    padding: 5px 17px 3px 19px;
+  }
+
+  /* Fieldset / Group Box */
+  .retro-fieldset {
+    border: 2px groove var(--win-light);
+    padding: 8px 10px 9px 10px;
+    margin-top: 2px;
+    position: relative;
+    background-color: var(--win-gray);
+  }
+
+  .retro-legend {
+    font-size: 11px;
+    font-weight: bold;
+    color: #000000;
+    padding: 0 4px;
+    margin-left: 4px;
+  }
+
+  .profile-line {
+    font-size: 11px;
+    color: #000000;
+    line-height: 1.35;
+    margin-bottom: 2px;
+  }
+
+  .profile-line.sub {
+    color: #333333;
+    margin-bottom: 6px;
+  }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 8px;
+    margin-top: 4px;
+  }
+
+  .retro-link {
+    color: var(--win-blue-link);
+    text-decoration: underline;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .retro-link:visited {
+    color: var(--win-blue-visited);
+  }
+
+  .retro-link:hover {
+    color: #ff0000;
+  }
+
+  .bullet-icon {
+    font-size: 8px;
+    display: inline-block;
+  }
+
+  /* Dialog Status Bar */
+  .status-bar {
+    height: 22px;
+    margin: 2px 2px 2px 2px;
+    display: flex;
+    gap: 3px;
+    background-color: var(--win-gray);
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .status-pane {
+    background-color: var(--win-gray);
+    border: 1px solid;
+    border-color: var(--win-dark-gray) var(--win-light) var(--win-light) var(--win-dark-gray);
+    padding: 2px 5px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .status-pane.left {
+    flex: 1;
+    color: #800000;
+    font-weight: 500;
+  }
+
+  .status-pane.right {
+    width: 76px;
+    justify-content: center;
+    font-weight: bold;
+    color: #404040;
+  }
+
+  /* Micro notification toast when simulated actions happen */
+  .system-toast {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffcc;
+    border: 1px solid #000000;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+    padding: 4px 10px;
+    font-size: 10px;
+    color: #000000;
+    display: none;
+    z-index: 100;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<!-- Subtle horizontal CRT scanlines -->
+<div class="crt-scanlines"></div>
+<main class="desktop-viewport" style="width: 100vw; min-height: 100vh; height: auto; display: flex; align-items: center; justify-content: center; padding: 12px 8px; box-sizing: border-box; overflow-y: auto;">
+<!-- Windows 95 Authentic Dialog Window -->
+<section aria-labelledby="dialog-title" class="win95-window" role="dialog" style="width: 100%; max-width: 374px; margin: 0 auto; box-sizing: border-box;">
+<!-- System Toast for Simulated Interaction -->
+<div class="system-toast" id="systemToast">URL copied to clipboard</div>
+<!-- Active Titlebar -->
+<header class="titlebar">
+<div class="titlebar-left">
+<!-- 16x16 Pixel CRT Monitor SVG -->
+<svg class="title-icon" fill="none" viewbox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+<rect fill="#d4d0c8" height="11" stroke="#000000" stroke-width="1" width="14" x="1" y="1"></rect>
+<rect fill="#000080" height="7" width="10" x="3" y="3"></rect>
+<rect fill="#1084d0" height="2" width="2" x="4" y="4"></rect>
+<rect fill="#808080" height="2" width="2" x="7" y="12"></rect>
+<rect fill="#000000" height="1" width="8" x="4" y="14"></rect>
+<rect fill="#00ff00" height="1" width="1" x="11" y="9"></rect>
+</svg>
+<span class="titlebar-text">Weru 97 — Hardware Requirements Notice</span>
+</div>
+<button aria-label="Close Dialog" class="titlebar-close-btn" id="btnClose" title="Close">✕</button>
+</header>
+<!-- Dialog Inner Body -->
+<div class="dialog-body">
+<!-- Header with Pixel Warning Triangle Icon -->
+<div class="notice-header">
+<div class="alert-icon-box">
+<!-- 32x32 Pixel Art Warning Triangle -->
+<svg fill="none" height="32" viewbox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg">
+<!-- Triangle Body -->
+<polygon fill="#ffff00" points="16,2 31,29 1,29" stroke="#000000" stroke-linejoin="round" stroke-width="2"></polygon>
+<!-- Inner highlight edge -->
+<polygon fill="#ffff00" points="16,5 28,27 4,27"></polygon>
+<!-- 3D drop shadow line inside yellow -->
+<line stroke="#d4c000" stroke-width="2" x1="16" x2="28" y1="6" y2="27"></line>
+<!-- Black exclamation mark -->
+<rect fill="#000000" height="10" width="4" x="14" y="10"></rect>
+<rect fill="#000000" height="3" width="4" x="14" y="22"></rect>
+</svg>
+</div>
+<div class="header-content">
+<h1 class="dialog-title" id="dialog-title">Workstation Display Required</h1>
+<p class="dialog-desc">
+            Weru 97 is a fully interactive desktop operating system simulating Windows 95 OSR 2.5, featuring multi-window multitasking, a virtual file system, and retro multimedia applications.
+          </p>
+<p class="dialog-desc secondary">
+            This workstation requires a mouse, keyboard, and a display resolution of at least 800×600 SVGA. Handheld mobile screens are not supported.
+          </p>
+</div>
+</div>
+<!-- Sunken Recessed Diagnostic Report Box -->
+<div aria-label="System Diagnostic Report" class="sunken-panel" style="padding: 6px 8px; font-size: 10.5px; line-height: 1.3; overflow-x: auto; -webkit-overflow-scrolling: touch;">----------------------------------------
+<span class="diagnostic-header">[ SYSTEM DIAGNOSTIC REPORT ]</span>
+Architecture:    x86 Workstation
+Target OS:       Microsoft Windows 97 OSR 2.5
+Detected Screen: Mobile / Handheld Viewport
+Required Screen: 800 x 600 SVGA or larger
+Input Device:    Touch Screen (No Mouse)
+Status:          <span class="diagnostic-alert">HALTED: Incompatible Display</span>
+----------------------------------------</div>
+<!-- Windows 95 Action Button -->
+<div class="action-row">
+<button class="win95-btn" id="btnCopyLink" style="min-height: 36px; padding: 6px 16px; font-size: 11px; touch-action: manipulation;">
+<!-- Small Pixel Chain/Link Icon -->
+<svg fill="none" height="12" viewbox="0 0 12 12" width="12" xmlns="http://www.w3.org/2000/svg">
+<rect fill="#000000" height="4" width="4" x="1" y="4"></rect>
+<rect fill="#c0c0c0" height="2" width="2" x="2" y="5"></rect>
+<rect fill="#000000" height="4" width="4" x="7" y="4"></rect>
+<rect fill="#c0c0c0" height="2" width="2" x="8" y="5"></rect>
+<rect fill="#000000" height="2" width="4" x="4" y="5"></rect>
+</svg>
+<span id="btnCopyText">Copy Portfolio Link</span>
+</button>
+</div>
+<!-- Retro Fieldset: Executive Summary & Contact -->
+<fieldset class="retro-fieldset">
+<legend class="retro-legend">Executive Summary &amp; Contact</legend>
+<p class="profile-line"><strong>Roy Weru</strong> — Full-Stack Software Engineer &amp; Creative Developer</p>
+<p class="profile-line sub">Location: Nairobi, Kenya</p>
+<div class="links-grid">
+<a class="retro-link" href="https://github.com/Royweru" rel="noopener noreferrer" target="_blank">
+<span class="bullet-icon">▸</span>GitHub: Royweru
+          </a>
+<a class="retro-link" href="https://linkedin.com/in/royweru" rel="noopener noreferrer" target="_blank">
+<span class="bullet-icon">▸</span>LinkedIn: royweru
+          </a>
+<a class="retro-link" href="mailto:royezi17@gmail.com">
+<span class="bullet-icon">▸</span>Email: royezi17@gmail.com
+          </a>
+<a class="retro-link" href="javascript:void(0)" id="linkResume">
+<span class="bullet-icon">▸</span>Download Resume.txt
+          </a>
+</div>
+</fieldset>
+</div>
+<!-- Dialog Status Bar -->
+<footer class="status-bar">
+<div class="status-pane left">
+<span>Error 0x7E: Screen resolution below minimum threshold</span>
+</div>
+<div class="status-pane right">
+<span>Weru 97</span>
+</div>
+</footer>
+</section>
+</main>
+<script>
+  // Interactive Button Behavior: Copy Portfolio Link
+  const btnCopy = document.getElementById('btnCopyLink');
+  const btnText = document.getElementById('btnCopyText');
+  const toast = document.getElementById('systemToast');
+  const btnClose = document.getElementById('btnClose');
+  const linkResume = document.getElementById('linkResume');
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 2200);
+  }
+
+  btnCopy.addEventListener('click', async () => {
+    const portfolioUrl = window.location.href || 'https://royweru.dev';
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(portfolioUrl);
+      }
+    } catch (err) {
+      console.log('Clipboard access handled:', err);
+    }
+    btnText.textContent = 'Link Copied to Clipboard';
+    btnCopy.classList.add('clicked');
+    showToast('Copied: ' + portfolioUrl);
+    
+    setTimeout(() => {
+      btnText.textContent = 'Copy Portfolio Link';
+      btnCopy.classList.remove('clicked');
+    }, 3000);
+  });
+
+  // Simulated close button action with retro beep feel
+  btnClose.addEventListener('click', () => {
+    showToast('Notice acknowledged. System halted.');
+  });
+
+  // Resume download simulation
+  linkResume.addEventListener('click', (e) => {
+    e.preventDefault();
+    const resumeContent = "Roy Weru - Full-Stack Software Engineer & Creative Developer\nLocation: Nairobi, Kenya\nContact: royezi17@gmail.com\nGitHub: github.com/Royweru\nLinkedIn: linkedin.com/in/royweru\n\nExperience:\n- Creative Engineering & Systems Architecture\n- WebGL, Three.js, React, Node.js, Python, TypeScript\n- High-performance UI/UX and Full-Stack Engineering";
+    const blob = new Blob([resumeContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Resume_Roy_Weru.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Downloading Resume.txt...');
+  });
+</script>
+</body>
+</html>

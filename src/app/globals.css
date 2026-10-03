@@ -9,6 +9,7 @@
 @import '../styles/wallpaper.css';
 @import '../styles/boot.css';
 @import '../styles/stitch97.css';
+@import '../styles/mobile-gate97.css';
 
 .app-loading-screen {
   position: fixed;
