@@ -14,14 +14,14 @@ import { getExplorerDetails97, getExplorerInitialView97, type ExplorerViewMode97
 const ROOT_ID: string = VIRTUAL_NODE_IDS.root;
 const QUICK_LOCATIONS = [
   { id: ROOT_ID, label: 'My Computer (C:)', icon: 'computer' },
-  { id: VIRTUAL_NODE_IDS.desktop, label: 'Desktop', icon: 'computer' },
+  { id: VIRTUAL_NODE_IDS.desktop, label: 'Desktop', icon: 'desktop' },
   { id: VIRTUAL_NODE_IDS.documents, label: 'My Documents', icon: 'folder' },
   { id: VIRTUAL_NODE_IDS.projects, label: 'Projects', icon: 'folder' },
   { id: VIRTUAL_NODE_IDS.videos, label: 'Videos', icon: 'video' },
   { id: VIRTUAL_NODE_IDS.pictures, label: 'Pictures', icon: 'paint' },
   { id: VIRTUAL_NODE_IDS.music, label: 'Music', icon: 'music' },
   { id: VIRTUAL_NODE_IDS.programFiles, label: 'Program Files', icon: 'folder' },
-  { id: VIRTUAL_NODE_IDS.windows, label: 'Windows', icon: 'computer' },
+  { id: VIRTUAL_NODE_IDS.windows, label: 'Windows', icon: 'folder' },
 ];
 
 type ClipboardItem = { nodeId: string; mode: 'copy' | 'cut' };

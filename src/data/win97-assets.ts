@@ -1,6 +1,7 @@
 export const WIN97_ASSETS = {
   icons: {
     computer: '/assets/win97/icons/computer.svg',
+    desktop: '/assets/win97/icons/desktop.svg',
     folder: '/assets/win97/icons/folder.svg',
     recycle: '/assets/win97/icons/recycle.svg',
     msdos: '/assets/win97/icons/msdos.svg',

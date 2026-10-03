@@ -89,6 +89,7 @@ interface AppIconProps {
 const PIXEL_ASSETS: Record<string, string> = {
   about: WIN97_ASSETS.icons.document,
   computer: WIN97_ASSETS.icons.computer,
+  desktop: WIN97_ASSETS.icons.desktop,
   explorer: WIN97_ASSETS.icons.folder,
   media: WIN97_ASSETS.icons.media,
   'internet-explorer': WIN97_ASSETS.icons.ie4,

@@ -13,7 +13,7 @@ describe('AppIcon classic asset coverage', () => {
     }
   });
 
-  it.each(['internet-explorer', 'about', 'experience', 'skills', 'contact'])(
+  it.each(['internet-explorer', 'about', 'experience', 'skills', 'contact', 'desktop'])(
     'keeps the %s compatibility alias on the pixel-art icon path',
     (appId) => {
       const markup = renderToStaticMarkup(createElement(AppIcon, { appId }));

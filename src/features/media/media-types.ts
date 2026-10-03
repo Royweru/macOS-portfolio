@@ -24,8 +24,18 @@ const ALLOWED_MEDIA_PREFIXES: Record<MediaKind, readonly string[]> = {
   image: ['/media/pictures/', '/media/images/'],
 } as const;
 
-export const isBundledMediaSource = (asset: Pick<MediaAsset, 'kind' | 'source'>) =>
-  ALLOWED_MEDIA_PREFIXES[asset.kind].some(prefix => asset.source.startsWith(prefix));
+export const normalizeMediaSource = (kind: MediaKind, source: string): string => {
+  if (source.startsWith('/media/')) return source;
+  if (kind === 'video' && source.startsWith('/videos/')) return `/media${source}`;
+  if (kind === 'audio' && (source.startsWith('/music/') || source.startsWith('/audio/'))) return `/media${source}`;
+  if (kind === 'image' && (source.startsWith('/pictures/') || source.startsWith('/images/'))) return `/media${source}`;
+  return source;
+};
+
+export const isBundledMediaSource = (asset: Pick<MediaAsset, 'kind' | 'source'>) => {
+  const normalizedSource = normalizeMediaSource(asset.kind, asset.source);
+  return ALLOWED_MEDIA_PREFIXES[asset.kind].some(prefix => normalizedSource.startsWith(prefix));
+};
 
 export const isSupportedMediaMimeType = (kind: MediaKind, mimeType: string) => {
   const normalized = mimeType.toLowerCase();

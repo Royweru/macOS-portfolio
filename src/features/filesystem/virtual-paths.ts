@@ -68,7 +68,7 @@ export const VIRTUAL_NODE_IDS = {
   desktopPicturesShortcut: 'desktop-lnk-my-pictures',
 } as const;
 
-export const VIRTUAL_LAYOUT_VERSION = 11;
+export const VIRTUAL_LAYOUT_VERSION = 12;
 
 export const normalizeVirtualPath = (input: string) => {
   const raw = input.trim().replaceAll('/', '\\');

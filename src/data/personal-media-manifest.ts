@@ -1,5 +1,5 @@
 import type { MediaAsset, MediaKind } from '../features/media/media-types';
-import { isBundledMediaSource, isSupportedMediaMimeType } from '../features/media/media-types';
+import { isBundledMediaSource, isSupportedMediaMimeType, normalizeMediaSource } from '../features/media/media-types';
 
 export interface PersonalVideo {
   filename: string;
@@ -37,24 +37,26 @@ export interface PersonalMediaEntry {
 // part of a project's folder or demo playlist by accident.
 export const PERSONAL_VIDEOS: PersonalVideo[] = [
   {
-    filename:"MoniePal video",
-    title:"Showing moniepal process from login to sale register",
-    src:"/media/videos/moniepal_update_1.mp4"
+    filename: "MoniePal video.mp4",
+    title: "Showing moniepal process from login to sale register",
+    src: "/media/videos/moniepal_update_1.mp4"
   }
 ];
+
 export const PERSONAL_PICTURES: PersonalPicture[] = [
-{
-  filename:"profile-pic",
-  title:"Weru profile picture",
-  src:"/media/pictures/profile_pic.png"
-}
+  {
+    filename: "profile_pic.png",
+    title: "Weru profile picture",
+    src: "/media/pictures/profile_pic.png"
+  }
 ];
+
 export const PERSONAL_MUSIC: PersonalMusicTrack[] = [
-    {
-    filename:"music1",
-    title:"crsytal skies",
-    artist:"vxllain",
-    src:"/media/music/crystal_skies.mp3"
+  {
+    filename: "crystal_skies.mp3",
+    title: "crystal skies",
+    artist: "vxllain",
+    src: "/media/music/crystal_skies.mp3"
   },
 ];
 
@@ -70,9 +72,32 @@ const MIME_BY_EXTENSION: Record<MediaKind, Record<string, string>> = {
   },
 };
 
-export const inferPersonalMediaMimeType = (kind: MediaKind, filename: string) => {
-  const extension = filename.split('.').at(-1)?.toLowerCase() ?? '';
+const extractExtension = (pathOrName: string): string => {
+  const clean = pathOrName.split(/[?#]/, 1)[0];
+  const lastPart = clean.split('/').filter(Boolean).at(-1) ?? clean;
+  if (!lastPart.includes('.')) return '';
+  return lastPart.split('.').at(-1)?.toLowerCase() ?? '';
+};
+
+export const inferPersonalMediaMimeType = (kind: MediaKind, filename: string, fallbackSrc?: string) => {
+  let extension = extractExtension(filename);
+  if (!extension || !MIME_BY_EXTENSION[kind][extension]) {
+    if (fallbackSrc) {
+      const srcExtension = extractExtension(fallbackSrc);
+      if (srcExtension && MIME_BY_EXTENSION[kind][srcExtension]) {
+        extension = srcExtension;
+      }
+    }
+  }
   return MIME_BY_EXTENSION[kind][extension] ?? '';
+};
+
+const ensurePersonalFilenameExtension = (filename: string, src: string, kind: MediaKind): string => {
+  if (filename.includes('.')) return filename;
+  const srcExt = extractExtension(src);
+  if (srcExt) return `${filename}.${srcExt}`;
+  const defaultExt: Record<MediaKind, string> = { video: 'mp4', image: 'png', audio: 'mp3' };
+  return `${filename}.${defaultExt[kind]}`;
 };
 
 const slug = (filename: string) => filename.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'asset';
@@ -82,12 +107,14 @@ const makeEntry = <T extends { filename: string; title: string; src: string; dur
   value: T,
   artist?: string,
 ): PersonalMediaEntry => {
-  const id = `personal-${kind}-${slug(value.filename)}`;
-  const mimeType = inferPersonalMediaMimeType(kind, value.filename);
+  const normalizedSrc = normalizeMediaSource(kind, value.src);
+  const mimeType = inferPersonalMediaMimeType(kind, value.filename, normalizedSrc);
+  const resolvedFilename = ensurePersonalFilenameExtension(value.filename, normalizedSrc, kind);
+  const id = `personal-${kind}-${slug(resolvedFilename)}`;
   return {
     id,
     kind,
-    filename: value.filename,
+    filename: resolvedFilename,
     mimeType,
     artist,
     asset: {
@@ -95,7 +122,7 @@ const makeEntry = <T extends { filename: string; title: string; src: string; dur
       projectId: 0,
       kind,
       title: value.title,
-      source: value.src,
+      source: normalizedSrc,
       mimeType,
       ...(value.durationSeconds === undefined ? {} : { durationSeconds: value.durationSeconds }),
       ...(value.poster ? { poster: value.poster } : {}),

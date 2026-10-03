@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isBundledMediaSource, isSupportedMediaMimeType } from './media-types';
+import { isBundledMediaSource, isSupportedMediaMimeType, normalizeMediaSource } from './media-types';
 
 describe('Win97 media associations', () => {
   it('accepts classic video, audio, and bitmap formats', () => {
@@ -19,5 +19,14 @@ describe('Win97 media associations', () => {
     expect(isBundledMediaSource({ kind: 'image', source: '/media/images/project-shot.png' })).toBe(true);
     expect(isBundledMediaSource({ kind: 'audio', source: '/media/audio/project-track.wav' })).toBe(true);
     expect(isBundledMediaSource({ kind: 'audio', source: '/media/videos/theme.wav' })).toBe(false);
+  });
+
+  it('normalizes shorthand media paths to canonical bundled roots', () => {
+    expect(normalizeMediaSource('video', '/videos/demo.mp4')).toBe('/media/videos/demo.mp4');
+    expect(normalizeMediaSource('image', '/pictures/photo.png')).toBe('/media/pictures/photo.png');
+    expect(normalizeMediaSource('audio', '/music/song.mp3')).toBe('/media/music/song.mp3');
+    expect(isBundledMediaSource({ kind: 'video', source: '/videos/demo.mp4' })).toBe(true);
+    expect(isBundledMediaSource({ kind: 'image', source: '/pictures/photo.png' })).toBe(true);
+    expect(isBundledMediaSource({ kind: 'audio', source: '/music/song.mp3' })).toBe(true);
   });
 });

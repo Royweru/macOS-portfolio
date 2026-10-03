@@ -207,9 +207,14 @@ export const mergeSyncedMediaNode97 = (node: VfsNode, existing: VfsNode): VfsNod
     && existing.name === 'demo.avi'
     && node.name !== existing.name;
 
+  const isPersonalMissingExtension = existing.id === node.id
+    && node.id.startsWith('personal-')
+    && !existing.name.includes('.')
+    && node.name.includes('.');
+
   return {
     ...node,
-    name: isLegacyGeneratedProjectDemo ? node.name : existing.name,
+    name: (isLegacyGeneratedProjectDemo || isPersonalMissingExtension) ? node.name : existing.name,
     content: existing.content,
     size: existing.size,
     createdAt: existing.createdAt,
@@ -222,6 +227,13 @@ const syncMediaNodes = async () => {
   const nodes = createMediaNodes();
   if (!nodes.length && !PROJECT_MEDIA_MANIFEST.length) return;
   await filesystemDb.transaction('rw', filesystemDb.nodes, async () => {
+    const validPersonalNodeIds = new Set(nodes.filter(n => n.id.startsWith('personal-')).map(n => n.id));
+    const allExisting = await filesystemDb.nodes.toArray();
+    for (const existingNode of allExisting) {
+      if (existingNode.id.startsWith('personal-') && (!validPersonalNodeIds.has(existingNode.id) || !existingNode.mimeType)) {
+        await filesystemDb.nodes.delete(existingNode.id);
+      }
+    }
     for (const node of nodes) {
       const existing = await filesystemDb.nodes.get(node.id);
       await filesystemDb.nodes.put(existing ? mergeSyncedMediaNode97(node, existing) : node);
